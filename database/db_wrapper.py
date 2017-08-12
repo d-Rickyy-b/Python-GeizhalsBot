@@ -50,6 +50,10 @@ class DBwrapper(object):
                            "PRIMARY KEY('userID'));")
             connection.commit()
             connection.close()
+
+        def close_conn(self):
+            self.connection.close()
+
     instance = None
 
     def __init__(self):
