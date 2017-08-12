@@ -31,22 +31,10 @@ class DBwrapper(object):
             connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             cursor = connection.cursor()
 
-            cursor.execute("CREATE TABLE 'admins' "
-                           "('userID' INTEGER NOT NULL,"
-                           "'first_name' TEXT,"
-                           "'username' TEXT,"
-                           "PRIMARY KEY('userID'));")
-
             cursor.execute("CREATE TABLE 'users'"
                            "('userID' INTEGER NOT NULL,"
                            "'languageID' TEXT,"
                            "'first_name' TEXT,"
-                           "'last_name' TEXT,"
-                           "'username' TEXT,"
-                           "'gamesPlayed' INTEGER,"
-                           "'gamesWon' INTEGER,"
-                           "'gamesTie' INTEGER,"
-                           "'lastPlayed' INTEGER,"
                            "PRIMARY KEY('userID'));")
             connection.commit()
             connection.close()
