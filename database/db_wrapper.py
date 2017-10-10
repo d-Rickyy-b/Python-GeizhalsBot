@@ -32,10 +32,21 @@ class DBwrapper(object):
             cursor = connection.cursor()
 
             cursor.execute("CREATE TABLE 'users'"
-                           "('userID' INTEGER NOT NULL,"
-                           "'languageID' TEXT,"
-                           "'first_name' TEXT,"
-                           "PRIMARY KEY('userID'));")
+                           "('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"
+                           "'lang_id' TEXT NOT NULL DEFAULT 'en',"
+                           "'first_name' TEXT);")
+
+            cursor.execute("CREATE TABLE 'wishlists'"
+                           "('wishlist_id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+                           "'price' REAL NOT NULL DEFAULT 0,"
+                           "'url' TEXT NOT NULL);")
+
+            cursor.execute("CREATE TABLE 'UsersWishlists'"
+                           "('wishlist_id' INTEGER NOT NULL UNIQUE,"
+                           "'user_id' INTEGER NOT NULL UNIQUE,"
+                           "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
+                           "FOREIGN KEY('user_id') REFERENCES users(user_id));")
+
             connection.commit()
             connection.close()
 
