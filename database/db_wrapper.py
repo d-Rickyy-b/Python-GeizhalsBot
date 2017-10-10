@@ -39,6 +39,44 @@ class DBwrapper(object):
             connection.commit()
             connection.close()
 
+        def get_user(self, user_id):
+            self.cursor.execute("SELECT * FROM users WHERE user_id=?;", [str(user_id)])
+
+            result = self.cursor.fetchone()
+            if len(result) > 0:
+                return result
+            else:
+                return []
+
+        def get_all_users(self):
+            self.cursor.execute("SELECT rowid, * FROM users;")
+            return self.cursor.fetchall()
+
+        def get_lang_id(self, user_id):
+            self.cursor.execute("SELECT lang_id FROM users WHERE user_id=?;", [str(user_id)])
+            result = self.cursor.fetchone()
+            if result:
+                return result[0]
+            else:
+                return "en"
+
+        def add_user(self, user_id, lang_id, first_name):
+            try:
+                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?);", (str(user_id), str(lang_id), str(first_name)))
+                self.connection.commit()
+            except sqlite3.IntegrityError:
+                # print("User already exists")
+                pass
+
+        def is_user_saved(self, user_id):
+            self.cursor.execute("SELECT rowid, * FROM users WHERE user_id=?;", [str(user_id)])
+
+            result = self.cursor.fetchall()
+            if len(result) > 0:
+                return True
+            else:
+                return False
+
         def close_conn(self):
             self.connection.close()
 
