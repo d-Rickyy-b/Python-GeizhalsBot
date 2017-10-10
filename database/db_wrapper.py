@@ -50,6 +50,32 @@ class DBwrapper(object):
             connection.commit()
             connection.close()
 
+        def get_wishlists(self, user_id):
+            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists "
+                                "INNER JOIN UsersWishlists on UsersWishlists.wishlist_id=wishlists.wishlist_id "
+                                "WHERE UsersWishlists.user_id=?;", [str(user_id)])
+            return self.cursor.fetchall()
+
+        def get_all_wishlists(self):
+            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists;")
+            return self.cursor.fetchall()
+
+        def get_wishlist_ids(self):
+            self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
+            return self.cursor.fetchall()
+
+        def subscribe_wishlist(self, id, user_id):
+            self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
+            self.connection.commit()
+
+        def add_wishlist(self, id, url, price):
+            self.cursor.execute("INSERT INTO wishlists VALUES (?, ?, ?);", [str(id), str(url), str(price)])
+            self.connection.commit()
+
+        def unsubscribe_wishlist(self, user_id, wishlist_id):
+            self.cursor.execute("DELETE FROM UsersWishlists WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
+            self.connection.commit()
+
         def get_user(self, user_id):
             self.cursor.execute("SELECT * FROM users WHERE user_id=?;", [str(user_id)])
 
@@ -58,6 +84,10 @@ class DBwrapper(object):
                 return result
             else:
                 return []
+
+        def get_users_from_wishlist(self, wishlist_id):
+            self.cursor.execute("Select user_id from 'UsersWishlists' INNER JOIN Wishlists on Wishlists.wishlist_id=UsersWishlists.wishlist_id WHERE UsersWishlists.wishlist_id=?;", [str(wishlist_id)])
+            return self.cursor.fetchall()
 
         def get_all_users(self):
             self.cursor.execute("SELECT rowid, * FROM users;")
