@@ -179,10 +179,10 @@ def check_for_price_update(bot, job):
     for wishlist in wishlists:
         price = wishlist.price()
         new_price = get_current_price(wishlist.url())
-            #TODO update price in database
+
         if price != new_price:
             wishlist.update_price(new_price)
-
+            #TODO update price in database
             for user in db.get_users_from_wishlist(wishlist.id()):
                 notify_user(bot, user, wishlist)
 
