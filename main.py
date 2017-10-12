@@ -48,21 +48,29 @@ def delete(bot, update):
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
+def add_wishlist(bot, update):
     text = update.message.text
-    url = text.split()[1]
     user_id = update.message.from_user.id
     first_name = update.message.from_user.first_name
     pattern = "https:\/\/geizhals\.(de|at)\/\?cat=WL-([0-9]+)"
     db = DBwrapper.get_instance()
+    url = ""
 
-    if not re.match(pattern, url):
-        if text.equals("/add"):
+    if not re.match(pattern, text):
+        if text == "/add":
             if not any(user_id in user for user in state_list):
                 state_list.append([user_id, STATE_SEND_LINK])
             bot.sendMessage(chat_id=user_id, text="Please send me an url!")
+            return
+        elif "/add " in text:
+            url = text.split()[1]
         else:
+            logger.log(level=logging.DEBUG, msg="Invalid url '{}'!".format(text))
             bot.sendMessage(chat_id=user_id, text="The url is invalid!")
-        return
+            return
+    else:
+        url = text
+
 
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
