@@ -48,6 +48,9 @@ def delete(bot, update):
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
+    add_wishlist(bot, update)
+
+
 def remove(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
