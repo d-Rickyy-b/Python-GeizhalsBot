@@ -137,19 +137,20 @@ def remove(bot, update):
 
 
 # Method to check all wishlists for price updates
-def check_for_price_update():
+def check_for_price_update(bot, job):
+    logger.log(level=logging.DEBUG, msg="Checking for updates!")
     db = DBwrapper.get_instance()
     wishlists = db.get_all_wishlists()
 
     for wishlist in wishlists:
-        price = float(wishlist.price)
-        new_price = get_current_price(wishlist.url)
+        price = wishlist.price()
+        new_price = get_current_price(wishlist.url())
 
         if price != new_price:
             wishlist.update_price(new_price)
 
             for user in db.get_users_from_wishlist(wishlist.id()):
-                notify_user(user, wishlist)
+                notify_user(bot, user, wishlist)
 
 
 def get_current_price(url):
@@ -200,11 +201,11 @@ def get_wishlist_name(url):
 
 
 # Notify a user that his wishlist updated it's price
-def notify_user(user_id, wishlist):
+def notify_user(bot, user_id, wishlist):
     # TODO lang_id = language
+    logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
-    tg_bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
-    raise NotImplementedError
+    bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
 # Handles the callbacks of inline keyboards
