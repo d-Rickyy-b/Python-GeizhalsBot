@@ -43,7 +43,6 @@ def delete(bot, update):
     # Ask user which wishlist he wants to delete
     pass
 
-# TODO delete_callback()
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
