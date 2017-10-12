@@ -127,9 +127,11 @@ def get_current_price(url):
     pattern_dash = "([0-9]+),([-]+)"
     price = price[2:]  # Cut off the '€ ' before the real price
 
-    #if re.match(pattern, price):
-    if re.match(pattern_dash, price):
-        price = float(re.search(pattern_dash, price).group(1))
+    if re.match(pattern, price):
+        if re.match(pattern_dash, price):
+            price = float(re.search(pattern_dash, price).group(1))
+    else:
+        raise ValueError("Couldn't parse price!")
 
     price_str = price + " €"
     print(price_str)
