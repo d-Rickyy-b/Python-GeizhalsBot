@@ -22,7 +22,13 @@ dispatcher = updater.dispatcher
 
 
 def start(bot, update):
+    user_id = update.message.from_user.id
+    first_name = update.message.from_user.first_name
+    db = DBwrapper.get_instance()
+
     # If user is here for the first time > Save him to the DB
+    if not db.is_user_saved(user_id):
+        db.add_user(user_id, "en", first_name)
     # Otherwise ask him what he wants to do
     # 1) Add new wishlist
     # 2) Delete wishlist
