@@ -140,12 +140,13 @@ def get_current_price(url):
     # notify_user(user_id)
     return price.replace(',', '.')
 
-def notify_user(user_id):
-    #TODO get name from wishlist, maybe save it to the database
-    # "Der Preis von [Name](url) hat sich geändert: <Preis>"
-    # lang_id = language
-    # bot.sendMessage(string...)
-    pass
+
+def notify_user(bot, user_id, wishlist):
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
+    # TODO lang_id = language
+    bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
+    raise NotImplementedError
+
 
 start_handler = CommandHandler('start', start)
 delete_handler = CommandHandler('delete', delete)
