@@ -87,7 +87,7 @@ def add(bot, update):
 
     if not url_in_list:
         logger.log(level=logging.DEBUG, msg="URL not in database!")
-        db.add_wishlist(id, name, url, price)
+        db.add_wishlist(id, name, price, url)
     else:
         logger.log(level=logging.DEBUG, msg="URL in database!")
 

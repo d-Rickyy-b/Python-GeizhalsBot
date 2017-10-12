@@ -77,8 +77,8 @@ class DBwrapper(object):
             self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
             self.connection.commit()
 
-        def add_wishlist(self, id, name, url, price):
-            self.cursor.execute("INSERT INTO wishlists VALUES (?, ?, ?, ?);", [str(id), str(name), str(url), str(price)])
+        def add_wishlist(self, id, name, price, url):
+            self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
             self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
