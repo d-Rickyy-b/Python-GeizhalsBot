@@ -4,7 +4,7 @@ class Wishlist(object):
         self.__id = int(id)
         self.__name = str(name)
         self.__url = str(url)
-        self.__price = str(price)
+        self.__price = float(price)
 
     def id(self):
         return self.__id
