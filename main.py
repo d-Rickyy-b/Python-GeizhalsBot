@@ -163,12 +163,31 @@ def notify_user(bot, user_id, wishlist):
     raise NotImplementedError
 
 
+# Handles the callbacks of inline keyboards
+def callback_handler_f(bot, update):
+    user_id = update.callback_query.from_user.id
+    inline_message_id = update.callback_query.inline_message_id
+    message_id = update.callback_query.message.message_id
+    callback_query_id = update.callback_query.id
+
+    db = DBwrapper.get_instance()
+
+    data = update.callback_query.data
+    action, chat_id, wishlist_id = data.split("_")
+
+    if action == "remove":
+        db.unsubscribe_wishlist(chat_id, wishlist_id)
+        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!")
+        bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
+
 start_handler = CommandHandler('start', start)
 delete_handler = CommandHandler('delete', delete)
 add_handler = CommandHandler('add', add)
+callback_handler = CallbackQueryHandler(callback_handler_f)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(delete_handler)
 dispatcher.add_handler(add_handler)
+dispatcher.add_handler(callback_handler)
 
 updater.start_polling()
