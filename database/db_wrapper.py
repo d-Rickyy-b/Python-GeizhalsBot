@@ -38,6 +38,7 @@ class DBwrapper(object):
 
             cursor.execute("CREATE TABLE 'wishlists'"
                            "('wishlist_id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+                           "'name' TEXT NOT NULL DEFAULT 'Kein Titel',"
                            "'price' REAL NOT NULL DEFAULT 0,"
                            "'url' TEXT NOT NULL);")
 
@@ -68,8 +69,8 @@ class DBwrapper(object):
             self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
             self.connection.commit()
 
-        def add_wishlist(self, id, url, price):
-            self.cursor.execute("INSERT INTO wishlists VALUES (?, ?, ?);", [str(id), str(url), str(price)])
+        def add_wishlist(self, id, name, url, price):
+            self.cursor.execute("INSERT INTO wishlists VALUES (?, ?, ?, ?);", [str(id), str(name), str(url), str(price)])
             self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
