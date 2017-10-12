@@ -141,6 +141,22 @@ def get_current_price(url):
     return price.replace(',', '.')
 
 
+def get_wishlist_name(url):
+    req = urllib.request.Request(
+        url,
+        data=None,
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        }
+    )
+
+    f = urllib.request.urlopen(req)
+    html = f.read().decode('utf-8')
+    pq = PyQuery(html)
+    name = pq('div h1.gh_listtitle').text()
+    return name
+
+
 def notify_user(bot, user_id, wishlist):
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
     # TODO lang_id = language
