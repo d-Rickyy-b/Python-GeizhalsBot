@@ -45,7 +45,7 @@ class DBwrapper(object):
 
             cursor.execute("CREATE TABLE 'UsersWishlists'"
                            "('wishlist_id' INTEGER NOT NULL UNIQUE,"
-                           "'user_id' INTEGER NOT NULL UNIQUE,"
+                           "'user_id' INTEGER NOT NULL,"
                            "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
                            "FOREIGN KEY('user_id') REFERENCES users(user_id));")
 
