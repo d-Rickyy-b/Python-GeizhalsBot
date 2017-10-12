@@ -172,5 +172,4 @@ dispatcher.add_handler(start_handler)
 dispatcher.add_handler(delete_handler)
 dispatcher.add_handler(add_handler)
 
-
 updater.start_polling()
