@@ -57,8 +57,9 @@ def add(bot, update):
     # Check if website is parsable!
     try:
         price = float(get_current_price(url))
+        name = str(get_wishlist_name(url))
     except:
-        bot.sendMessage(chat_id=user_id, text="The price cannot be parsed!")
+        bot.sendMessage(chat_id=user_id, text="Name or price cannot be obtained!")
         return
 
     print(db.get_wishlist_ids())
@@ -72,7 +73,7 @@ def add(bot, update):
 
     if not url_in_list:
         logger.log(level=logging.DEBUG, msg="URL not in database!")
-        db.add_wishlist(id, url, price)
+        db.add_wishlist(id, name, url, price)
     else:
         logger.log(level=logging.DEBUG, msg="URL in database!")
 
