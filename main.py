@@ -79,6 +79,7 @@ def add_wishlist(bot, update):
 
     # Check if website is parsable!
     try:
+        logger.log(level=logging.DEBUG, msg="URL is '{}'".format(url))
         price = float(get_current_price(url))
         name = str(get_wishlist_name(url))
     except:
@@ -153,7 +154,10 @@ def check_for_price_update(bot, job):
                 notify_user(bot, user, wishlist)
 
 
+# Get the current price of a certain wishlist
 def get_current_price(url):
+    logger.log(level=logging.DEBUG, msg="Requesting url '{}'!".format(url))
+
     req = urllib.request.Request(
         url,
         data=None,
