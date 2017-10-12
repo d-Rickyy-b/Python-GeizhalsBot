@@ -48,6 +48,26 @@ def delete(bot, update):
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
+def remove(bot, update):
+    user_id = update.message.from_user.id
+    db = DBwrapper.get_instance()
+    wishlists = db.get_wishlists_from_user(user_id)
+
+    if len(wishlists) == 0:
+        bot.sendMessage(user_id, "Noch keine Wunschliste!")
+        return
+
+    keyboard = []
+
+    for wishlist in wishlists:
+        button = [InlineKeyboardButton(wishlist.name(), callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+        keyboard.append(button)
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
+
+
 def handle_text(bot, update):
     user_id = update.message.from_user.id
 
@@ -123,28 +143,6 @@ def add_wishlist(bot, update):
         bot.sendMessage(user_id, "Wunschliste abboniert!")
         db.subscribe_wishlist(id, user_id)
 
-
-def remove(bot, update):
-    user_id = update.message.from_user.id
-    db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_from_user(user_id)
-
-    if len(wishlists) == 0:
-        bot.sendMessage(user_id, "Noch keine Wunschliste!")
-        return
-
-    keyboard = []
-
-    for wishlist in wishlists:
-        button = [InlineKeyboardButton(wishlist.name(), callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
-        keyboard.append(button)
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
-
-
-    pass
 
 
 # Method to check all wishlists for price updates
