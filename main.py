@@ -6,6 +6,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from database.db_wrapper import DBwrapper
 from wishlist import Wishlist
+from userstate import UserState
 import re
 from pyquery import PyQuery
 import urllib
@@ -24,6 +25,28 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 updater = Updater(token=BOT_TOKEN)
 dispatcher = updater.dispatcher
 tg_bot = updater.bot
+
+
+def set_state(user_id, state):
+    state_set = False
+
+    for userstate in state_list:
+        if userstate.user_id() == user_id:
+            state_set = True
+            break
+
+    if state_set == False:
+        state_list.append(UserState(user_id, state))
+
+
+def rm_state(user_id):
+    index = 0
+    for userstate in state_list:
+        if userstate.user_id() == user_id:
+            del state_list[index]
+            break
+
+        index += 1
 
 
 def start(bot, update):
@@ -74,9 +97,9 @@ def remove(bot, update):
 def handle_text(bot, update):
     user_id = update.message.from_user.id
 
-    for user in state_list:
-        if user_id == user[0]:
-            if user[1] == STATE_SEND_LINK:
+    for userstate in state_list:
+        if userstate.user_id() == user_id:
+            if userstate.state() == STATE_SEND_LINK:
                 add_wishlist(bot, update)
                 rm_state(user_id)
 
@@ -91,8 +114,7 @@ def add_wishlist(bot, update):
 
     if not re.match(pattern, text):
         if text == "/add":
-            if not any(user_id in user for user in state_list):
-                state_list.append([user_id, STATE_SEND_LINK])
+            set_state(user_id, STATE_SEND_LINK)
             bot.sendMessage(chat_id=user_id, text="Please send me an url!")
             return
         elif "/add " in text:
@@ -218,6 +240,7 @@ def get_wishlist_name(url):
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist):
     # TODO lang_id = language
+    #TODO format the float value to 2 comma places
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
     bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
