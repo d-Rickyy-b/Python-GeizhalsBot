@@ -15,6 +15,9 @@ __author__ = 'Rico'
 
 BOT_TOKEN = "<your_bot_token>"
 
+state_list = []
+STATE_SEND_LINK = 0
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 updater = Updater(token=BOT_TOKEN)
@@ -52,7 +55,12 @@ def add(bot, update):
     db = DBwrapper.get_instance()
 
     if not re.match(pattern, url):
-        bot.sendMessage(chat_id=user_id, text="The url is invalid!")
+        if text.equals("/add"):
+            if not any(user_id in user for user in state_list):
+                state_list.append([user_id, STATE_SEND_LINK])
+            bot.sendMessage(chat_id=user_id, text="Please send me an url!")
+        else:
+            bot.sendMessage(chat_id=user_id, text="The url is invalid!")
         return
 
     if not db.is_user_saved(user_id):
