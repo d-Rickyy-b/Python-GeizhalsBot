@@ -104,6 +104,16 @@ class DBwrapper(object):
 
             return users
 
+        def get_wishlists_from_user(self, user_id):
+            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'UsersWishlists' INNER JOIN Wishlists on Wishlists.wishlist_id=UsersWishlists.wishlist_id WHERE UsersWishlists.user_id=?;", [str(user_id)])
+            wishlist_l = self.cursor.fetchall()
+            wishlists = []
+
+            for line in wishlist_l:
+                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+
+            return wishlists
+
         def get_all_users(self):
             self.cursor.execute("SELECT rowid, * FROM users;")
             return self.cursor.fetchall()
