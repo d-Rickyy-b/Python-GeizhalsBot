@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sqlite3
+from wishlist import Wishlist
 
 __author__ = 'Rico'
 
@@ -58,8 +59,15 @@ class DBwrapper(object):
             return self.cursor.fetchall()
 
         def get_all_wishlists(self):
-            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists;")
-            return self.cursor.fetchall()
+            self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists;")
+            wishlist_l = self.cursor.fetchall()
+            wishlists = []
+
+            for line in wishlist_l:
+                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+
+            return wishlists
+
 
         def get_wishlist_ids(self):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
