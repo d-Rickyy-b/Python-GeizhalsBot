@@ -112,7 +112,7 @@ def add_wishlist(bot, update):
     user_subscribed = False
 
     for user in db.get_users_from_wishlist(id):
-        if user_id == int(user[0]):
+        if user_id == int(user):
             logger.log(level=logging.DEBUG, msg="User already subscribed!")
             user_subscribed = True
             break
