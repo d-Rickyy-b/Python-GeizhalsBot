@@ -108,7 +108,7 @@ def add_wishlist(bot, update):
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
 
-    id = int(re.search(pattern, text).group(2))
+    wishlist_id = int(re.search(pattern, text).group(2))
 
     # Check if website is parsable!
     try:
@@ -122,19 +122,19 @@ def add_wishlist(bot, update):
     url_in_list = False
 
     for element in db.get_wishlist_ids():
-        if id == int(element[0]):
+        if wishlist_id == int(element[0]):
             url_in_list = True
             break
 
     if not url_in_list:
         logger.log(level=logging.DEBUG, msg="URL not in database!")
-        db.add_wishlist(id, name, price, url)
+        db.add_wishlist(wishlist_id, name, price, url)
     else:
         logger.log(level=logging.DEBUG, msg="URL in database!")
 
     user_subscribed = False
 
-    for user in db.get_users_from_wishlist(id):
+    for user in db.get_users_from_wishlist(wishlist_id):
         if user_id == int(user):
             logger.log(level=logging.DEBUG, msg="User already subscribed!")
             bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
@@ -144,7 +144,7 @@ def add_wishlist(bot, update):
     if not user_subscribed:
         logger.log(level=logging.DEBUG, msg="Subscribing to wishlist.")
         bot.sendMessage(user_id, "Wunschliste abboniert!")
-        db.subscribe_wishlist(id, user_id)
+        db.subscribe_wishlist(wishlist_id, user_id)
 
 
 
