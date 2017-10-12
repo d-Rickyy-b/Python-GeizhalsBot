@@ -232,11 +232,13 @@ def callback_handler_f(bot, update):
 start_handler = CommandHandler('start', start)
 delete_handler = CommandHandler('delete', delete)
 add_handler = CommandHandler('add', add)
+text_handler = MessageHandler(Filters.text, handle_text)
 callback_handler = CallbackQueryHandler(callback_handler_f)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(delete_handler)
 dispatcher.add_handler(add_handler)
+dispatcher.add_handler(text_handler)
 dispatcher.add_handler(callback_handler)
 
 updater.start_polling()
