@@ -48,6 +48,16 @@ def delete(bot, update):
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
+def handle_text(bot, update):
+    user_id = update.message.from_user.id
+
+    for user in state_list:
+        if user_id == user[0]:
+            if user[1] == STATE_SEND_LINK:
+                add_wishlist(bot, update)
+                rm_state(user_id)
+
+
 def add_wishlist(bot, update):
     text = update.message.text
     user_id = update.message.from_user.id
