@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 updater = Updater(token=BOT_TOKEN)
 dispatcher = updater.dispatcher
+tg_bot = updater.bot
 
 
 def start(bot, update):
@@ -156,10 +157,11 @@ def get_wishlist_name(url):
     return name
 
 
-def notify_user(bot, user_id, wishlist):
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
+# Notify a user that his wishlist updated it's price
+def notify_user(user_id, wishlist):
     # TODO lang_id = language
-    bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
+    tg_bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
     raise NotImplementedError
 
 
