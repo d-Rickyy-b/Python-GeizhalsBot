@@ -96,8 +96,6 @@ def add_wishlist(bot, update):
         bot.sendMessage(chat_id=user_id, text="Name or price cannot be obtained!")
         return
 
-    print(db.get_wishlist_ids())
-
     url_in_list = False
 
     for element in db.get_wishlist_ids():
