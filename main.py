@@ -275,4 +275,7 @@ dispatcher.add_handler(add_handler)
 dispatcher.add_handler(text_handler)
 dispatcher.add_handler(callback_handler)
 
+updater.job_queue.run_repeating(callback=check_for_price_update, interval=60*30, first=5)
+updater.job_queue.start()
+
 updater.start_polling()
