@@ -4,6 +4,7 @@ import logging
 
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from database.db_wrapper import DBwrapper
+from wishlist import Wishlist
 import re
 from pyquery import PyQuery
 import urllib
