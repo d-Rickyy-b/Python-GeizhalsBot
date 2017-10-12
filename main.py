@@ -139,6 +139,7 @@ def get_current_price(url):
     return float(price)
 
 
+# Get the name of a wishlist
 def get_wishlist_name(url):
     req = urllib.request.Request(
         url,
@@ -151,7 +152,7 @@ def get_wishlist_name(url):
     f = urllib.request.urlopen(req)
     html = f.read().decode('utf-8')
     pq = PyQuery(html)
-    name = pq('div h1.gh_listtitle').text()
+    name = pq('h1.gh_listtitle').text()
     return name
 
 
