@@ -128,6 +128,22 @@ def remove(bot, update):
     pass
 
 
+# Method to check all wishlists for price updates
+def check_for_price_update():
+    db = DBwrapper.get_instance()
+    wishlists = db.get_all_wishlists()
+
+    for wishlist in wishlists:
+        price = float(wishlist.price)
+        new_price = get_current_price(wishlist.url)
+
+        if price != new_price:
+            wishlist.update_price(new_price)
+
+            for user in db.get_users_from_wishlist(wishlist.id()):
+                notify_user(user, wishlist)
+
+
 def get_current_price(url):
     req = urllib.request.Request(
         url,
