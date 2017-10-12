@@ -108,10 +108,10 @@ def get_current_price(url):
     pq = PyQuery(html)
     price = pq('div.productlist__footer-cell span.gh_price').text()
 
-    #TODO parse price so that it's a proper comma value (no `,--`)
+    # Parse price so that it's a proper comma value (no `,--`)
     pattern = "([0-9]+),([0-9]+|[-]+)"
     pattern_dash = "([0-9]+),([-]+)"
-    price = price[2:]
+    price = price[2:]  # Cut off the '€ ' before the real price
 
     #if re.match(pattern, price):
     if re.match(pattern_dash, price):
@@ -121,7 +121,7 @@ def get_current_price(url):
     print(price_str)
 
     # for user in db.get_users_from_wishlist()
-        # notify_user(user_id)
+    # notify_user(user_id)
     return price.replace(',', '.')
 
 def notify_user(user_id):
