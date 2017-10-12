@@ -43,7 +43,7 @@ def start(bot, update):
 
 def delete(bot, update):
     # Ask user which wishlist he wants to delete
-    pass
+    remove(bot, update)
 
 
 def add(bot, update):
@@ -105,8 +105,26 @@ def add(bot, update):
         db.subscribe_wishlist(id, user_id)
 
 
-def check_for_price_update(url):
-    # check for price update
+def remove(bot, update):
+    user_id = update.message.from_user.id
+    db = DBwrapper.get_instance()
+    wishlists = db.get_wishlists_from_user(user_id)
+
+    if len(wishlists) == 0:
+        bot.sendMessage(user_id, "Noch keine Wunschliste!")
+        return
+
+    keyboard = []
+
+    for wishlist in wishlists:
+        button = [InlineKeyboardButton(wishlist.name(), callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+        keyboard.append(button)
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
+
+
     pass
 
 
