@@ -86,7 +86,8 @@ def remove(bot, update):
     keyboard = []
 
     for wishlist in wishlists:
-        button = [InlineKeyboardButton(wishlist.name(), callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+        button = [InlineKeyboardButton(wishlist.name(),
+                                       callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
         keyboard.append(button)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -110,7 +111,6 @@ def add_wishlist(bot, update):
     first_name = update.message.from_user.first_name
     pattern = "https:\/\/geizhals\.(de|at)\/\?cat=WL-([0-9]+)"
     db = DBwrapper.get_instance()
-    url = ""
 
     if not re.match(pattern, text):
         if text == "/add":
@@ -125,7 +125,6 @@ def add_wishlist(bot, update):
             return
     else:
         url = text
-
 
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
@@ -169,7 +168,6 @@ def add_wishlist(bot, update):
         db.subscribe_wishlist(wishlist_id, user_id)
 
 
-
 # Method to check all wishlists for price updates
 def check_for_price_update(bot, job):
     logger.log(level=logging.DEBUG, msg="Checking for updates!")
@@ -182,7 +180,7 @@ def check_for_price_update(bot, job):
 
         if price != new_price:
             wishlist.update_price(new_price)
-            #TODO update price in database
+            # TODO update price in database
             for user in db.get_users_from_wishlist(wishlist.id()):
                 notify_user(bot, user, wishlist)
 
@@ -240,9 +238,11 @@ def get_wishlist_name(url):
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist):
     # TODO lang_id = language
-    #TODO format the float value to 2 comma places
+    # TODO format the float value to 2 comma places
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price())
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(),
+                                                                                    url=wishlist.url(),
+                                                                                    price=wishlist.price())
     bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
@@ -263,6 +263,7 @@ def callback_handler_f(bot, update):
         bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!")
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
 
+
 start_handler = CommandHandler('start', start)
 delete_handler = CommandHandler('delete', delete)
 add_handler = CommandHandler('add', add)
@@ -275,7 +276,7 @@ dispatcher.add_handler(add_handler)
 dispatcher.add_handler(text_handler)
 dispatcher.add_handler(callback_handler)
 
-updater.job_queue.run_repeating(callback=check_for_price_update, interval=60*30, first=5)
+updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=5)
 updater.job_queue.start()
 
 updater.start_polling()
