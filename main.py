@@ -286,7 +286,7 @@ def callback_handler_f(bot, update):
         db.unsubscribe_wishlist(chat_id, wishlist_id)
 
         keyboard = [[InlineKeyboardButton("Rückgängig",
-                                       callback_data='subscribe_{user_id}_{id}'.format(user_id=user_id, id=wishlist_id))]]
+                                          callback_data='subscribe_{user_id}_{id}'.format(user_id=user_id, id=wishlist_id))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!", reply_markup=reply_markup)
