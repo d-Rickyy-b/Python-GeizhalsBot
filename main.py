@@ -298,6 +298,10 @@ def callback_handler_f(bot, update):
         bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
 
 
+def unknown(bot, update):
+    bot.send_message(chat_id=update.message.chat_id, text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
+
+
 # Basic handlers for standard commands
 start_handler = CommandHandler('start', callback=start)
 
@@ -306,8 +310,10 @@ new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=a
 delete_handler = CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete)
 show_list_handler = CommandHandler('my_lists', my_lists)
 
+# Callback, Text and fallback handlers
 callback_handler = CallbackQueryHandler(callback_handler_f)
 text_handler = MessageHandler(Filters.text, handle_text)
+unknown_handler = MessageHandler(Filters.command, unknown)
 
 # Adding the handlers to the dispatcher
 dispatcher.add_handler(start_handler)
@@ -318,6 +324,7 @@ dispatcher.add_handler(show_list_handler)
 
 dispatcher.add_handler(callback_handler)
 dispatcher.add_handler(text_handler)
+dispatcher.add_handler(unknown_handler)
 
 # Scheduling the check for updates
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=5)
