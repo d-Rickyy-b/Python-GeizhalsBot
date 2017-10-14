@@ -84,7 +84,9 @@ def add(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
     if len(db.get_wishlists(user_id)) >= 5:
-        bot.sendMessage(user_id, "Du kannst zu maximal 5 Wunschlisten Nachrichten bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst mit /remove")
+        keyboard = [[InlineKeyboardButton("Liste auswählen", callback_data='removeMenu_-1')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        bot.sendMessage(user_id, "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.", reply_markup=reply_markup)
     else:
         add_wishlist(bot, update)
 
@@ -107,7 +109,11 @@ def my_lists(bot, update):
 
 # Remove a wishlist from a user's account
 def remove(bot, update):
-    user_id = update.message.from_user.id
+    try:
+        user_id = update.message.from_user.id
+    except AttributeError:
+        user_id = update.callback_query.from_user.id
+
     db = DBwrapper.get_instance()
     wishlists = db.get_wishlists_from_user(user_id)
 
@@ -328,6 +334,9 @@ def callback_handler_f(bot, update):
     elif action == "cancel":
         rm_state(user_id)
         bot.editMessageText(chat_id=user_id, message_id=message_id, text="Okay, Ich habe die Aktion abgebrochen!")
+    elif action == "removeMenu":
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
+        remove(bot, update)
 
 
 def unknown(bot, update):
