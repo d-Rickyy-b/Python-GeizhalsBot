@@ -256,7 +256,7 @@ def get_wishlist_name(url):
     return name
 
 
-def get_wishlist_keyboard(wishlists, action):
+def get_wishlist_keyboard(action, wishlists):
     keyboard = []
     buttons = []
 
