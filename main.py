@@ -33,7 +33,7 @@ def set_state(user_id, state):
             state_set = True
             break
 
-    if state_set == False:
+    if not state_set:
         state_list.append(UserState(user_id, state))
 
 
