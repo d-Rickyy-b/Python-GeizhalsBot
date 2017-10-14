@@ -10,7 +10,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from database.db_wrapper import DBwrapper
 from userstate import UserState
-from datetime import datetime, timedelta
+from datetime import datetime
 
 __author__ = 'Rico'
 
@@ -286,12 +286,13 @@ def notify_user(bot, user_id, wishlist, old_price):
         change = "billiger"
 
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
-                                                                                        url=wishlist.url(),
-                                                                                        price=wishlist.price(),
-                                                                                        emoji=emoji,
-                                                                                        diff=diff,
-                                                                                        change=change)
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
+              "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
+                                                        url=wishlist.url(),
+                                                        price=wishlist.price(),
+                                                        emoji=emoji,
+                                                        diff=diff,
+                                                        change=change)
     bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
