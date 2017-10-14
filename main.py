@@ -10,6 +10,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from database.db_wrapper import DBwrapper
 from userstate import UserState
+from datetime import datetime, timedelta
 
 __author__ = 'Rico'
 
@@ -346,7 +347,11 @@ dispatcher.add_handler(text_handler)
 dispatcher.add_handler(unknown_handler)
 
 # Scheduling the check for updates
-updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=5)
+dt = datetime.today()
+seconds = int(dt.timestamp())
+delta_t = (60 * 30) - (seconds % (60 * 30))
+
+updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=delta_t)
 updater.job_queue.start()
 
 updater.start_polling()
