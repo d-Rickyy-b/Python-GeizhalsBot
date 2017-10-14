@@ -9,6 +9,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton,
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from database.db_wrapper import DBwrapper
+from filters.own_filters import OwnFilters
 from userstate import UserState
 from datetime import datetime
 
@@ -342,6 +343,10 @@ new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=a
 delete_handler = CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete)
 show_list_handler = CommandHandler(['my_lists', 'show'], my_lists)
 
+new_list_mhandler = MessageHandler(OwnFilters.new_list, add)
+delete_mhandler = MessageHandler(OwnFilters.delete_list, delete)
+show_list_mhandler = MessageHandler(OwnFilters.my_lists, my_lists)
+
 # Callback, Text and fallback handlers
 callback_handler = CallbackQueryHandler(callback_handler_f)
 text_handler = MessageHandler(Filters.text, handle_text)
@@ -354,6 +359,9 @@ dispatcher.add_handler(help_handler)
 dispatcher.add_handler(new_list_handler)
 dispatcher.add_handler(delete_handler)
 dispatcher.add_handler(show_list_handler)
+dispatcher.add_handler(new_list_mhandler)
+dispatcher.add_handler(delete_mhandler)
+dispatcher.add_handler(show_list_mhandler)
 
 dispatcher.add_handler(callback_handler)
 dispatcher.add_handler(text_handler)
