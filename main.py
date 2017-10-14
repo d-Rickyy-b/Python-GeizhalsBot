@@ -80,7 +80,12 @@ def delete(bot, update):
 
 def add(bot, update):
     # TODO only allow up to 5 wishlists to check
-    add_wishlist(bot, update)
+    user_id = update.message.from_user.id
+    db = DBwrapper.get_instance()
+    if len(db.get_wishlists(user_id)) >= 5:
+        bot.sendMessage(user_id, "Du kannst zu maximal 5 Wunschlisten Nachrichten bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst mit /remove")
+    else:
+        add_wishlist(bot, update)
 
 
 # Sends the user a message with all his wishlists
