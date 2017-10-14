@@ -298,20 +298,28 @@ def callback_handler_f(bot, update):
         bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
 
 
-start_handler = CommandHandler('start', start)
-delete_handler = CommandHandler('delete', delete)
-text_handler = MessageHandler(Filters.text, handle_text)
-callback_handler = CallbackQueryHandler(callback_handler_f)
+# Basic handlers for standard commands
+start_handler = CommandHandler('start', callback=start)
+
+# Bot specific commands
 new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add)
+delete_handler = CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete)
 show_list_handler = CommandHandler('my_lists', my_lists)
 
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(delete_handler)
-dispatcher.add_handler(new_list_handler)
-dispatcher.add_handler(text_handler)
-dispatcher.add_handler(show_list_handler)
-dispatcher.add_handler(callback_handler)
+callback_handler = CallbackQueryHandler(callback_handler_f)
+text_handler = MessageHandler(Filters.text, handle_text)
 
+# Adding the handlers to the dispatcher
+dispatcher.add_handler(start_handler)
+
+dispatcher.add_handler(new_list_handler)
+dispatcher.add_handler(delete_handler)
+dispatcher.add_handler(show_list_handler)
+
+dispatcher.add_handler(callback_handler)
+dispatcher.add_handler(text_handler)
+
+# Scheduling the check for updates
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=5)
 updater.job_queue.start()
 
