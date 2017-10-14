@@ -72,6 +72,27 @@ def add(bot, update):
     add_wishlist(bot, update)
 
 
+# Sends the user a message with all his wishlists
+def my_lists(bot, update):
+    user_id = update.message.from_user.id
+    db = DBwrapper.get_instance()
+    wishlists = db.get_wishlists_from_user(user_id)
+
+    if len(wishlists) == 0:
+        bot.sendMessage(user_id, "Noch keine Wunschliste!")
+        return
+
+    keyboard = []
+
+    for wishlist in wishlists:
+        button = [InlineKeyboardButton(wishlist.name(),
+                                       callback_data='show_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+        keyboard.append(button)
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
+
+
 def remove(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
@@ -267,11 +288,13 @@ delete_handler = CommandHandler('delete', delete)
 add_handler = CommandHandler('add', add)
 text_handler = MessageHandler(Filters.text, handle_text)
 callback_handler = CallbackQueryHandler(callback_handler_f)
+show_list_handler = CommandHandler('my_lists', my_lists)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(delete_handler)
 dispatcher.add_handler(add_handler)
 dispatcher.add_handler(text_handler)
+dispatcher.add_handler(show_list_handler)
 dispatcher.add_handler(callback_handler)
 
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=5)
