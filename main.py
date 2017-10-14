@@ -104,6 +104,7 @@ def my_lists(bot, update):
     bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
 
 
+# Remove a wishlist from a user's account
 def remove(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
@@ -124,6 +125,7 @@ def remove(bot, update):
     bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
 
 
+# Process text sent to the bot (links)
 def handle_text(bot, update):
     user_id = update.message.from_user.id
 
