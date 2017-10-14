@@ -282,8 +282,21 @@ def callback_handler_f(bot, update):
 
     if action == "remove":
         db.unsubscribe_wishlist(chat_id, wishlist_id)
-        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!")
+
+        keyboard = [[InlineKeyboardButton("Rückgängig",
+                                       callback_data='subscribe_{user_id}_{id}'.format(user_id=user_id, id=wishlist_id))]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!", reply_markup=reply_markup)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
+    elif action == "show":
+        wishlist = db.get_wishlist_info(wishlist_id)
+        bot.editMessageText(chat_id=chat_id, message_id=message_id,
+                            text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price()),
+                            parse_mode="Markdown", disable_web_page_preview=True)
+    elif action == "subscribe":
+        db.subscribe_wishlist(wishlist_id, user_id)
+        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
 
 
 start_handler = CommandHandler('start', start)
