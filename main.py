@@ -99,20 +99,7 @@ def my_lists(bot, update):
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
         return
 
-    keyboard = []
-    buttons = []
-
-    for wishlist in wishlists:
-        button = InlineKeyboardButton(wishlist.name(), callback_data='show_{id}'.format(id=wishlist.id()))
-
-        if len(buttons) >= 2:
-            keyboard.append(buttons)
-            buttons = []
-
-        buttons.append(button)
-
-    if len(buttons) > 0:
-        keyboard.append(buttons)
+    keyboard = get_wishlist_keyboard("show", wishlists)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
@@ -128,12 +115,7 @@ def remove(bot, update):
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
         return
 
-    keyboard = []
-
-    for wishlist in wishlists:
-        button = [InlineKeyboardButton(wishlist.name(),
-                                       callback_data='remove_{id}'.format(id=wishlist.id()))]
-        keyboard.append(button)
+    keyboard = get_wishlist_keyboard("remove", wishlists)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
@@ -272,6 +254,25 @@ def get_wishlist_name(url):
     pq = PyQuery(html)
     name = pq('h1.gh_listtitle').text()
     return name
+
+
+def get_wishlist_keyboard(wishlists, action):
+    keyboard = []
+    buttons = []
+
+    for wishlist in wishlists:
+        button = InlineKeyboardButton(wishlist.name(), callback_data='{action}_{id}'.format(action="", id=wishlist.id()))
+
+        if len(buttons) >= 2:
+            keyboard.append(buttons)
+            buttons = []
+
+        buttons.append(button)
+
+    if len(buttons) > 0:
+        keyboard.append(buttons)
+
+    return keyboard
 
 
 # Notify a user that his wishlist updated it's price
