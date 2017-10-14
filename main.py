@@ -110,7 +110,6 @@ def remove(bot, update):
         keyboard.append(button)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
 
 
@@ -134,13 +133,13 @@ def add_wishlist(bot, update):
     if not re.match(pattern, text):
         if text == "/add":
             set_state(user_id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user_id, text="Please send me an url!")
+            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine url!")
             return
         elif "/add " in text:
             url = text.split()[1]
         else:
             logger.log(level=logging.DEBUG, msg="Invalid url '{}'!".format(text))
-            bot.sendMessage(chat_id=user_id, text="The url is invalid!")
+            bot.sendMessage(chat_id=user_id, text="Die url ist ungültig!")
             return
     else:
         url = text
@@ -156,7 +155,7 @@ def add_wishlist(bot, update):
         price = float(get_current_price(url))
         name = str(get_wishlist_name(url))
     except:
-        bot.sendMessage(chat_id=user_id, text="Name or price cannot be obtained!")
+        bot.sendMessage(chat_id=user_id, text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
         return
 
     url_in_list = False
