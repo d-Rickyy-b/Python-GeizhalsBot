@@ -157,15 +157,18 @@ def add_wishlist(bot, update):
     db = DBwrapper.get_instance()
 
     if not re.match(pattern, text):
+        keyboard = [[InlineKeyboardButton("Abbrechen", callback_data='cancel_-1')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
         if text == "/add" or text == "Neue Liste":
             set_state(user_id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine url!")
+            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine url!", reply_markup=reply_markup)
             return
         elif "/add " in text:
             url = text.split()[1]
         else:
             logger.log(level=logging.DEBUG, msg="Invalid url '{}'!".format(text))
-            bot.sendMessage(chat_id=user_id, text="Die url ist ungültig!")
+            bot.sendMessage(chat_id=user_id, text="Die url ist ungültig!", reply_markup=reply_markup)
             return
     else:
         url = text
@@ -307,6 +310,9 @@ def callback_handler_f(bot, update):
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
         bot.editMessageText(chat_id=user_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
+    elif action == "cancel":
+        rm_state(user_id)
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text="Okay, Ich habe die Aktion abgebrochen!")
 
 
 def unknown(bot, update):
