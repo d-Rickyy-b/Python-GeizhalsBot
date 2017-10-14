@@ -261,7 +261,7 @@ def get_wishlist_keyboard(wishlists, action):
     buttons = []
 
     for wishlist in wishlists:
-        button = InlineKeyboardButton(wishlist.name(), callback_data='{action}_{id}'.format(action="", id=wishlist.id()))
+        button = InlineKeyboardButton(wishlist.name(), callback_data='{action}_{id}'.format(action=action, id=wishlist.id()))
 
         if len(buttons) >= 2:
             keyboard.append(buttons)
