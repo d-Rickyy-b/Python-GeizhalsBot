@@ -5,7 +5,7 @@ import re
 import urllib
 
 from pyquery import PyQuery
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from database.db_wrapper import DBwrapper
@@ -55,11 +55,12 @@ def start(bot, update):
     # If user is here for the first time > Save him to the DB
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
+
     # Otherwise ask him what he wants to do
-    # 1) Add new wishlist
-    # 2) Delete wishlist
-    # 3) 
-    pass
+    keyboard = [[KeyboardButton("Neue Liste"), KeyboardButton("Liste löschen")], [KeyboardButton("Meine Wunschlisten")]]
+    reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+    bot.sendMessage(user_id, "Was möchtest du tun?", reply_markup=reply_markup)
+
 
 def help(bot, update):
     user_id = update.message.from_user.id
