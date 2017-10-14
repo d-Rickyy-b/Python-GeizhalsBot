@@ -220,7 +220,7 @@ def check_for_price_update(bot, job):
             db.update_price(wishlist_id=wishlist.id(), price=new_price)
 
             for user in db.get_users_from_wishlist(wishlist.id()):
-                notify_user(bot, user, wishlist)
+                notify_user(bot, user, wishlist, old_price)
 
 
 # Get the current price of a certain wishlist
@@ -274,7 +274,7 @@ def get_wishlist_name(url):
 
 
 # Notify a user that his wishlist updated it's price
-def notify_user(bot, user_id, wishlist):
+def notify_user(bot, user_id, wishlist, old_price):
     # TODO lang_id = language
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*".format(name=wishlist.name(),
