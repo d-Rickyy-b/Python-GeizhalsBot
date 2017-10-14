@@ -162,13 +162,13 @@ def add_wishlist(bot, update):
 
         if text == "/add" or text == "Neue Liste":
             set_state(user_id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine url!", reply_markup=reply_markup)
+            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine URL einer Wunschliste!", reply_markup=reply_markup)
             return
         elif "/add " in text:
             url = text.split()[1]
         else:
             logger.log(level=logging.DEBUG, msg="Invalid url '{}'!".format(text))
-            bot.sendMessage(chat_id=user_id, text="Die url ist ungültig!", reply_markup=reply_markup)
+            bot.sendMessage(chat_id=user_id, text="Die URL ist ungültig!", reply_markup=reply_markup)
             return
     else:
         url = text
