@@ -101,8 +101,7 @@ def my_lists(bot, update):
     buttons = []
 
     for wishlist in wishlists:
-        button = [InlineKeyboardButton(wishlist.name(),
-                                       callback_data='show_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+        button = InlineKeyboardButton(wishlist.name(), callback_data='show_{id}'.format(id=wishlist.id()))
 
         if len(buttons) >= 2:
             keyboard.append(buttons)
@@ -131,7 +130,7 @@ def remove(bot, update):
 
     for wishlist in wishlists:
         button = [InlineKeyboardButton(wishlist.name(),
-                                       callback_data='remove_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
+                                       callback_data='remove_{id}'.format(id=wishlist.id()))]
         keyboard.append(button)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -289,25 +288,24 @@ def callback_handler_f(bot, update):
     db = DBwrapper.get_instance()
 
     data = update.callback_query.data
-    action, chat_id, wishlist_id = data.split("_")
+    action, wishlist_id = data.split("_")
 
     if action == "remove":
-        db.unsubscribe_wishlist(chat_id, wishlist_id)
+        db.unsubscribe_wishlist(user_id, wishlist_id)
 
-        keyboard = [[InlineKeyboardButton("Rückgängig",
-                                          callback_data='subscribe_{user_id}_{id}'.format(user_id=user_id, id=wishlist_id))]]
+        keyboard = [[InlineKeyboardButton("Rückgängig", callback_data='subscribe_{id}'.format(id=wishlist_id))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!", reply_markup=reply_markup)
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text="Die Wunschliste wurde gelöscht!", reply_markup=reply_markup)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
     elif action == "show":
         wishlist = db.get_wishlist_info(wishlist_id)
-        bot.editMessageText(chat_id=chat_id, message_id=message_id,
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
                             text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price()),
                             parse_mode="Markdown", disable_web_page_preview=True)
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
-        bot.editMessageText(chat_id=chat_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text="Du hast die Wunschliste erneut abboniert!")
 
 
 def unknown(bot, update):
