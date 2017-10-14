@@ -3,6 +3,7 @@
 import logging
 import re
 import urllib
+from datetime import datetime
 
 from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
@@ -11,7 +12,6 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
-from datetime import datetime
 
 __author__ = 'Rico'
 
