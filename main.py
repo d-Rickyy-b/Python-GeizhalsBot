@@ -98,11 +98,20 @@ def my_lists(bot, update):
         return
 
     keyboard = []
+    buttons = []
 
     for wishlist in wishlists:
         button = [InlineKeyboardButton(wishlist.name(),
                                        callback_data='show_{user_id}_{id}'.format(user_id=user_id, id=wishlist.id()))]
-        keyboard.append(button)
+
+        if len(buttons) >= 2:
+            keyboard.append(buttons)
+            buttons = []
+
+        buttons.append(button)
+
+    if len(buttons) > 0:
+        keyboard.append(buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
