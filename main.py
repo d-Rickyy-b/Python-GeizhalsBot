@@ -61,6 +61,16 @@ def start(bot, update):
     # 3) 
     pass
 
+def help(bot, update):
+    user_id = update.message.from_user.id
+    help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
+                "/start	-	Startmenü" \
+                "/help	-	Zeigt diese Hilfe" \
+                "/add	-	Fügt neue Wunschliste hinzu" \
+                "/remove	-	Entfernt eine Wunschliste"
+
+    bot.sendMessage(user_id, help_text)
+
 
 def delete(bot, update):
     # Ask user which wishlist he wants to delete
@@ -304,6 +314,7 @@ def unknown(bot, update):
 
 # Basic handlers for standard commands
 start_handler = CommandHandler('start', callback=start)
+help_handler = CommandHandler(['help', 'hilfe'], callback=help)
 
 # Bot specific commands
 new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add)
@@ -317,6 +328,7 @@ unknown_handler = MessageHandler(Filters.command, unknown)
 
 # Adding the handlers to the dispatcher
 dispatcher.add_handler(start_handler)
+dispatcher.add_handler(help_handler)
 
 dispatcher.add_handler(new_list_handler)
 dispatcher.add_handler(delete_handler)
