@@ -67,6 +67,7 @@ def help(bot, update):
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
                 "/start	-	Startmenü\n" \
                 "/help	-	Zeigt diese Hilfe\n" \
+                "/show  -   Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
                 "/remove	-	Entfernt eine Wunschliste\n"
 
@@ -319,7 +320,7 @@ help_handler = CommandHandler(['help', 'hilfe'], callback=help)
 # Bot specific commands
 new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add)
 delete_handler = CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete)
-show_list_handler = CommandHandler('my_lists', my_lists)
+show_list_handler = CommandHandler(['my_lists', 'show'], my_lists)
 
 # Callback, Text and fallback handlers
 callback_handler = CallbackQueryHandler(callback_handler_f)
