@@ -79,12 +79,12 @@ class DBwrapper(object):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
             return self.cursor.fetchall()
 
-        def subscribe_wishlist(self, id, user_id):
-            self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
-            self.connection.commit()
-
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
+            self.connection.commit()
+
+        def subscribe_wishlist(self, id, user_id):
+            self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
             self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
