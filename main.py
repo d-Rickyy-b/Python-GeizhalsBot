@@ -65,10 +65,10 @@ def start(bot, update):
 def help(bot, update):
     user_id = update.message.from_user.id
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
-                "/start	-	Startmenü" \
-                "/help	-	Zeigt diese Hilfe" \
-                "/add	-	Fügt neue Wunschliste hinzu" \
-                "/remove	-	Entfernt eine Wunschliste"
+                "/start	-	Startmenü\n" \
+                "/help	-	Zeigt diese Hilfe\n" \
+                "/add	-	Fügt neue Wunschliste hinzu\n" \
+                "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
 
