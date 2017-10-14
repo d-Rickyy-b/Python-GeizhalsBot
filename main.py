@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
+import urllib
 
+from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+
 from database.db_wrapper import DBwrapper
-from wishlist import Wishlist
 from userstate import UserState
-import re
-from pyquery import PyQuery
-import urllib
-import socket
-import sys
 
 __author__ = 'Rico'
 

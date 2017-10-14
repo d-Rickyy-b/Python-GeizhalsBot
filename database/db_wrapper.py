@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sqlite3
+
 from wishlist import Wishlist
 
 __author__ = 'Rico'
