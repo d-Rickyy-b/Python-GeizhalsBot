@@ -44,7 +44,7 @@ class DBwrapper(object):
                            "'price' REAL NOT NULL DEFAULT 0,"
                            "'url' TEXT NOT NULL);")
 
-            cursor.execute("CREATE TABLE 'UsersWishlists'"
+            cursor.execute("CREATE TABLE 'subscribers'"
                            "('wishlist_id' INTEGER NOT NULL UNIQUE,"
                            "'user_id' INTEGER NOT NULL,"
                            "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
@@ -55,8 +55,8 @@ class DBwrapper(object):
 
         def get_wishlists(self, user_id):
             self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists "
-                                "INNER JOIN UsersWishlists on UsersWishlists.wishlist_id=wishlists.wishlist_id "
-                                "WHERE UsersWishlists.user_id=?;", [str(user_id)])
+                                "INNER JOIN subscribers on subscribers.wishlist_id=wishlists.wishlist_id "
+                                "WHERE subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchall()
 
         def get_all_wishlists(self):
@@ -88,11 +88,11 @@ class DBwrapper(object):
             self.connection.commit()
 
         def subscribe_wishlist(self, id, user_id):
-            self.cursor.execute("INSERT INTO UsersWishlists VALUES (?, ?);", [str(id), str(user_id)])
+            self.cursor.execute("INSERT INTO subscribers VALUES (?, ?);", [str(id), str(user_id)])
             self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
-            self.cursor.execute("DELETE FROM UsersWishlists WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
+            self.cursor.execute("DELETE FROM subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
 
         def get_user(self, user_id):
@@ -105,7 +105,7 @@ class DBwrapper(object):
                 return []
 
         def get_users_from_wishlist(self, wishlist_id):
-            self.cursor.execute("SELECT user_id FROM 'UsersWishlists' INNER JOIN Wishlists on Wishlists.wishlist_id=UsersWishlists.wishlist_id WHERE UsersWishlists.wishlist_id=?;", [str(wishlist_id)])
+            self.cursor.execute("SELECT user_id FROM 'subscribers' INNER JOIN Wishlists on Wishlists.wishlist_id=subscribers.wishlist_id WHERE subscribers.wishlist_id=?;", [str(wishlist_id)])
             user_list = self.cursor.fetchall()
             users = []
 
@@ -116,7 +116,7 @@ class DBwrapper(object):
 
         def get_wishlists_from_user(self, user_id):
             self.cursor.execute(
-                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'UsersWishlists' INNER JOIN Wishlists on Wishlists.wishlist_id=UsersWishlists.wishlist_id WHERE UsersWishlists.user_id=?;",
+                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'subscribers' INNER JOIN Wishlists on Wishlists.wishlist_id=subscribers.wishlist_id WHERE subscribers.user_id=?;",
                 [str(user_id)])
             wishlist_l = self.cursor.fetchall()
             wishlists = []
@@ -127,7 +127,7 @@ class DBwrapper(object):
             return wishlists
 
         def is_user_subscriber(self, user_id, wishlist_id):
-            self.cursor.execute("SELECT * FROM UsersWishlists WHERE UsersWishlists.user_id=? AND UsersWishlists.wishlist_id=?;", [str(user_id), str(wishlist_id)])
+            self.cursor.execute("SELECT * FROM subscribers WHERE subscribers.user_id=? AND subscribers.wishlist_id=?;", [str(user_id), str(wishlist_id)])
             return len(self.cursor.fetchone()) > 0
 
         def update_price(self, wishlist_id, price):
