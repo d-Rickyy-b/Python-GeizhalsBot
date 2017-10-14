@@ -81,7 +81,8 @@ class DBwrapper(object):
 
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
-            return len(self.cursor.fetchone()) > 0
+            result = self.cursor.fetchone()
+            return result and len(result) > 0
 
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
@@ -128,7 +129,8 @@ class DBwrapper(object):
 
         def is_user_subscriber(self, user_id, wishlist_id):
             self.cursor.execute("SELECT * FROM subscribers WHERE subscribers.user_id=? AND subscribers.wishlist_id=?;", [str(user_id), str(wishlist_id)])
-            return len(self.cursor.fetchone()) > 0
+            result = self.cursor.fetchone()
+            return result and len(result) > 0
 
         def update_price(self, wishlist_id, price):
             self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
