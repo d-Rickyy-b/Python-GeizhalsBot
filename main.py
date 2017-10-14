@@ -171,29 +171,16 @@ def add_wishlist(bot, update):
         bot.sendMessage(chat_id=user_id, text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
         return
 
-    url_in_list = False
-
-    for element in db.get_wishlist_ids():
-        if wishlist_id == int(element[0]):
-            url_in_list = True
-            break
-
-    if not url_in_list:
+    if not db.is_wishlist_saved(wishlist_id):
         logger.log(level=logging.DEBUG, msg="URL not in database!")
         db.add_wishlist(wishlist_id, name, price, url)
     else:
         logger.log(level=logging.DEBUG, msg="URL in database!")
 
-    user_subscribed = False
-
-    for user in db.get_users_from_wishlist(wishlist_id):
-        if user_id == int(user):
-            logger.log(level=logging.DEBUG, msg="User already subscribed!")
-            bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
-            user_subscribed = True
-            break
-
-    if not user_subscribed:
+    if db.is_user_subscriber(user_id, wishlist_id):
+        logger.log(level=logging.DEBUG, msg="User already subscribed!")
+        bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
+    else:
         logger.log(level=logging.DEBUG, msg="Subscribing to wishlist.")
         bot.sendMessage(user_id, "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name, url=url, price=price),
                         parse_mode="Markdown",
