@@ -79,7 +79,6 @@ def delete(bot, update):
 
 
 def add(bot, update):
-    # TODO only allow up to 5 wishlists to check
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
     if len(db.get_wishlists(user_id)) >= 5:
@@ -264,7 +263,6 @@ def get_wishlist_name(url):
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist):
     # TODO lang_id = language
-    # TODO format the float value to 2 comma places
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*".format(name=wishlist.name(),
                                                                                         url=wishlist.url(),
