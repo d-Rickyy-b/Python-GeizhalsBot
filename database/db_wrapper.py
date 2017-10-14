@@ -45,7 +45,7 @@ class DBwrapper(object):
                            "'url' TEXT NOT NULL);")
 
             cursor.execute("CREATE TABLE 'subscribers'"
-                           "('wishlist_id' INTEGER NOT NULL UNIQUE,"
+                           "('wishlist_id' INTEGER NOT NULL,"
                            "'user_id' INTEGER NOT NULL,"
                            "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
                            "FOREIGN KEY('user_id') REFERENCES users(user_id));")
