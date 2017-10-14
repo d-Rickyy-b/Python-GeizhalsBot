@@ -276,10 +276,22 @@ def get_wishlist_name(url):
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist, old_price):
     # TODO lang_id = language
+    diff = wishlist.price() - old_price
+
+    if diff > 0:
+        emoji = "📈"
+        change = "teurer"
+    else:
+        emoji = "📉"
+        change = "billiger"
+
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*".format(name=wishlist.name(),
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
                                                                                         url=wishlist.url(),
-                                                                                        price=wishlist.price())
+                                                                                        price=wishlist.price(),
+                                                                                        emoji=emoji,
+                                                                                        diff=diff,
+                                                                                        change=change)
     bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
