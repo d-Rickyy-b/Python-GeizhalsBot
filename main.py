@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 updater = Updater(token=BOT_TOKEN)
 dispatcher = updater.dispatcher
-tg_bot = updater.bot
 
 
 def set_state(user_id, state):
@@ -301,7 +300,6 @@ def notify_user(bot, user_id, wishlist, old_price):
 # Handles the callbacks of inline keyboards
 def callback_handler_f(bot, update):
     user_id = update.callback_query.from_user.id
-    inline_message_id = update.callback_query.inline_message_id
     message_id = update.callback_query.message.message_id
     callback_query_id = update.callback_query.id
 
