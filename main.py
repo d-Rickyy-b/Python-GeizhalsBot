@@ -157,7 +157,7 @@ def add_wishlist(bot, update):
     db = DBwrapper.get_instance()
 
     if not re.match(pattern, text):
-        if text == "/add":
+        if text == "/add" or text == "Neue Liste":
             set_state(user_id, STATE_SEND_LINK)
             bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine url!")
             return
