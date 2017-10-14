@@ -204,6 +204,7 @@ def add_wishlist(bot, update):
                         parse_mode="Markdown",
                         disable_web_page_preview=True)
         db.subscribe_wishlist(wishlist_id, user_id)
+        rm_state(user_id)
 
 
 # Method to check all wishlists for price updates
