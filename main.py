@@ -183,7 +183,9 @@ def add_wishlist(bot, update):
 
     if not user_subscribed:
         logger.log(level=logging.DEBUG, msg="Subscribing to wishlist.")
-        bot.sendMessage(user_id, "Wunschliste abboniert!")
+        bot.sendMessage(user_id, "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name, url=url, price=price),
+                        parse_mode="Markdown",
+                        disable_web_page_preview=True)
         db.subscribe_wishlist(wishlist_id, user_id)
 
 
