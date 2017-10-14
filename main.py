@@ -212,10 +212,10 @@ def check_for_price_update(bot, job):
     wishlists = db.get_all_wishlists()
 
     for wishlist in wishlists:
-        price = wishlist.price()
+        old_price = wishlist.price()
         new_price = get_current_price(wishlist.url())
 
-        if price != new_price:
+        if old_price != new_price:
             wishlist.update_price(new_price)
             db.update_price(wishlist_id=wishlist.id(), price=new_price)
 
