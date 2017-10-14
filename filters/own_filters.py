@@ -10,7 +10,7 @@ class OwnFilters(object):
 
     class _FilterDeleteList(BaseFilter):
         def filter(self, message):
-            return message.text.startswith("Liste Löschen")
+            return message.text.startswith("Liste löschen")
 
     delete_list = _FilterDeleteList()
 
