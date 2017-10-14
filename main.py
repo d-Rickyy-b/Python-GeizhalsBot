@@ -262,9 +262,9 @@ def notify_user(bot, user_id, wishlist):
     # TODO lang_id = language
     # TODO format the float value to 2 comma places
     logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price} €*".format(name=wishlist.name(),
-                                                                                    url=wishlist.url(),
-                                                                                    price=wishlist.price())
+    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*".format(name=wishlist.name(),
+                                                                                        url=wishlist.url(),
+                                                                                        price=wishlist.price())
     bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
