@@ -21,7 +21,7 @@ class DBwrapper(object):
                 except:
                     print("An error has occurred while creating the database!")
 
-            self.connection = sqlite3.connect(database_path)
+            self.connection = sqlite3.connect(database_path, check_same_thread=False)
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
 
