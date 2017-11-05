@@ -142,7 +142,7 @@ def add_wishlist(bot, update):
     text = update.message.text
     user_id = update.message.from_user.id
     first_name = update.message.from_user.first_name
-    pattern = "https:\/\/geizhals\.(de|at)\/\?cat=WL-([0-9]+)"
+    pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
     db = DBwrapper.get_instance()
 
     if not re.match(pattern, text):
