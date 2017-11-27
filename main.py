@@ -2,7 +2,7 @@
 
 import logging
 import re
-import urllib
+import urllib.request
 from datetime import datetime
 
 from pyquery import PyQuery
