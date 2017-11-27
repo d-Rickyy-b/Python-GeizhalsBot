@@ -3,6 +3,7 @@
 import logging
 import re
 import urllib.request
+from urllib.error import HTTPError
 from datetime import datetime
 
 from pyquery import PyQuery
@@ -172,7 +173,12 @@ def add_wishlist(bot, update):
         logger.log(level=logging.DEBUG, msg="URL is '{}'".format(url))
         price = float(get_current_price(url))
         name = str(get_wishlist_name(url))
-    except:
+    except HTTPError as e:
+        if e.code == 403:
+            bot.sendMessage(chat_id=user_id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
+        return
+    except Exception as e:
+        print(e)
         bot.sendMessage(chat_id=user_id, text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
         return
 
