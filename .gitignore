@@ -106,3 +106,4 @@ ENV/
 __pycache__
 *.db
 .vs
+config.py
