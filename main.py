@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 updater = Updater(token=BOT_TOKEN)
 dispatcher = updater.dispatcher
+useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 " \
+            "Safari/537.36"
 
 
 def set_state(user_id, state):
@@ -224,9 +227,7 @@ def get_current_price(url):
     req = urllib.request.Request(
         url,
         data=None,
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-        }
+        headers={'User-Agent': useragent}
     )
 
     f = urllib.request.urlopen(req)
@@ -255,9 +256,7 @@ def get_wishlist_name(url):
     req = urllib.request.Request(
         url,
         data=None,
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-        }
+        headers={'User-Agent': useragent}
     )
 
     f = urllib.request.urlopen(req)
