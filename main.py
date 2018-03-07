@@ -329,7 +329,7 @@ def notify_user(bot, user_id, wishlist, old_price):
         emoji = "📉"
         change = "billiger"
 
-    logger.debug("Notifying user {}!".format(user_id))
+    logger.info("Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
               "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
                                                         url=wishlist.url(),
