@@ -384,7 +384,8 @@ def callback_handler_f(bot, update):
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
     elif action == "removeMenu":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
+                            text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
+                                 "Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
         bot.answerCallbackQuery(callback_query_id=callback_query_id,
                                 text="Bitte lösche zuerst eine andere Wunschliste.")
         remove(bot, update)
