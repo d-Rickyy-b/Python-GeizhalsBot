@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import logging.handlers
 import re
 import urllib.request
 from datetime import datetime
@@ -14,14 +14,35 @@ from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
+import os
 
 __author__ = 'Rico'
 
 state_list = []
 STATE_SEND_LINK = 0
 
+
+def setup_logging():
+    global logger
+    logdir_path = os.path.dirname(os.path.abspath(__file__))
+    logfile_path = os.path.join(logdir_path, "logs", "bot.log")
+
+    if not os.path.exists(os.path.join(logdir_path, "logs")):
+        os.makedirs(os.path.join(logdir_path, "logs"))
+
+    logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO, handlers=[logfile_handler])
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+
+
+setup_logging()
+
+if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
+    logging.error("Bot token not correct - please check.")
+    exit(1)
+
 updater = Updater(token=BOT_TOKEN)
 dp = updater.dispatcher
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
