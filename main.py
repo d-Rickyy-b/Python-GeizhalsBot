@@ -23,7 +23,7 @@ STATE_SEND_LINK = 0
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 updater = Updater(token=BOT_TOKEN)
-dispatcher = updater.dispatcher
+dp = updater.dispatcher
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 " \
             "Safari/537.36"
@@ -393,19 +393,19 @@ text_handler = MessageHandler(Filters.text, handle_text)
 unknown_handler = MessageHandler(Filters.command, unknown)
 
 # Adding the handlers to the dispatcher
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(help_handler)
+dp.add_handler(start_handler)
+dp.add_handler(help_handler)
 
-dispatcher.add_handler(new_list_handler)
-dispatcher.add_handler(delete_handler)
-dispatcher.add_handler(show_list_handler)
-dispatcher.add_handler(new_list_mhandler)
-dispatcher.add_handler(delete_mhandler)
-dispatcher.add_handler(show_list_mhandler)
+dp.add_handler(new_list_handler)
+dp.add_handler(delete_handler)
+dp.add_handler(show_list_handler)
+dp.add_handler(new_list_mhandler)
+dp.add_handler(delete_mhandler)
+dp.add_handler(show_list_mhandler)
 
-dispatcher.add_handler(callback_handler)
-dispatcher.add_handler(text_handler)
-dispatcher.add_handler(unknown_handler)
+dp.add_handler(callback_handler)
+dp.add_handler(text_handler)
+dp.add_handler(unknown_handler)
 
 # Scheduling the check for updates
 dt = datetime.today()
