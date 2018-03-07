@@ -375,37 +375,22 @@ def unknown(bot, update):
 
 
 # Basic handlers for standard commands
-start_handler = CommandHandler('start', callback=start)
-help_handler = CommandHandler(['help', 'hilfe'], callback=help)
+dp.add_handler(CommandHandler('start', callback=start))
+dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help))
 
 # Bot specific commands
-new_list_handler = CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add)
-delete_handler = CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete)
-show_list_handler = CommandHandler(['my_lists', 'show'], my_lists)
+dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
+dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete))
+dp.add_handler(CommandHandler(['my_lists', 'show'], my_lists))
 
-new_list_mhandler = MessageHandler(OwnFilters.new_list, add)
-delete_mhandler = MessageHandler(OwnFilters.delete_list, delete)
-show_list_mhandler = MessageHandler(OwnFilters.my_lists, my_lists)
+dp.add_handler(MessageHandler(OwnFilters.new_list, add))
+dp.add_handler(MessageHandler(OwnFilters.delete_list, delete))
+dp.add_handler(MessageHandler(OwnFilters.my_lists, my_lists))
 
 # Callback, Text and fallback handlers
-callback_handler = CallbackQueryHandler(callback_handler_f)
-text_handler = MessageHandler(Filters.text, handle_text)
-unknown_handler = MessageHandler(Filters.command, unknown)
-
-# Adding the handlers to the dispatcher
-dp.add_handler(start_handler)
-dp.add_handler(help_handler)
-
-dp.add_handler(new_list_handler)
-dp.add_handler(delete_handler)
-dp.add_handler(show_list_handler)
-dp.add_handler(new_list_mhandler)
-dp.add_handler(delete_mhandler)
-dp.add_handler(show_list_mhandler)
-
-dp.add_handler(callback_handler)
-dp.add_handler(text_handler)
-dp.add_handler(unknown_handler)
+dp.add_handler(CallbackQueryHandler(callback_handler_f))
+dp.add_handler(MessageHandler(Filters.text, handle_text))
+dp.add_handler(MessageHandler(Filters.command, unknown))
 
 # Scheduling the check for updates
 dt = datetime.today()
