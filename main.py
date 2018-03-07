@@ -10,13 +10,12 @@ from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
+from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
 
 __author__ = 'Rico'
-
-BOT_TOKEN = "<your_bot_token>"
 
 state_list = []
 STATE_SEND_LINK = 0
