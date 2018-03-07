@@ -3,8 +3,8 @@
 import logging
 import re
 import urllib.request
-from urllib.error import HTTPError
 from datetime import datetime
+from urllib.error import HTTPError
 
 from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
@@ -89,7 +89,9 @@ def add(bot, update):
     if len(db.get_wishlists(user_id)) >= 5:
         keyboard = [[InlineKeyboardButton("Liste auswählen", callback_data='removeMenu_-1')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        bot.sendMessage(user_id, "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.", reply_markup=reply_markup)
+        bot.sendMessage(user_id,
+                        "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
+                        reply_markup=reply_markup)
     else:
         add_wishlist(bot, update)
 
@@ -154,13 +156,17 @@ def add_wishlist(bot, update):
 
         if text == "/add" or text == "Neue Liste":
             set_state(user_id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user_id, text="Bitte sende mir eine URL einer Wunschliste!", reply_markup=reply_markup)
+            bot.sendMessage(chat_id=user_id,
+                            text="Bitte sende mir eine URL einer Wunschliste!",
+                            reply_markup=reply_markup)
             return
         elif "/add " in text:
             url = text.split()[1]
         else:
-            bot.sendMessage(chat_id=user_id, text="Die URL ist ungültig!", reply_markup=reply_markup)
             logger.debug("Invalid url '{}'!".format(text))
+            bot.sendMessage(chat_id=user_id,
+                            text="Die URL ist ungültig!",
+                            reply_markup=reply_markup)
             return
     else:
         url = text
@@ -181,7 +187,8 @@ def add_wishlist(bot, update):
         return
     except Exception as e:
         print(e)
-        bot.sendMessage(chat_id=user_id, text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
+        bot.sendMessage(chat_id=user_id,
+                        text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
         return
 
     if not db.is_wishlist_saved(wishlist_id):
@@ -194,8 +201,11 @@ def add_wishlist(bot, update):
         logger.debug("User already subscribed!")
         bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
     else:
-        bot.sendMessage(user_id, "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name, url=url, price=price),
         logger.debug("Subscribing to wishlist.")
+        bot.sendMessage(user_id,
+                        "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name,
+                                                                                                         url=url,
+                                                                                                         price=price),
                         parse_mode="Markdown",
                         disable_web_page_preview=True)
         db.subscribe_wishlist(wishlist_id, user_id)
@@ -271,7 +281,8 @@ def get_wishlist_keyboard(action, wishlists):
     buttons = []
 
     for wishlist in wishlists:
-        button = InlineKeyboardButton(wishlist.name(), callback_data='{action}_{id}'.format(action=action, id=wishlist.id()))
+        button = InlineKeyboardButton(wishlist.name(),
+                                      callback_data='{action}_{id}'.format(action=action, id=wishlist.id()))
 
         if len(buttons) >= 2:
             keyboard.append(buttons)
@@ -328,18 +339,22 @@ def callback_handler_f(bot, update):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name(), url=wishlist.url()),
+                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name(),
+                                                                                          url=wishlist.url()),
                             reply_markup=reply_markup,
-                            parse_mode = "Markdown", disable_web_page_preview=True)
+                            parse_mode="Markdown", disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
     elif action == "show":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(name=wishlist.name(), url=wishlist.url(), price=wishlist.price()),
+                            text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(
+                                name=wishlist.name(), url=wishlist.url(), price=wishlist.price()),
                             parse_mode="Markdown", disable_web_page_preview=True)
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
-        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name(), url=wishlist.url())
-        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="Markdown", disable_web_page_preview=True)
+        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name(),
+                                                                                  url=wishlist.url())
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="Markdown",
+                            disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
     elif action == "cancel":
         rm_state(user_id)
@@ -347,13 +362,16 @@ def callback_handler_f(bot, update):
         bot.editMessageText(chat_id=user_id, message_id=message_id, text=text)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
     elif action == "removeMenu":
-        bot.editMessageText(chat_id=user_id, message_id=message_id, text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
-        bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Bitte lösche zuerst eine andere Wunschliste.")
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
+                            text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
+        bot.answerCallbackQuery(callback_query_id=callback_query_id,
+                                text="Bitte lösche zuerst eine andere Wunschliste.")
         remove(bot, update)
 
 
 def unknown(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
 
 # Basic handlers for standard commands
