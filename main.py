@@ -422,3 +422,4 @@ updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 3
 updater.job_queue.start()
 
 updater.start_polling()
+logger.info("Bot started")
