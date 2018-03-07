@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import logging.handlers
 import re
 import urllib.request
 from datetime import datetime
@@ -14,14 +14,35 @@ from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
+import os
 
 __author__ = 'Rico'
 
 state_list = []
 STATE_SEND_LINK = 0
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+
+def setup_logging():
+    global logger
+    logdir_path = os.path.dirname(os.path.abspath(__file__))
+    logfile_path = os.path.join(logdir_path, "logs", "bot.log")
+
+    if not os.path.exists(os.path.join(logdir_path, "logs")):
+        os.makedirs(os.path.join(logdir_path, "logs"))
+
+    logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO, handlers=[logfile_handler])
+
+    logger = logging.getLogger(__name__)
+
+
+setup_logging()
+
+if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
+    logging.error("Bot token not correct - please check.")
+    exit(1)
+
 updater = Updater(token=BOT_TOKEN)
 dp = updater.dispatcher
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
@@ -308,7 +329,7 @@ def notify_user(bot, user_id, wishlist, old_price):
         emoji = "📉"
         change = "billiger"
 
-    logger.debug("Notifying user {}!".format(user_id))
+    logger.info("Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
               "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
                                                         url=wishlist.url(),
@@ -363,7 +384,8 @@ def callback_handler_f(bot, update):
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
     elif action == "removeMenu":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
+                            text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
+                                 "Entferne doch eine Wunschliste, die du nicht mehr benötigst.")
         bot.answerCallbackQuery(callback_query_id=callback_query_id,
                                 text="Bitte lösche zuerst eine andere Wunschliste.")
         remove(bot, update)
@@ -401,3 +423,5 @@ updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 3
 updater.job_queue.start()
 
 updater.start_polling()
+logger.info("Bot started")
+updater.idle()
