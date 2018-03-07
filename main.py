@@ -156,8 +156,8 @@ def add_wishlist(bot, update):
         elif "/add " in text:
             url = text.split()[1]
         else:
-            logger.log(level=logging.DEBUG, msg="Invalid url '{}'!".format(text))
             bot.sendMessage(chat_id=user_id, text="Die URL ist ungültig!", reply_markup=reply_markup)
+            logger.debug("Invalid url '{}'!".format(text))
             return
     else:
         url = text
@@ -169,7 +169,7 @@ def add_wishlist(bot, update):
 
     # Check if website is parsable!
     try:
-        logger.log(level=logging.DEBUG, msg="URL is '{}'".format(url))
+        logger.debug("URL is '{}'".format(url))
         price = float(get_current_price(url))
         name = str(get_wishlist_name(url))
     except HTTPError as e:
@@ -182,17 +182,17 @@ def add_wishlist(bot, update):
         return
 
     if not db.is_wishlist_saved(wishlist_id):
-        logger.log(level=logging.DEBUG, msg="URL not in database!")
+        logger.debug("URL not in database!")
         db.add_wishlist(wishlist_id, name, price, url)
     else:
-        logger.log(level=logging.DEBUG, msg="URL in database!")
+        logger.debug("URL in database!")
 
     if db.is_user_subscriber(user_id, wishlist_id):
-        logger.log(level=logging.DEBUG, msg="User already subscribed!")
+        logger.debug("User already subscribed!")
         bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
     else:
-        logger.log(level=logging.DEBUG, msg="Subscribing to wishlist.")
         bot.sendMessage(user_id, "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name, url=url, price=price),
+        logger.debug("Subscribing to wishlist.")
                         parse_mode="Markdown",
                         disable_web_page_preview=True)
         db.subscribe_wishlist(wishlist_id, user_id)
@@ -201,7 +201,7 @@ def add_wishlist(bot, update):
 
 # Method to check all wishlists for price updates
 def check_for_price_update(bot, job):
-    logger.log(level=logging.DEBUG, msg="Checking for updates!")
+    logger.debug("Checking for updates!")
     db = DBwrapper.get_instance()
     wishlists = db.get_all_wishlists()
 
@@ -219,7 +219,7 @@ def check_for_price_update(bot, job):
 
 # Get the current price of a certain wishlist
 def get_current_price(url):
-    logger.log(level=logging.DEBUG, msg="Requesting url '{}'!".format(url))
+    logger.debug("Requesting url '{}'!".format(url))
 
     req = urllib.request.Request(
         url,
@@ -298,7 +298,7 @@ def notify_user(bot, user_id, wishlist, old_price):
         emoji = "📉"
         change = "billiger"
 
-    logger.log(level=logging.DEBUG, msg="Notifying user {}!".format(user_id))
+    logger.debug("Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
               "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
                                                         url=wishlist.url(),
