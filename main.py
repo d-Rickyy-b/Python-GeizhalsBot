@@ -240,14 +240,21 @@ def check_for_price_update(bot, job):
     wishlists = db.get_all_wishlists()
 
     for wishlist in wishlists:
-        old_price = wishlist.price()
-        new_price = get_current_price(wishlist.url())
+        try:
+            logger.info("URL is '{}'".format(wishlist.url))
+            old_price = wishlist.price
+            new_price = get_current_price(wishlist.url)
+        except HTTPError as e:
+            if e.code == 403:
+                logger.error("Wunschliste ist nicht öffentlich!")
+        except Exception as e:
+            logger.error(e)
 
         if old_price != new_price:
-            wishlist.update_price(new_price)
-            db.update_price(wishlist_id=wishlist.id(), price=new_price)
+            wishlist.price = new_price
+            db.update_price(wishlist_id=wishlist.id, price=new_price)
 
-            for user in db.get_users_from_wishlist(wishlist.id()):
+            for user in db.get_users_from_wishlist(wishlist.id):
                 notify_user(bot, user, wishlist, old_price)
 
 
@@ -302,8 +309,8 @@ def get_wishlist_keyboard(action, wishlists):
     buttons = []
 
     for wishlist in wishlists:
-        button = InlineKeyboardButton(wishlist.name(),
-                                      callback_data='{action}_{id}'.format(action=action, id=wishlist.id()))
+        button = InlineKeyboardButton(wishlist.name,
+                                      callback_data='{action}_{id}'.format(action=action, id=wishlist.id))
 
         if len(buttons) >= 2:
             keyboard.append(buttons)
@@ -320,7 +327,7 @@ def get_wishlist_keyboard(action, wishlists):
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist, old_price):
     # TODO lang_id = language
-    diff = wishlist.price() - old_price
+    diff = wishlist.price - old_price
 
     if diff > 0:
         emoji = "📈"
@@ -331,9 +338,9 @@ def notify_user(bot, user_id, wishlist, old_price):
 
     logger.info("Notifying user {}!".format(user_id))
     message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
-              "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name(),
-                                                        url=wishlist.url(),
-                                                        price=wishlist.price(),
+              "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name,
+                                                        url=wishlist.url,
+                                                        price=wishlist.price,
                                                         emoji=emoji,
                                                         diff=diff,
                                                         change=change)
@@ -360,20 +367,20 @@ def callback_handler_f(bot, update):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name(),
-                                                                                          url=wishlist.url()),
+                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name,
+                                                                                          url=wishlist.url),
                             reply_markup=reply_markup,
                             parse_mode="Markdown", disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
     elif action == "show":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
                             text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(
-                                name=wishlist.name(), url=wishlist.url(), price=wishlist.price()),
+                                name=wishlist.name, url=wishlist.url, price=wishlist.price),
                             parse_mode="Markdown", disable_web_page_preview=True)
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
-        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name(),
-                                                                                  url=wishlist.url())
+        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name,
+                                                                                  url=wishlist.url)
         bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="Markdown",
                             disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
