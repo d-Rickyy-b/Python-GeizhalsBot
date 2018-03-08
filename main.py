@@ -240,8 +240,15 @@ def check_for_price_update(bot, job):
     wishlists = db.get_all_wishlists()
 
     for wishlist in wishlists:
-        old_price = wishlist.price()
-        new_price = get_current_price(wishlist.url())
+        try:
+            logger.info("URL is '{}'".format(wishlist.url))
+            old_price = wishlist.price
+            new_price = get_current_price(wishlist.url)
+        except HTTPError as e:
+            if e.code == 403:
+                logger.error("Wunschliste ist nicht öffentlich!")
+        except Exception as e:
+            logger.error(e)
 
         if old_price != new_price:
             wishlist.price = new_price
