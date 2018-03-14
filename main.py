@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging.handlers
+import os
 import re
 import urllib.request
 from datetime import datetime
@@ -14,7 +15,6 @@ from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
-import os
 
 __author__ = 'Rico'
 
