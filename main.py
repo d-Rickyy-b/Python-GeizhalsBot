@@ -358,7 +358,10 @@ def callback_handler_f(bot, update):
     data = update.callback_query.data
     action, wishlist_id = data.split("_")
 
-    wishlist = db.get_wishlist_info(wishlist_id)
+    if wishlist_id == -1 and (action != "cancel" or action != "remvoveMenu"):
+        wishlist = None
+    else:
+        wishlist = db.get_wishlist_info(wishlist_id)
 
     if action == "remove":
         db.unsubscribe_wishlist(user_id, wishlist_id)
