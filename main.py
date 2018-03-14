@@ -247,6 +247,13 @@ def check_for_price_update(bot, job):
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
+
+                for user in db.get_users_from_wishlist(wishlist.id):
+                    wishlist_hidden = "Die Wunschliste [{name}]({url}) ist leider nicht mehr einsehbar. " \
+                                      "Ich entferne sie von deinen Wunschlisten.".format(name=wishlist.name, url=wishlist.url)
+                    bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
+                    db.unsubscribe_wishlist(user, wishlist.id)
+                db.rm_wishlist(wishlist.id)
         except Exception as e:
             logger.error(e)
 
