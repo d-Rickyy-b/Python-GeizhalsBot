@@ -73,7 +73,10 @@ class DBwrapper(object):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
             wishlist = self.cursor.fetchone()
 
-            return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+            if wishlist is not None:
+                return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+
+            return None
 
         def get_wishlist_ids(self):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
@@ -86,6 +89,10 @@ class DBwrapper(object):
 
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
+            self.connection.commit()
+
+        def rm_wishlist(self, wishlist_id):
+            self.cursor.execute("DELETE FROM wishlists WHERE wishlists.wishlist_id=?", [str(wishlist_id)])
             self.connection.commit()
 
         def subscribe_wishlist(self, id, user_id):

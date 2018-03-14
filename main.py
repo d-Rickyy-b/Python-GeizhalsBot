@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging.handlers
+import os
 import re
 import urllib.request
 from datetime import datetime
@@ -14,7 +15,6 @@ from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
-import os
 
 __author__ = 'Rico'
 
@@ -247,6 +247,13 @@ def check_for_price_update(bot, job):
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
+
+                for user in db.get_users_from_wishlist(wishlist.id):
+                    wishlist_hidden = "Die Wunschliste [{name}]({url}) ist leider nicht mehr einsehbar. " \
+                                      "Ich entferne sie von deinen Wunschlisten.".format(name=wishlist.name, url=wishlist.url)
+                    bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
+                    db.unsubscribe_wishlist(user, wishlist.id)
+                db.rm_wishlist(wishlist.id)
         except Exception as e:
             logger.error(e)
 
@@ -358,7 +365,17 @@ def callback_handler_f(bot, update):
     data = update.callback_query.data
     action, wishlist_id = data.split("_")
 
-    wishlist = db.get_wishlist_info(wishlist_id)
+    if wishlist_id == -1 and (action != "cancel" or action != "remvoveMenu"):
+        wishlist = None
+    else:
+        wishlist = db.get_wishlist_info(wishlist_id)
+
+        if wishlist is None:
+            bot.answerCallbackQuery(callback_query_id=callback_query_id,
+                                    text="Die Wunschliste existiert nicht!")
+            bot.editMessageText(chat_id=user_id, message_id=message_id,
+                                text="Die Wunschliste existiert nicht!")
+            return
 
     if action == "remove":
         db.unsubscribe_wishlist(user_id, wishlist_id)
@@ -430,5 +447,5 @@ updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 3
 updater.job_queue.start()
 
 updater.start_polling()
-logger.info("Bot started")
+logger.info("Bot started as @{}".format(updater.bot.username))
 updater.idle()
