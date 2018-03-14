@@ -73,7 +73,10 @@ class DBwrapper(object):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
             wishlist = self.cursor.fetchone()
 
-            return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+            if wishlist is not None:
+                return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+
+            return None
 
         def get_wishlist_ids(self):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
