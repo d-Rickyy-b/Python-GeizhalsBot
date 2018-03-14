@@ -370,6 +370,13 @@ def callback_handler_f(bot, update):
     else:
         wishlist = db.get_wishlist_info(wishlist_id)
 
+        if wishlist is None:
+            bot.answerCallbackQuery(callback_query_id=callback_query_id,
+                                    text="Die Wunschliste existiert nicht!")
+            bot.editMessageText(chat_id=user_id, message_id=message_id,
+                                text="Die Wunschliste existiert nicht!")
+            return
+
     if action == "remove":
         db.unsubscribe_wishlist(user_id, wishlist_id)
 
