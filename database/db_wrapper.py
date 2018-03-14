@@ -91,6 +91,10 @@ class DBwrapper(object):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
             self.connection.commit()
 
+        def rm_wishlist(self, wishlist_id):
+            self.cursor.execute("DELETE FROM wishlists WHERE wishlists.wishlist_id=?", [str(wishlist_id)])
+            self.connection.commit()
+
         def subscribe_wishlist(self, id, user_id):
             self.cursor.execute("INSERT INTO subscribers VALUES (?, ?);", [str(id), str(user_id)])
             self.connection.commit()
