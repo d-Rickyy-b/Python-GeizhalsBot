@@ -241,7 +241,7 @@ def check_for_price_update(bot, job):
 
     for wishlist in wishlists:
         try:
-            logger.info("URL is '{}'".format(wishlist.url))
+            logger.debug("URL is '{}'".format(wishlist.url))
             old_price = wishlist.price
             new_price = get_current_price(wishlist.url)
         except HTTPError as e:
