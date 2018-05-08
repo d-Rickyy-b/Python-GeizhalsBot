@@ -9,6 +9,8 @@ from urllib.error import HTTPError
 
 from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
+from telegram.error import (TelegramError, Unauthorized, BadRequest,
+                            TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from config import BOT_TOKEN
@@ -420,6 +422,23 @@ def unknown(bot, update):
                      text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
 
+def error_callback(bot, update, error):
+    try:
+        raise error
+    except Unauthorized as e:
+        logging.error(e.message)  # remove update.message.chat_id from conversation list
+    except BadRequest as e:
+        logging.error(e.message)  # handle malformed requests
+    except TimedOut:
+        pass  # connection issues are ignored for now
+    except NetworkError as e:
+        logging.error(e.message)  # handle other connection problems
+    except ChatMigrated as e:
+        logging.error(e.message)  # the chat_id of a group has changed, use e.new_chat_id instead
+    except TelegramError as e:
+        logging.error(e.message)  # handle all other telegram related errors
+
+
 # Basic handlers for standard commands
 dp.add_handler(CommandHandler('start', callback=start))
 dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help))
@@ -437,6 +456,7 @@ dp.add_handler(MessageHandler(OwnFilters.my_lists, my_lists))
 dp.add_handler(CallbackQueryHandler(callback_handler_f))
 dp.add_handler(MessageHandler(Filters.text, handle_text))
 dp.add_handler(MessageHandler(Filters.command, unknown))
+dp.add_error_handler(error_callback)
 
 # Scheduling the check for updates
 dt = datetime.today()
