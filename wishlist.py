@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Wishlist(object):
     def __init__(self, id, name, url, price):
         self.__id = int(id)
