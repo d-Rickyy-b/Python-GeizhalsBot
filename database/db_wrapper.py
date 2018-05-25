@@ -36,12 +36,6 @@ class DBwrapper(object):
             connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             cursor = connection.cursor()
 
-            cursor.execute("CREATE TABLE 'wishlists'"
-                           "('wishlist_id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
-                           "'name' TEXT NOT NULL DEFAULT 'Kein Titel',"
-                           "'price' REAL NOT NULL DEFAULT 0,"
-                           "'url' TEXT NOT NULL);")
-
             cursor.execute("CREATE TABLE 'subscribers'"
                            "('wishlist_id' INTEGER NOT NULL,"
                            "'user_id' INTEGER NOT NULL,"
@@ -52,6 +46,12 @@ class DBwrapper(object):
                            'first_name' TEXT, \
                            'username' TEXT, \
                            'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
+
+            cursor.execute("CREATE TABLE 'wishlists' \
+                           ('wishlist_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'name' TEXT NOT NULL DEFAULT 'No title', \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'url' TEXT NOT NULL);")
 
             connection.commit()
             connection.close()
