@@ -88,6 +88,10 @@ class DBwrapper(object):
                                 "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchall()
 
+        def get_products(self, user_id):
+            #TODO implement
+            pass
+
         def get_all_wishlists(self):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists;")
             wishlist_l = self.cursor.fetchall()
@@ -97,6 +101,10 @@ class DBwrapper(object):
                 wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
+
+        def get_all_products(self):
+            #TODO implement
+            pass
 
         def get_wishlist_info(self, wishlist_id):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
@@ -116,21 +124,41 @@ class DBwrapper(object):
             result = self.cursor.fetchone()
             return result and len(result) > 0
 
+        def is_product_saved(self, product_id):
+            #TODO implement
+            pass
+
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
             self.connection.commit()
+
+        def add_product(self, product_id):
+            #TODO implement
+            pass
 
         def rm_wishlist(self, wishlist_id):
             self.cursor.execute("DELETE FROM wishlists WHERE wishlists.wishlist_id=?", [str(wishlist_id)])
             self.connection.commit()
 
+        def rm_product(self, product_id):
+            #TODO implement
+            pass
+
         def subscribe_wishlist(self, wishlist_id, user_id):
             self.cursor.execute("INSERT INTO wishlist_subscribers VALUES (?, ?);", [str(wishlist_id), str(user_id)])
             self.connection.commit()
 
+        def subscribe_product(self, product_id, user_id):
+            #TODO implement
+            pass
+
         def unsubscribe_wishlist(self, user_id, wishlist_id):
             self.cursor.execute("DELETE FROM wishlist_subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
+
+        def unsubscribe_product(self, product_id, user_id):
+            #TODO implement
+            pass
 
         def get_user(self, user_id):
             self.cursor.execute("SELECT * FROM users WHERE user_id=?;", [str(user_id)])
@@ -151,6 +179,10 @@ class DBwrapper(object):
 
             return users
 
+        def get_users_for_product(self, product_id):
+            #TODO implement
+            pass
+
         def get_wishlists_for_user(self, user_id):
             self.cursor.execute(
                 "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'wishlist_subscribers' AS ws INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id WHERE ws.user_id=?;",
@@ -162,6 +194,10 @@ class DBwrapper(object):
                 wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
+
+        def get_products_for_user(self, user_id):
+            #TODO implement
+            pass
 
         def is_user_subscriber(self, user_id, wishlist_id):
             self.cursor.execute("SELECT * FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(wishlist_id)])
@@ -176,6 +212,10 @@ class DBwrapper(object):
             except sqlite3.IntegrityError:
                 self.logger.error("Insert into wishlist_prices not possible: {}, {}".format(wishlist_id, price))
             self.connection.commit()
+
+        def update_product_price(self):
+            #TODO implement
+            pass
 
         def get_all_users(self):
             self.cursor.execute("SELECT rowid, * FROM users;")
