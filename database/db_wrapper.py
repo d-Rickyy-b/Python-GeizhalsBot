@@ -3,6 +3,7 @@ import os
 import sqlite3
 
 from wishlist import Wishlist
+import logging
 
 __author__ = 'Rico'
 
@@ -10,6 +11,7 @@ __author__ = 'Rico'
 class DBwrapper(object):
     class __DBwrapper(object):
         dir_path = os.path.dirname(os.path.abspath(__file__))
+        logger = logging.getLogger(__name__)
 
         def __init__(self):
             database_path = os.path.join(self.dir_path, "users.db")
@@ -18,7 +20,8 @@ class DBwrapper(object):
                 print("File '" + database_path + "' does not exist! Trying to create one.")
                 try:
                     self.create_database(database_path)
-                except:
+                except Exception as e:
+                    logging.error(e)
                     print("An error has occurred while creating the database!")
 
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
