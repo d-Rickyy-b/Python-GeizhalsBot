@@ -36,11 +36,6 @@ class DBwrapper(object):
             connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             cursor = connection.cursor()
 
-            cursor.execute("CREATE TABLE 'users'"
-                           "('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"
-                           "'lang_id' TEXT NOT NULL DEFAULT 'en',"
-                           "'first_name' TEXT);")
-
             cursor.execute("CREATE TABLE 'wishlists'"
                            "('wishlist_id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
                            "'name' TEXT NOT NULL DEFAULT 'Kein Titel',"
@@ -52,6 +47,11 @@ class DBwrapper(object):
                            "'user_id' INTEGER NOT NULL,"
                            "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
                            "FOREIGN KEY('user_id') REFERENCES users(user_id));")
+            cursor.execute("CREATE TABLE 'users' \
+                           ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'first_name' TEXT, \
+                           'username' TEXT, \
+                           'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
 
             connection.commit()
             connection.close()
@@ -158,9 +158,9 @@ class DBwrapper(object):
             else:
                 return "en"
 
-        def add_user(self, user_id, lang_id, first_name):
+        def add_user(self, user_id, first_name, username, lang_code="en_US"):
             try:
-                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?);", (str(user_id), str(lang_id), str(first_name)))
+                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
