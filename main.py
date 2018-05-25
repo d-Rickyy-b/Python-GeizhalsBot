@@ -84,7 +84,7 @@ def start(bot, update):
 
     # If user is here for the first time > Save him to the DB
     if not db.is_user_saved(user_id):
-        db.add_user(user_id, "en", first_name)
+        db.add_user(user_id, first_name, username, lang_code)
 
     # Otherwise ask him what he wants to do
     keyboard = [[KeyboardButton("Neue Liste"), KeyboardButton("Liste löschen")], [KeyboardButton("Meine Wunschlisten")]]
@@ -146,7 +146,7 @@ def remove(bot, update):
         user_id = update.callback_query.from_user.id
 
     db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_from_user(user_id)
+    wishlists = db.get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
@@ -253,7 +253,7 @@ def check_for_price_update(bot, job):
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
 
-                for user in db.get_users_from_wishlist(wishlist.id):
+                for user in db.get_users_for_wishlist(wishlist.id):
                     wishlist_hidden = "Die Wunschliste [{name}]({url}) ist leider nicht mehr einsehbar. " \
                                       "Ich entferne sie von deinen Wunschlisten.".format(name=wishlist.name, url=wishlist.url)
                     bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
@@ -264,9 +264,9 @@ def check_for_price_update(bot, job):
 
         if old_price != new_price:
             wishlist.price = new_price
-            db.update_price(wishlist_id=wishlist.id, price=new_price)
+            db.update_wishlist_price(wishlist_id=wishlist.id, price=new_price)
 
-            for user in db.get_users_from_wishlist(wishlist.id):
+            for user in db.get_users_for_wishlist(wishlist.id):
                 notify_user(bot, user, wishlist, old_price)
 
 
