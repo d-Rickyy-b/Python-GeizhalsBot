@@ -47,11 +47,29 @@ class DBwrapper(object):
                            'username' TEXT, \
                            'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
 
+            cursor.execute("CREATE TABLE 'products' \
+                           ('product_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'name' TEXT NOT NULL DEFAULT 'No title', \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'url' TEXT NOT NULL);")
+
             cursor.execute("CREATE TABLE 'wishlists' \
                            ('wishlist_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
                            'name' TEXT NOT NULL DEFAULT 'No title', \
                            'price' REAL NOT NULL DEFAULT 0, \
                            'url' TEXT NOT NULL);")
+
+            cursor.execute("CREATE TABLE 'product_prices' \
+                           ('product_id' INTEGER NOT NULL, \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                           FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE);")
+
+            cursor.execute("CREATE TABLE 'wishlist_prices' \
+                           ('wishlist_id' INTEGER NOT NULL, \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                           FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE);")
 
             connection.commit()
             connection.close()
