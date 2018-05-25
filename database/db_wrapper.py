@@ -122,7 +122,7 @@ class DBwrapper(object):
 
             return users
 
-        def get_wishlists_from_user(self, user_id):
+        def get_wishlists_for_user(self, user_id):
             self.cursor.execute(
                 "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'subscribers' INNER JOIN Wishlists on Wishlists.wishlist_id=subscribers.wishlist_id WHERE subscribers.user_id=?;",
                 [str(user_id)])

@@ -126,7 +126,7 @@ def add(bot, update):
 def my_lists(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_from_user(user_id)
+    wishlists = db.get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
