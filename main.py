@@ -75,8 +75,11 @@ def rm_state(user_id):
 
 
 def start(bot, update):
-    user_id = update.message.from_user.id
-    first_name = update.message.from_user.first_name
+    user = update.message.from_user
+    user_id = user.id
+    first_name = user.first_name
+    username = user.username
+    lang_code = user.language_code
     db = DBwrapper.get_instance()
 
     # If user is here for the first time > Save him to the DB
