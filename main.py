@@ -246,9 +246,9 @@ def check_for_price_update(bot, job):
 
     # Check all wishlists for price updates
     for wishlist in wishlists:
+        logger.debug("URL is '{}'".format(wishlist.url))
+        old_price = wishlist.price
         try:
-            logger.debug("URL is '{}'".format(wishlist.url))
-            old_price = wishlist.price
             new_price = get_current_price(wishlist.url)
         except HTTPError as e:
             if e.code == 403:
@@ -262,13 +262,14 @@ def check_for_price_update(bot, job):
                 db.rm_wishlist(wishlist.id)
         except Exception as e:
             logger.error(e)
+        else:
+            if old_price != new_price:
+                wishlist.price = new_price
+                db.update_wishlist_price(wishlist_id=wishlist.id, price=new_price)
 
-        if old_price != new_price:
-            wishlist.price = new_price
-            db.update_wishlist_price(wishlist_id=wishlist.id, price=new_price)
-
-            for user in db.get_users_for_wishlist(wishlist.id):
-                notify_user(bot, user, wishlist, old_price)
+                for user in db.get_users_for_wishlist(wishlist.id):
+                    # Notify each user who subscribed to one wishlist
+                    notify_user(bot, user, wishlist, old_price)
 
 
 # Get the current price of a certain wishlist
