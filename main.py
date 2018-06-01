@@ -244,6 +244,7 @@ def check_for_price_update(bot, job):
     db = DBwrapper.get_instance()
     wishlists = db.get_all_wishlists()
 
+    # Check all wishlists for price updates
     for wishlist in wishlists:
         try:
             logger.debug("URL is '{}'".format(wishlist.url))
