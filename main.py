@@ -426,9 +426,11 @@ dp.add_error_handler(error_callback)
 # Scheduling the check for updates
 dt = datetime.today()
 seconds = int(dt.timestamp())
-delta_t = (60 * 30) - (seconds % (60 * 30))
+repeat_in_minutes = 30
+repeat_in_seconds = 60 * repeat_in_minutes
+delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
 
-updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=delta_t)
+updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
 
 updater.start_polling()
