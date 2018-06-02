@@ -66,6 +66,7 @@ class Wishlist(object):
     def get_current_price(self):
         """Get the current price of a wishlist from Geizhals"""
         self.get_html()
+        self.get_current_name()
         price = geizhals.core.parse_wishlist_price(self.__html)
 
         # Parse price so that it's a proper comma value (no `,--`)
