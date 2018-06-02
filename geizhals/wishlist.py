@@ -60,6 +60,7 @@ class Wishlist(object):
         self.__price = new_price
 
     def get_html(self):
+        """Check if html for wishlist is already downloaded - if not download html and save in wishlist.__html"""
         if not self.__html:
             self.__html = geizhals.core.send_request(self.__url)
 
@@ -87,6 +88,7 @@ class Wishlist(object):
         self.get_html()
 
         name = geizhals.core.parse_wishlist_name(self.__html)
+
         return name
 
     def get_wishlist_products(self):

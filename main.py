@@ -11,10 +11,10 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-from formatter import bold, link, price
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
+from formatter import bold, link, price
 from geizhals.wishlist import Wishlist
 from userstate import UserState
 

@@ -26,14 +26,14 @@ def send_request(url):
     return html_str
 
 
-def parse_html(html, selector):
-    pq = PyQuery(html)
+def parse_html(html_str, selector):
+    pq = PyQuery(html_str)
     return pq(selector).text()
 
 
-def parse_wishlist_price(html):
+def parse_wishlist_price(html_str):
     selector = "div.productlist__footer-cell span.gh_price"
-    price = parse_html(html, selector)
+    price = parse_html(html_str, selector)
     price = price[2:]  # Cut off the '€ ' before the real price
     price = price.replace(',', '.')
     return price
