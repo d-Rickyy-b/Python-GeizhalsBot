@@ -11,6 +11,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
+from formatter import bold, link, price
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
@@ -229,10 +230,10 @@ def add_wishlist(bot, update):
 
         logger.debug("Subscribing to wishlist.")
         bot.sendMessage(user_id,
-                        "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=wishlist.name,
-                                                                                                         url=wishlist.url,
-                                                                                                         price=wishlist.price),
-                        parse_mode="Markdown",
+                        "Wunschliste {link_name} abboniert! Aktueller Preis: {price}".format(
+                            link_name=link(wishlist.url, wishlist.name),
+                            price=bold(price(wishlist.price))),
+                        parse_mode="HTML",
                         disable_web_page_preview=True)
         db.subscribe_wishlist(wishlist.id, user_id)
         rm_state(user_id)
@@ -255,9 +256,9 @@ def check_for_price_update(bot, job):
                 logger.error("Wunschliste ist nicht öffentlich!")
 
                 for user in db.get_users_for_wishlist(wishlist.id):
-                    wishlist_hidden = "Die Wunschliste [{name}]({url}) ist leider nicht mehr einsehbar. " \
-                                      "Ich entferne sie von deinen Wunschlisten.".format(name=wishlist.name, url=wishlist.url)
-                    bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
+                    wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
+                                      "Ich entferne sie von deinen Wunschlisten.".format(link_name=link(wishlist.url, wishlist.price))
+                    bot.send_message(user, wishlist_hidden, parse_mode="HTML")
                     db.unsubscribe_wishlist(user, wishlist.id)
                 db.rm_wishlist(wishlist.id)
         except ValueError as e:
@@ -307,14 +308,14 @@ def notify_user(bot, user_id, wishlist, old_price):
         change = "billiger"
 
     logger.info("Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
-              "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name,
-                                                        url=wishlist.url,
-                                                        price=wishlist.price,
-                                                        emoji=emoji,
-                                                        diff=diff,
-                                                        change=change)
-    bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
+
+    message = "Der Preis von {link_name} hat sich geändert: {price}\n\n" \
+              "{emoji} {diff} {change}".format(link_name=link(wishlist.url, wishlist.name),
+                                               price=bold(price(wishlist.price)),
+                                               emoji=emoji,
+                                               diff=bold(price(diff)),
+                                               change=change)
+    bot.sendMessage(user_id, message, parse_mode="HTML", disable_web_page_preview=True)
 
 
 # Handles the callbacks of inline keyboards
@@ -347,21 +348,19 @@ def callback_handler_f(bot, update):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name,
-                                                                                          url=wishlist.url),
+                            text="Die Wunschliste {link_name} wurde gelöscht!".format(link_name=link(wishlist.url, wishlist.name)),
                             reply_markup=reply_markup,
-                            parse_mode="Markdown", disable_web_page_preview=True)
+                            parse_mode="HTML", disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
     elif action == "show":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(
-                                name=wishlist.name, url=wishlist.url, price=wishlist.price),
-                            parse_mode="Markdown", disable_web_page_preview=True)
+                            text="Die Wunschliste {link_name} kostet aktuell {price}".format(
+                                link_name=link(wishlist.url, wishlist.name), price=bold(price(wishlist.price))),
+                            parse_mode="HTML", disable_web_page_preview=True)
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
-        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name,
-                                                                                  url=wishlist.url)
-        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="Markdown",
+        text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(link_name=link(wishlist.url, wishlist.name))
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
                             disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
     elif action == "cancel":
