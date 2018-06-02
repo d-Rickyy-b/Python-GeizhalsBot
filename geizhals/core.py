@@ -39,10 +39,6 @@ def parse_wishlist_price(html):
     price = price.replace(',', '.')
     return price
 
-def parse_wishlist_id(html):
-    selector = ""
-    id = parse_html(html, selector)
-    return id
 
 def parse_wishlist_name(html):
     selector = "h1.gh_listtitle"
