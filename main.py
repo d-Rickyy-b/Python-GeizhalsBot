@@ -208,33 +208,36 @@ def add_wishlist(bot, update):
     except HTTPError as e:
         if e.code == 403:
             bot.sendMessage(chat_id=user_id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
-        return
-    except Exception as e:
-        print(e)
+    except ValueError as valueError:
+        # Raised when price could not be parsed
+        logger.error(valueError)
         bot.sendMessage(chat_id=user_id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
-        return
-
-    if not db.is_wishlist_saved(wishlist.id):
-        logger.debug("URL not in database!")
-        db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
+    except Exception as e:
+        logger.error(e)
+        bot.sendMessage(chat_id=user_id,
+                        text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
     else:
-        logger.debug("URL in database!")
+        if not db.is_wishlist_saved(wishlist.id):
+            logger.debug("URL not in database!")
+            db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
+        else:
+            logger.debug("URL in database!")
 
-    if db.is_user_subscriber(user_id, wishlist.id):
-        logger.debug("User already subscribed!")
-        bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
-        return
+        if db.is_user_subscriber(user_id, wishlist.id):
+            logger.debug("User already subscribed!")
+            bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
+            return
 
-    logger.debug("Subscribing to wishlist.")
-    bot.sendMessage(user_id,
-                    "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=wishlist.name,
-                                                                                                     url=wishlist.url,
-                                                                                                     price=wishlist.price),
-                    parse_mode="Markdown",
-                    disable_web_page_preview=True)
-    db.subscribe_wishlist(wishlist.id, user_id)
-    rm_state(user_id)
+        logger.debug("Subscribing to wishlist.")
+        bot.sendMessage(user_id,
+                        "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=wishlist.name,
+                                                                                                         url=wishlist.url,
+                                                                                                         price=wishlist.price),
+                        parse_mode="Markdown",
+                        disable_web_page_preview=True)
+        db.subscribe_wishlist(wishlist.id, user_id)
+        rm_state(user_id)
 
 
 # Method to check all wishlists for price updates
@@ -259,6 +262,8 @@ def check_for_price_update(bot, job):
                     bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
                     db.unsubscribe_wishlist(user, wishlist.id)
                 db.rm_wishlist(wishlist.id)
+        except ValueError as e:
+            logger.error(e)
         except Exception as e:
             logger.error(e)
         else:
