@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 import sqlite3
+from datetime import datetime
 
 from geizhals.wishlist import Wishlist
-import logging
-from datetime import datetime
 
 __author__ = 'Rico'
 

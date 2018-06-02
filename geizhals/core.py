@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import re
 import logging
 import urllib.request
-from datetime import datetime
-from urllib.error import HTTPError
 
 from pyquery import PyQuery
 

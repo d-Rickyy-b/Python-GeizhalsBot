@@ -3,11 +3,9 @@
 import logging.handlers
 import os
 import re
-import urllib.request
 from datetime import datetime
 from urllib.error import HTTPError
 
-from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
@@ -16,8 +14,8 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
-from userstate import UserState
 from geizhals.wishlist import Wishlist
+from userstate import UserState
 
 __author__ = 'Rico'
 
