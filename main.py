@@ -3,11 +3,9 @@
 import logging.handlers
 import os
 import re
-import urllib.request
 from datetime import datetime
 from urllib.error import HTTPError
 
-from pyquery import PyQuery
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
@@ -15,7 +13,9 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
-from filters.own_filters import OwnFilters
+from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
+from formatter import bold, link, price
+from geizhals.wishlist import Wishlist
 from userstate import UserState
 
 __author__ = 'Rico'
@@ -75,13 +75,16 @@ def rm_state(user_id):
 
 
 def start(bot, update):
-    user_id = update.message.from_user.id
-    first_name = update.message.from_user.first_name
+    user = update.message.from_user
+    user_id = user.id
+    first_name = user.first_name
+    username = user.username
+    lang_code = user.language_code
     db = DBwrapper.get_instance()
 
     # If user is here for the first time > Save him to the DB
     if not db.is_user_saved(user_id):
-        db.add_user(user_id, "en", first_name)
+        db.add_user(user_id, first_name, username, lang_code)
 
     # Otherwise ask him what he wants to do
     keyboard = [[KeyboardButton("Neue Liste"), KeyboardButton("Liste löschen")], [KeyboardButton("Meine Wunschlisten")]]
@@ -123,7 +126,7 @@ def add(bot, update):
 def my_lists(bot, update):
     user_id = update.message.from_user.id
     db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_from_user(user_id)
+    wishlists = db.get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
@@ -143,7 +146,7 @@ def remove(bot, update):
         user_id = update.callback_query.from_user.id
 
     db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_from_user(user_id)
+    wishlists = db.get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
@@ -153,6 +156,7 @@ def remove(bot, update):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
+    # TODO add button to cancel request
 
 
 # Process text sent to the bot (links)
@@ -197,41 +201,41 @@ def add_wishlist(bot, update):
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
 
-    wishlist_id = int(re.search(pattern, text).group(2))
-
     # Check if website is parsable!
     try:
-        logger.debug("URL is '{}'".format(url))
-        price = float(get_current_price(url))
-        name = str(get_wishlist_name(url))
+        wishlist = Wishlist.from_url(url)
     except HTTPError as e:
         if e.code == 403:
             bot.sendMessage(chat_id=user_id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
-        return
-    except Exception as e:
-        print(e)
+    except ValueError as valueError:
+        # Raised when price could not be parsed
+        logger.error(valueError)
         bot.sendMessage(chat_id=user_id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
-        return
-
-    if not db.is_wishlist_saved(wishlist_id):
-        logger.debug("URL not in database!")
-        db.add_wishlist(wishlist_id, name, price, url)
+    except Exception as e:
+        logger.error(e)
+        bot.sendMessage(chat_id=user_id,
+                        text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
     else:
-        logger.debug("URL in database!")
+        if not db.is_wishlist_saved(wishlist.id):
+            logger.debug("URL not in database!")
+            db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
+        else:
+            logger.debug("URL in database!")
 
-    if db.is_user_subscriber(user_id, wishlist_id):
-        logger.debug("User already subscribed!")
-        bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
-    else:
+        if db.is_user_subscriber(user_id, wishlist.id):
+            logger.debug("User already subscribed!")
+            bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
+            return
+
         logger.debug("Subscribing to wishlist.")
         bot.sendMessage(user_id,
-                        "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name,
-                                                                                                         url=url,
-                                                                                                         price=price),
-                        parse_mode="Markdown",
+                        "Wunschliste {link_name} abboniert! Aktueller Preis: {price}".format(
+                            link_name=link(wishlist.url, wishlist.name),
+                            price=bold(price(wishlist.price))),
+                        parse_mode="HTML",
                         disable_web_page_preview=True)
-        db.subscribe_wishlist(wishlist_id, user_id)
+        db.subscribe_wishlist(wishlist.id, user_id)
         rm_state(user_id)
 
 
@@ -241,76 +245,39 @@ def check_for_price_update(bot, job):
     db = DBwrapper.get_instance()
     wishlists = db.get_all_wishlists()
 
+    # Check all wishlists for price updates
     for wishlist in wishlists:
+        logger.debug("URL is '{}'".format(wishlist.url))
+        old_price = wishlist.price
+        old_name = wishlist.name
         try:
-            logger.debug("URL is '{}'".format(wishlist.url))
-            old_price = wishlist.price
-            new_price = get_current_price(wishlist.url)
+            new_price = wishlist.get_current_price()
+            new_name = wishlist.get_current_name()
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
 
-                for user in db.get_users_from_wishlist(wishlist.id):
-                    wishlist_hidden = "Die Wunschliste [{name}]({url}) ist leider nicht mehr einsehbar. " \
-                                      "Ich entferne sie von deinen Wunschlisten.".format(name=wishlist.name, url=wishlist.url)
-                    bot.send_message(user, wishlist_hidden, parse_mode="Markdown")
+                for user in db.get_users_for_wishlist(wishlist.id):
+                    wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
+                                      "Ich entferne sie von deinen Wunschlisten.".format(link_name=link(wishlist.url, wishlist.price))
+                    bot.send_message(user, wishlist_hidden, parse_mode="HTML")
                     db.unsubscribe_wishlist(user, wishlist.id)
                 db.rm_wishlist(wishlist.id)
+        except ValueError as e:
+            logger.error(e)
         except Exception as e:
             logger.error(e)
+        else:
+            if old_price != new_price:
+                wishlist.price = new_price
+                db.update_wishlist_price(wishlist_id=wishlist.id, price=new_price)
 
-        if old_price != new_price:
-            wishlist.price = new_price
-            db.update_price(wishlist_id=wishlist.id, price=new_price)
+                for user in db.get_users_for_wishlist(wishlist.id):
+                    # Notify each user who subscribed to one wishlist
+                    notify_user(bot, user, wishlist, old_price)
 
-            for user in db.get_users_from_wishlist(wishlist.id):
-                notify_user(bot, user, wishlist, old_price)
-
-
-# Get the current price of a certain wishlist
-def get_current_price(url):
-    logger.debug("Requesting url '{}'!".format(url))
-
-    req = urllib.request.Request(
-        url,
-        data=None,
-        headers={'User-Agent': useragent}
-    )
-
-    f = urllib.request.urlopen(req)
-    html = f.read().decode('utf-8')
-    pq = PyQuery(html)
-
-    price = pq('div.productlist__footer-cell span.gh_price').text()
-    price = price[2:]  # Cut off the '€ ' before the real price
-    price = price.replace(',', '.')
-
-    # Parse price so that it's a proper comma value (no `,--`)
-    pattern = "([0-9]+)\.([0-9]+|[-]+)"
-    pattern_dash = "([0-9]+)\.([-]+)"
-
-    if re.match(pattern, price):
-        if re.match(pattern_dash, price):
-            price = float(re.search(pattern_dash, price).group(1))
-    else:
-        raise ValueError("Couldn't parse price!")
-
-    return float(price)
-
-
-# Get the name of a wishlist
-def get_wishlist_name(url):
-    req = urllib.request.Request(
-        url,
-        data=None,
-        headers={'User-Agent': useragent}
-    )
-
-    f = urllib.request.urlopen(req)
-    html = f.read().decode('utf-8')
-    pq = PyQuery(html)
-    name = pq('h1.gh_listtitle').text()
-    return name
+            if old_name != new_name:
+                db.update_wishlist_name(wishlist.id, new_name)
 
 
 def get_wishlist_keyboard(action, wishlists):
@@ -346,14 +313,14 @@ def notify_user(bot, user_id, wishlist, old_price):
         change = "billiger"
 
     logger.info("Notifying user {}!".format(user_id))
-    message = "Der Preis von [{name}]({url}) hat sich geändert: *{price:.2f} €*\n\n" \
-              "{emoji} *{diff:+.2f} €* {change}".format(name=wishlist.name,
-                                                        url=wishlist.url,
-                                                        price=wishlist.price,
-                                                        emoji=emoji,
-                                                        diff=diff,
-                                                        change=change)
-    bot.sendMessage(user_id, message, parse_mode="Markdown", disable_web_page_preview=True)
+
+    message = "Der Preis von {link_name} hat sich geändert: {price}\n\n" \
+              "{emoji} {diff} {change}".format(link_name=link(wishlist.url, wishlist.name),
+                                               price=bold(price(wishlist.price)),
+                                               emoji=emoji,
+                                               diff=bold(price(diff)),
+                                               change=change)
+    bot.sendMessage(user_id, message, parse_mode="HTML", disable_web_page_preview=True)
 
 
 # Handles the callbacks of inline keyboards
@@ -386,21 +353,19 @@ def callback_handler_f(bot, update):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) wurde gelöscht!".format(name=wishlist.name,
-                                                                                          url=wishlist.url),
+                            text="Die Wunschliste {link_name} wurde gelöscht!".format(link_name=link(wishlist.url, wishlist.name)),
                             reply_markup=reply_markup,
-                            parse_mode="Markdown", disable_web_page_preview=True)
+                            parse_mode="HTML", disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
     elif action == "show":
         bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Die Wunschliste [{name}]({url}) kostet aktuell *{price:.2f} €*".format(
-                                name=wishlist.name, url=wishlist.url, price=wishlist.price),
-                            parse_mode="Markdown", disable_web_page_preview=True)
+                            text="Die Wunschliste {link_name} kostet aktuell {price}".format(
+                                link_name=link(wishlist.url, wishlist.name), price=bold(price(wishlist.price))),
+                            parse_mode="HTML", disable_web_page_preview=True)
     elif action == "subscribe":
         db.subscribe_wishlist(wishlist_id, user_id)
-        text = "Du hast die Wunschliste [{name}]({url}) erneut abboniert!".format(name=wishlist.name,
-                                                                                  url=wishlist.url)
-        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="Markdown",
+        text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(link_name=link(wishlist.url, wishlist.name))
+        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
                             disable_web_page_preview=True)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
     elif action == "cancel":
@@ -448,9 +413,9 @@ dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
 dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete))
 dp.add_handler(CommandHandler(['my_lists', 'show'], my_lists))
 
-dp.add_handler(MessageHandler(OwnFilters.new_list, add))
-dp.add_handler(MessageHandler(OwnFilters.delete_list, delete))
-dp.add_handler(MessageHandler(OwnFilters.my_lists, my_lists))
+dp.add_handler(MessageHandler(new_list_filter, add))
+dp.add_handler(MessageHandler(delete_list_filter, delete))
+dp.add_handler(MessageHandler(my_lists_filter, my_lists))
 
 # Callback, Text and fallback handlers
 dp.add_handler(CallbackQueryHandler(callback_handler_f))
@@ -461,9 +426,11 @@ dp.add_error_handler(error_callback)
 # Scheduling the check for updates
 dt = datetime.today()
 seconds = int(dt.timestamp())
-delta_t = (60 * 30) - (seconds % (60 * 30))
+repeat_in_minutes = 30
+repeat_in_seconds = 60 * repeat_in_minutes
+delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
 
-updater.job_queue.run_repeating(callback=check_for_price_update, interval=60 * 30, first=delta_t)
+updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
 
 updater.start_polling()

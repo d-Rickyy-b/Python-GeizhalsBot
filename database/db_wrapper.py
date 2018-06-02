@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 import sqlite3
+from datetime import datetime
 
-from wishlist import Wishlist
+from geizhals.wishlist import Wishlist
 
 __author__ = 'Rico'
 
@@ -10,6 +12,7 @@ __author__ = 'Rico'
 class DBwrapper(object):
     class __DBwrapper(object):
         dir_path = os.path.dirname(os.path.abspath(__file__))
+        logger = logging.getLogger(__name__)
 
         def __init__(self):
             database_path = os.path.join(self.dir_path, "users.db")
@@ -18,7 +21,8 @@ class DBwrapper(object):
                 print("File '" + database_path + "' does not exist! Trying to create one.")
                 try:
                     self.create_database(database_path)
-                except:
+                except Exception as e:
+                    logging.error(e)
                     print("An error has occurred while creating the database!")
 
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
@@ -33,31 +37,60 @@ class DBwrapper(object):
             connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             cursor = connection.cursor()
 
-            cursor.execute("CREATE TABLE 'users'"
-                           "('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"
-                           "'lang_id' TEXT NOT NULL DEFAULT 'en',"
-                           "'first_name' TEXT);")
+            cursor.execute("CREATE TABLE 'users' \
+                           ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'first_name' TEXT, \
+                           'username' TEXT, \
+                           'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
 
-            cursor.execute("CREATE TABLE 'wishlists'"
-                           "('wishlist_id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
-                           "'name' TEXT NOT NULL DEFAULT 'Kein Titel',"
-                           "'price' REAL NOT NULL DEFAULT 0,"
-                           "'url' TEXT NOT NULL);")
+            cursor.execute("CREATE TABLE 'products' \
+                           ('product_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'name' TEXT NOT NULL DEFAULT 'No title', \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'url' TEXT NOT NULL);")
 
-            cursor.execute("CREATE TABLE 'subscribers'"
-                           "('wishlist_id' INTEGER NOT NULL,"
-                           "'user_id' INTEGER NOT NULL,"
-                           "FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id),"
-                           "FOREIGN KEY('user_id') REFERENCES users(user_id));")
+            cursor.execute("CREATE TABLE 'wishlists' \
+                           ('wishlist_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                           'name' TEXT NOT NULL DEFAULT 'No title', \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'url' TEXT NOT NULL);")
+
+            cursor.execute("CREATE TABLE 'product_prices' \
+                           ('product_id' INTEGER NOT NULL, \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                           FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE);")
+
+            cursor.execute("CREATE TABLE 'wishlist_prices' \
+                           ('wishlist_id' INTEGER NOT NULL, \
+                           'price' REAL NOT NULL DEFAULT 0, \
+                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                           FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE);")
+
+            cursor.execute("CREATE TABLE 'product_subscribers' \
+                           ('product_id' INTEGER NOT NULL, \
+                           'user_id' INTEGER NOT NULL, \
+                           FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE,\
+                           FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
+
+            cursor.execute("CREATE TABLE 'wishlist_subscribers' \
+                           ('wishlist_id' INTEGER NOT NULL, \
+                           'user_id' INTEGER NOT NULL, \
+                           FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
+                           FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
 
             connection.commit()
             connection.close()
 
         def get_wishlists(self, user_id):
             self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists "
-                                "INNER JOIN subscribers on subscribers.wishlist_id=wishlists.wishlist_id "
-                                "WHERE subscribers.user_id=?;", [str(user_id)])
+                                "INNER JOIN wishlist_subscribers on wishlist_subscribers.wishlist_id=wishlists.wishlist_id "
+                                "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchall()
+
+        def get_products(self, user_id):
+            #TODO implement
+            pass
 
         def get_all_wishlists(self):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists;")
@@ -68,6 +101,10 @@ class DBwrapper(object):
                 wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
+
+        def get_all_products(self):
+            #TODO implement
+            pass
 
         def get_wishlist_info(self, wishlist_id):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
@@ -87,21 +124,41 @@ class DBwrapper(object):
             result = self.cursor.fetchone()
             return result and len(result) > 0
 
+        def is_product_saved(self, product_id):
+            #TODO implement
+            pass
+
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
             self.connection.commit()
+
+        def add_product(self, product_id):
+            #TODO implement
+            pass
 
         def rm_wishlist(self, wishlist_id):
             self.cursor.execute("DELETE FROM wishlists WHERE wishlists.wishlist_id=?", [str(wishlist_id)])
             self.connection.commit()
 
-        def subscribe_wishlist(self, id, user_id):
-            self.cursor.execute("INSERT INTO subscribers VALUES (?, ?);", [str(id), str(user_id)])
+        def rm_product(self, product_id):
+            #TODO implement
+            pass
+
+        def subscribe_wishlist(self, wishlist_id, user_id):
+            self.cursor.execute("INSERT INTO wishlist_subscribers VALUES (?, ?);", [str(wishlist_id), str(user_id)])
             self.connection.commit()
 
+        def subscribe_product(self, product_id, user_id):
+            #TODO implement
+            pass
+
         def unsubscribe_wishlist(self, user_id, wishlist_id):
-            self.cursor.execute("DELETE FROM subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
+            self.cursor.execute("DELETE FROM wishlist_subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
+
+        def unsubscribe_product(self, product_id, user_id):
+            #TODO implement
+            pass
 
         def get_user(self, user_id):
             self.cursor.execute("SELECT * FROM users WHERE user_id=?;", [str(user_id)])
@@ -112,8 +169,8 @@ class DBwrapper(object):
             else:
                 return []
 
-        def get_users_from_wishlist(self, wishlist_id):
-            self.cursor.execute("SELECT user_id FROM 'subscribers' INNER JOIN Wishlists on Wishlists.wishlist_id=subscribers.wishlist_id WHERE subscribers.wishlist_id=?;", [str(wishlist_id)])
+        def get_users_for_wishlist(self, wishlist_id):
+            self.cursor.execute("SELECT user_id FROM 'wishlist_subscribers' AS ws INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id WHERE ws.wishlist_id=?;", [str(wishlist_id)])
             user_list = self.cursor.fetchall()
             users = []
 
@@ -122,9 +179,13 @@ class DBwrapper(object):
 
             return users
 
-        def get_wishlists_from_user(self, user_id):
+        def get_users_for_product(self, product_id):
+            #TODO implement
+            pass
+
+        def get_wishlists_for_user(self, user_id):
             self.cursor.execute(
-                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'subscribers' INNER JOIN Wishlists on Wishlists.wishlist_id=subscribers.wishlist_id WHERE subscribers.user_id=?;",
+                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'wishlist_subscribers' AS ws INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id WHERE ws.user_id=?;",
                 [str(user_id)])
             wishlist_l = self.cursor.fetchall()
             wishlists = []
@@ -134,14 +195,31 @@ class DBwrapper(object):
 
             return wishlists
 
+        def get_products_for_user(self, user_id):
+            #TODO implement
+            pass
+
         def is_user_subscriber(self, user_id, wishlist_id):
-            self.cursor.execute("SELECT * FROM subscribers WHERE subscribers.user_id=? AND subscribers.wishlist_id=?;", [str(user_id), str(wishlist_id)])
+            self.cursor.execute("SELECT * FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(wishlist_id)])
             result = self.cursor.fetchone()
             return result and len(result) > 0
 
-        def update_price(self, wishlist_id, price):
-            self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
+        def update_wishlist_name(self, wishlist_id, name):
+            self.cursor.execute("UPDATE wishlists SET name=? WHERE wishlist_id=?;", [str(name), str(wishlist_id)])
             self.connection.commit()
+
+        def update_wishlist_price(self, wishlist_id, price):
+            self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
+            try:
+                utc_timestamp_now = int(datetime.utcnow().timestamp())
+                self.cursor.execute("INSERT INTO wishlist_prices VALUES (?, ?, ?)", [str(wishlist_id), str(price), str(utc_timestamp_now)])
+            except sqlite3.IntegrityError:
+                self.logger.error("Insert into wishlist_prices not possible: {}, {}".format(wishlist_id, price))
+            self.connection.commit()
+
+        def update_product_price(self):
+            #TODO implement
+            pass
 
         def get_all_users(self):
             self.cursor.execute("SELECT rowid, * FROM users;")
@@ -155,9 +233,9 @@ class DBwrapper(object):
             else:
                 return "en"
 
-        def add_user(self, user_id, lang_id, first_name):
+        def add_user(self, user_id, first_name, username, lang_code="en_US"):
             try:
-                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?);", (str(user_id), str(lang_id), str(first_name)))
+                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
