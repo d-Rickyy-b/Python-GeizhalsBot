@@ -157,6 +157,7 @@ def remove(bot, update):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
+    # TODO add button to cancel request
 
 
 # Process text sent to the bot (links)
