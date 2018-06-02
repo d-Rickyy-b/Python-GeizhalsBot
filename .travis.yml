@@ -11,6 +11,7 @@ install:
 script:
   - pwd
   - python -m compileall ./
+  - python -m unittest discover -s . -v -p "*_test.py"
 
 #  pychecker doesn't work as expected for me. Until now i'm going with just syntax checking all the files.
 #  - pychecker ./*.py
