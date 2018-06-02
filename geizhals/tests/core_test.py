@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 import geizhals.core
 
 
 class Test(unittest.TestCase):
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+    test_file_path = os.path.join(dir_path, "test.html")
 
     def setUp(self):
-        with open("test.html", "r") as f:
+        with open(self.test_file_path, "r") as f:
             self.html = f.read()
 
     def tearDown(self):
