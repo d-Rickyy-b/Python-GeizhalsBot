@@ -13,7 +13,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
-from filters.own_filters import OwnFilters
+from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
 from geizhals.wishlist import Wishlist
 from userstate import UserState
 
@@ -409,9 +409,9 @@ dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
 dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete))
 dp.add_handler(CommandHandler(['my_lists', 'show'], my_lists))
 
-dp.add_handler(MessageHandler(OwnFilters.new_list, add))
-dp.add_handler(MessageHandler(OwnFilters.delete_list, delete))
-dp.add_handler(MessageHandler(OwnFilters.my_lists, my_lists))
+dp.add_handler(MessageHandler(new_list_filter, add))
+dp.add_handler(MessageHandler(delete_list_filter, delete))
+dp.add_handler(MessageHandler(my_lists_filter, my_lists))
 
 # Callback, Text and fallback handlers
 dp.add_handler(CallbackQueryHandler(callback_handler_f))
