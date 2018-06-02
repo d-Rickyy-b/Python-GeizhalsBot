@@ -2,7 +2,7 @@
 import os
 import sqlite3
 
-from wishlist import Wishlist
+from geizhals.wishlist import Wishlist
 import logging
 from datetime import datetime
 
