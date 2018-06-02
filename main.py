@@ -249,8 +249,10 @@ def check_for_price_update(bot, job):
     for wishlist in wishlists:
         logger.debug("URL is '{}'".format(wishlist.url))
         old_price = wishlist.price
+        old_name = wishlist.name
         try:
             new_price = wishlist.get_current_price()
+            new_name = wishlist.get_current_name()
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
@@ -273,6 +275,9 @@ def check_for_price_update(bot, job):
                 for user in db.get_users_for_wishlist(wishlist.id):
                     # Notify each user who subscribed to one wishlist
                     notify_user(bot, user, wishlist, old_price)
+
+            if old_name != new_name:
+                db.update_wishlist_name(wishlist.id, new_name)
 
 
 def get_wishlist_keyboard(action, wishlists):

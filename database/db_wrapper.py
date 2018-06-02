@@ -204,6 +204,10 @@ class DBwrapper(object):
             result = self.cursor.fetchone()
             return result and len(result) > 0
 
+        def update_wishlist_name(self, wishlist_id, name):
+            self.cursor.execute("UPDATE wishlists SET name=? WHERE wishlist_id=?;", [str(name), str(wishlist_id)])
+            self.connection.commit()
+
         def update_wishlist_price(self, wishlist_id, price):
             self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
             try:
