@@ -17,6 +17,7 @@ from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import OwnFilters
 from userstate import UserState
+from geizhals.wishlist import Wishlist
 
 __author__ = 'Rico'
 
@@ -200,13 +201,9 @@ def add_wishlist(bot, update):
     if not db.is_user_saved(user_id):
         db.add_user(user_id, "en", first_name)
 
-    wishlist_id = int(re.search(pattern, text).group(2))
-
     # Check if website is parsable!
     try:
-        logger.debug("URL is '{}'".format(url))
-        price = float(get_current_price(url))
-        name = str(get_wishlist_name(url))
+        wishlist = Wishlist.from_url(url)
     except HTTPError as e:
         if e.code == 403:
             bot.sendMessage(chat_id=user_id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
@@ -217,25 +214,26 @@ def add_wishlist(bot, update):
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
         return
 
-    if not db.is_wishlist_saved(wishlist_id):
+    if not db.is_wishlist_saved(wishlist.id):
         logger.debug("URL not in database!")
-        db.add_wishlist(wishlist_id, name, price, url)
+        db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
     else:
         logger.debug("URL in database!")
 
-    if db.is_user_subscriber(user_id, wishlist_id):
+    if db.is_user_subscriber(user_id, wishlist.id):
         logger.debug("User already subscribed!")
         bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
-    else:
-        logger.debug("Subscribing to wishlist.")
-        bot.sendMessage(user_id,
-                        "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=name,
-                                                                                                         url=url,
-                                                                                                         price=price),
-                        parse_mode="Markdown",
-                        disable_web_page_preview=True)
-        db.subscribe_wishlist(wishlist_id, user_id)
-        rm_state(user_id)
+        return
+
+    logger.debug("Subscribing to wishlist.")
+    bot.sendMessage(user_id,
+                    "Wunschliste [{name}]({url}) abboniert! Aktueller Preis: *{price:.2f} €*".format(name=wishlist.name,
+                                                                                                     url=wishlist.url,
+                                                                                                     price=wishlist.price),
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True)
+    db.subscribe_wishlist(wishlist.id, user_id)
+    rm_state(user_id)
 
 
 # Method to check all wishlists for price updates
@@ -249,7 +247,7 @@ def check_for_price_update(bot, job):
         logger.debug("URL is '{}'".format(wishlist.url))
         old_price = wishlist.price
         try:
-            new_price = get_current_price(wishlist.url)
+            new_price = wishlist.get_current_price()
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
@@ -270,52 +268,6 @@ def check_for_price_update(bot, job):
                 for user in db.get_users_for_wishlist(wishlist.id):
                     # Notify each user who subscribed to one wishlist
                     notify_user(bot, user, wishlist, old_price)
-
-
-# Get the current price of a certain wishlist
-def get_current_price(url):
-    logger.debug("Requesting url '{}'!".format(url))
-
-    req = urllib.request.Request(
-        url,
-        data=None,
-        headers={'User-Agent': useragent}
-    )
-
-    f = urllib.request.urlopen(req)
-    html = f.read().decode('utf-8')
-    pq = PyQuery(html)
-
-    price = pq('div.productlist__footer-cell span.gh_price').text()
-    price = price[2:]  # Cut off the '€ ' before the real price
-    price = price.replace(',', '.')
-
-    # Parse price so that it's a proper comma value (no `,--`)
-    pattern = "([0-9]+)\.([0-9]+|[-]+)"
-    pattern_dash = "([0-9]+)\.([-]+)"
-
-    if re.match(pattern, price):
-        if re.match(pattern_dash, price):
-            price = float(re.search(pattern_dash, price).group(1))
-    else:
-        raise ValueError("Couldn't parse price!")
-
-    return float(price)
-
-
-# Get the name of a wishlist
-def get_wishlist_name(url):
-    req = urllib.request.Request(
-        url,
-        data=None,
-        headers={'User-Agent': useragent}
-    )
-
-    f = urllib.request.urlopen(req)
-    html = f.read().decode('utf-8')
-    pq = PyQuery(html)
-    name = pq('h1.gh_listtitle').text()
-    return name
 
 
 def get_wishlist_keyboard(action, wishlists):
