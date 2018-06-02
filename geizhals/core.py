@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import urllib.request
+import html
 
 from pyquery import PyQuery
 
@@ -20,8 +21,9 @@ def send_request(url):
     )
 
     f = urllib.request.urlopen(req)
-    html = f.read().decode('utf-8')
-    return html
+    html_str = f.read().decode('utf-8')
+    html_str = html.unescape(html_str)
+    return html_str
 
 
 def parse_html(html, selector):
