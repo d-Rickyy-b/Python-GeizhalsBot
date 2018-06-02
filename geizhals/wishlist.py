@@ -88,11 +88,5 @@ class Wishlist(object):
         name = geizhals.core.parse_wishlist_name(self.__html)
         return name
 
-    def get_current_id(self):
-        self.get_html()
-
-        id = geizhals.core.parse_wishlist_id(self.__html)
-
-
     def get_wishlist_products(self):
         raise NotImplementedError("get_wishlist_products is not implemented yet")
