@@ -5,6 +5,7 @@ import sqlite3
 from datetime import datetime
 
 from geizhals.wishlist import Wishlist
+from geizhals.product import Product
 
 __author__ = 'Rico'
 
@@ -118,8 +119,14 @@ class DBwrapper(object):
             return wishlists
 
         def get_all_products(self):
-            #TODO implement
-            pass
+            self.cursor.execute("SELECT product_id, name, price, url FROM products;")
+            product_l = self.cursor.fetchall()
+            products = []
+
+            for line in product_l:
+                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
+
+            return products
 
         def get_wishlist_info(self, wishlist_id):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
