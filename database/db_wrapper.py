@@ -14,73 +14,88 @@ class DBwrapper(object):
         dir_path = os.path.dirname(os.path.abspath(__file__))
         logger = logging.getLogger(__name__)
 
-        def __init__(self):
-            database_path = os.path.join(self.dir_path, "users.db")
+        def __init__(self, db_name="users.db"):
+            database_path = os.path.join(self.dir_path, db_name)
 
+            self.connection = None
+            self.cursor = None
+
+            self.create_database(database_path)
+            self.setup_connection(database_path)
+            self.create_tables()
+
+        def delete_all_tables(self):
+            self.logger.info("Dropping all tables!")
+            self.cursor.execute("DROP TABLE IF EXISTS users;")
+            self.cursor.execute("DROP TABLE IF EXISTS products;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlists;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlist_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_subscribers;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlist_subscribers;")
+            self.connection.commit()
+            self.logger.info("Dropping complete!")
+
+        def create_database(self, database_path):
+            """Create database file and add admin and users table to the database"""
             if not os.path.exists(database_path):
-                print("File '" + database_path + "' does not exist! Trying to create one.")
+                self.logger.info("File '{}' does not exist! Trying to create one.".format(database_path))
                 try:
-                    self.create_database(database_path)
+                    open(database_path, 'a').close()
                 except Exception as e:
-                    logging.error(e)
-                    print("An error has occurred while creating the database!")
+                    self.logger.error("An error has occurred while creating the database!")
+                    self.logger.error(e)
 
+        def create_tables(self):
+            """Creates all the tables of the database, if they don't exist"""
+            self.logger.info("Creating tables!")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'users' \
+                                       ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                                       'first_name' TEXT, \
+                                       'username' TEXT, \
+                                       'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'products' \
+                                       ('product_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                                       'name' TEXT NOT NULL DEFAULT 'No title', \
+                                       'price' REAL NOT NULL DEFAULT 0, \
+                                       'url' TEXT NOT NULL);")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'wishlists' \
+                                       ('wishlist_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
+                                       'name' TEXT NOT NULL DEFAULT 'No title', \
+                                       'price' REAL NOT NULL DEFAULT 0, \
+                                       'url' TEXT NOT NULL);")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'product_prices' \
+                                       ('product_id' INTEGER NOT NULL, \
+                                       'price' REAL NOT NULL DEFAULT 0, \
+                                       'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                                       FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE);")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'wishlist_prices' \
+                                       ('wishlist_id' INTEGER NOT NULL, \
+                                       'price' REAL NOT NULL DEFAULT 0, \
+                                       'timestamp' INTEGER NOT NULL DEFAULT 0, \
+                                       FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE);")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'product_subscribers' \
+                                       ('product_id' INTEGER NOT NULL, \
+                                       'user_id' INTEGER NOT NULL, \
+                                       FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE,\
+                                       FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
+
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS 'wishlist_subscribers' \
+                                       ('wishlist_id' INTEGER NOT NULL, \
+                                       'user_id' INTEGER NOT NULL, \
+                                       FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
+                                       FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
+
+        def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
-
-        def create_database(self, database_path):
-            # Create database file and add admin and users table to the database
-            open(database_path, 'a').close()
-
-            connection = sqlite3.connect(database_path)
-            connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
-            cursor = connection.cursor()
-
-            cursor.execute("CREATE TABLE 'users' \
-                           ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
-                           'first_name' TEXT, \
-                           'username' TEXT, \
-                           'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
-
-            cursor.execute("CREATE TABLE 'products' \
-                           ('product_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
-                           'name' TEXT NOT NULL DEFAULT 'No title', \
-                           'price' REAL NOT NULL DEFAULT 0, \
-                           'url' TEXT NOT NULL);")
-
-            cursor.execute("CREATE TABLE 'wishlists' \
-                           ('wishlist_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
-                           'name' TEXT NOT NULL DEFAULT 'No title', \
-                           'price' REAL NOT NULL DEFAULT 0, \
-                           'url' TEXT NOT NULL);")
-
-            cursor.execute("CREATE TABLE 'product_prices' \
-                           ('product_id' INTEGER NOT NULL, \
-                           'price' REAL NOT NULL DEFAULT 0, \
-                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
-                           FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE);")
-
-            cursor.execute("CREATE TABLE 'wishlist_prices' \
-                           ('wishlist_id' INTEGER NOT NULL, \
-                           'price' REAL NOT NULL DEFAULT 0, \
-                           'timestamp' INTEGER NOT NULL DEFAULT 0, \
-                           FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE);")
-
-            cursor.execute("CREATE TABLE 'product_subscribers' \
-                           ('product_id' INTEGER NOT NULL, \
-                           'user_id' INTEGER NOT NULL, \
-                           FOREIGN KEY('product_id') REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE,\
-                           FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
-
-            cursor.execute("CREATE TABLE 'wishlist_subscribers' \
-                           ('wishlist_id' INTEGER NOT NULL, \
-                           'user_id' INTEGER NOT NULL, \
-                           FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
-                           FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
-
-            connection.commit()
-            connection.close()
 
         def get_wishlists(self, user_id):
             self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists "
@@ -255,13 +270,13 @@ class DBwrapper(object):
 
     instance = None
 
-    def __init__(self):
+    def __init__(self, db_name="users.db"):
         if not DBwrapper.instance:
-            DBwrapper.instance = DBwrapper.__DBwrapper()
+            DBwrapper.instance = DBwrapper.__DBwrapper(db_name)
 
     @staticmethod
-    def get_instance():
+    def get_instance(db_name="users.db"):
         if not DBwrapper.instance:
-            DBwrapper.instance = DBwrapper.__DBwrapper()
+            DBwrapper.instance = DBwrapper.__DBwrapper(db_name)
 
         return DBwrapper.instance
