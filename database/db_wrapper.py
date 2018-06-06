@@ -4,8 +4,8 @@ import os
 import sqlite3
 from datetime import datetime
 
-from geizhals.wishlist import Wishlist
 from geizhals.product import Product
+from geizhals.wishlist import Wishlist
 
 __author__ = 'Rico'
 
@@ -99,7 +99,8 @@ class DBwrapper(object):
             self.cursor = self.connection.cursor()
 
         def get_wishlists(self, user_id):
-            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url FROM wishlists "
+            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url "
+                                "FROM wishlists "
                                 "INNER JOIN wishlist_subscribers on wishlist_subscribers.wishlist_id=wishlists.wishlist_id "
                                 "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchall()
@@ -207,8 +208,10 @@ class DBwrapper(object):
 
         def get_wishlists_for_user(self, user_id):
             self.cursor.execute(
-                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url FROM 'wishlist_subscribers' AS ws INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id WHERE ws.user_id=?;",
-                [str(user_id)])
+                "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url \
+                 FROM 'wishlist_subscribers' AS ws \
+                 INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id \
+                 WHERE ws.user_id=?;", [str(user_id)])
             wishlist_l = self.cursor.fetchall()
             wishlists = []
 
