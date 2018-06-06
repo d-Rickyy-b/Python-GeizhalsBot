@@ -184,13 +184,12 @@ class DBwrapper(object):
             pass
 
         def get_user(self, user_id):
-            self.cursor.execute("SELECT * FROM users WHERE user_id=?;", [str(user_id)])
-
-            result = self.cursor.fetchone()
-            if len(result) > 0:
-                return result
-            else:
-                return []
+            self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
+            user_data = self.cursor.fetchone()
+            if user_data:
+                user = {"id": user_data[0], "first_name": user_data[1], "username": user_data[2], "lang_code": user_data[3]}
+                return user
+            return None
 
         def get_users_for_wishlist(self, wishlist_id):
             self.cursor.execute("SELECT user_id FROM 'wishlist_subscribers' AS ws INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id WHERE ws.wishlist_id=?;", [str(wishlist_id)])
