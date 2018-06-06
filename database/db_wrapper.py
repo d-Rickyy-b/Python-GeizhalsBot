@@ -258,7 +258,7 @@ class DBwrapper(object):
             return self.cursor.fetchall()
 
         def get_lang_id(self, user_id):
-            self.cursor.execute("SELECT lang_id FROM users WHERE user_id=?;", [str(user_id)])
+            self.cursor.execute("SELECT lang_code FROM users WHERE user_id=?;", [str(user_id)])
             result = self.cursor.fetchone()
             if result:
                 return result[0]
