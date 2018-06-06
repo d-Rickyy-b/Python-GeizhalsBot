@@ -156,6 +156,37 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(result[2], p_url, msg="Url is not equal!")
         self.assertEqual(result[3], p_price, msg="Price is not equal!")
 
+    def test_get_all_users(self):
+        """Test to check if retreiving all users from the database works"""
+        users = [{"id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"},
+                 {"id": 564864654, "first_name": "asdf", "username": "AnotherUser", "lang_code": "en_US"},
+                 {"id": 54564162, "first_name": "NoName", "username": "Metallica", "lang_code": "en_US"},
+                 {"id": 5555333, "first_name": "1234", "username": "d_Rickyy_b", "lang_code": "en_US"}]
+
+        # Check that database is empty
+        all_users_db = self.db.get_all_users()
+        self.assertEqual(len(all_users_db), 0, msg="There are already users in the db!")
+
+        for user in users:
+            self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        all_users_db = self.db.get_all_users()
+
+        self.assertEqual(len(all_users_db), len(users), msg="Users in database is not same amount as users in test!")
+
+        for db_user in all_users_db:
+            found = False
+
+            for user in users:
+                if user.get("id") == db_user.get("id"):
+                    found = True
+                    self.assertEqual(user.get("first_name"), db_user.get("first_name"))
+                    self.assertEqual(user.get("username"), db_user.get("username"))
+                    self.assertEqual(user.get("lang_code"), db_user.get("lang_code"))
+                    break
+
+            self.assertTrue(found)
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
