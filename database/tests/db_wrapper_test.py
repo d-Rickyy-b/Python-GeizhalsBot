@@ -111,6 +111,30 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found, msg="Inserted wishlist was not found!")
 
+    def test_get_all_products(self):
+        products = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/a962572", "price": 62.80},
+                    {"id": 924729, "name": "3W5NQ1QIHT", "url": "https://geizhals.de/a924729", "price": 46.00},
+                    {"id": 614044, "name": "CTYCTW798V", "url": "https://geizhals.de/a614044", "price": 96.95},
+                    {"id": 245759, "name": "VDY66U0AWM", "url": "https://geizhals.de/a245759", "price": 53.94},
+                    {"id": 490792, "name": "N6MCC1Z38O", "url": "https://geizhals.de/a490792", "price": 144.85},
+                    {"id": 533484, "name": "NOJJ8KVE9T", "url": "https://geizhals.de/a533484", "price": 122.77},
+                    {"id": 577007, "name": "ELV51DSL2A", "url": "https://geizhals.de/a577007", "price": 62.68},
+                    {"id": 448441, "name": "6RM9F6IWIO", "url": "https://geizhals.de/a448441", "price": 45.97},
+                    {"id": 567418, "name": "C2W75RPRFS", "url": "https://geizhals.de/a567418", "price": 137.53},
+                    {"id": 590717, "name": "JEXP2E5Y06", "url": "https://geizhals.de/a590717", "price": 117.84}]
+        for p in products:
+            self.db.add_product(id=p.get("id"), name=p.get("name"), url=p.get("url"), price=p.get("price"))
+
+        db_products = self.db.get_all_products()
+
+        for db_p in db_products:
+            found = False
+            for p in products:
+                if db_p.id == p.get("id"):
+                    found = True
+
+            self.assertTrue(found, msg="Inserted product was not found!")
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
