@@ -154,9 +154,9 @@ class DBwrapper(object):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
             self.connection.commit()
 
-        def add_product(self, product_id):
-            #TODO implement
-            pass
+        def add_product(self, id, name, price, url):
+            self.cursor.execute("INSERT INTO products (product_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
+            self.connection.commit()
 
         def rm_wishlist(self, wishlist_id):
             self.cursor.execute("DELETE FROM wishlists WHERE wishlists.wishlist_id=?", [str(wishlist_id)])
