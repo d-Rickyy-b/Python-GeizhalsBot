@@ -135,6 +135,25 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found, msg="Inserted product was not found!")
 
+    def test_add_wishlist(self):
+        """Test for checking if wishlists are being added correctly"""
+        wl_id = 123456
+        wl_name = "Wishlist"
+        wl_url = "https://geizhals.de/?cat=WL-123456"
+        wl_price = 123.45
+
+        # Make sure that element is not already in database
+        result = self.db.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?", [wl_id]).fetchone()[0]
+        self.assertEqual(result, 0)
+
+        self.db.add_wishlist(id=wl_id, name=wl_name, url=wl_url, price=wl_price)
+        result = self.db.cursor.execute("SELECT wishlist_id, name, url, price  FROM wishlists WHERE wishlist_id=?", [wl_id]).fetchone()
+
+        self.assertEqual(result[0], wl_id, msg="ID is not equal!")
+        self.assertEqual(result[1], wl_name, msg="Name is not equal!")
+        self.assertEqual(result[2], wl_url, msg="Url is not equal!")
+        self.assertEqual(result[3], wl_price, msg="Price is not equal!")
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
