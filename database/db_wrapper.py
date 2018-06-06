@@ -223,7 +223,7 @@ class DBwrapper(object):
             #TODO implement
             pass
 
-        def is_user_subscriber(self, user_id, wishlist_id):
+        def is_user_wishlist_subscriber(self, user_id, wishlist_id):
             self.cursor.execute("SELECT * FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(wishlist_id)])
             result = self.cursor.fetchone()
             return result and len(result) > 0

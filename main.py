@@ -223,7 +223,7 @@ def add_wishlist(bot, update):
         else:
             logger.debug("URL in database!")
 
-        if db.is_user_subscriber(user_id, wishlist.id):
+        if db.is_user_wishlist_subscriber(user_id, wishlist.id):
             logger.debug("User already subscribed!")
             bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
             return
