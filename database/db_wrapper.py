@@ -138,10 +138,6 @@ class DBwrapper(object):
 
             return None
 
-        def get_wishlist_ids(self):
-            self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists;")
-            return self.cursor.fetchall()
-
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
             result = self.cursor.fetchone()
