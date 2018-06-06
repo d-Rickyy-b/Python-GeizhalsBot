@@ -254,8 +254,15 @@ class DBwrapper(object):
             pass
 
         def get_all_users(self):
-            self.cursor.execute("SELECT rowid, * FROM users;")
-            return self.cursor.fetchall()
+            self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users;")
+            result = self.cursor.fetchall()
+            users = []
+
+            if result:
+                for user in result:
+                    users.append({"id": user[0], "first_name": user[1], "username": user[2], "lang_code": user[3]})
+
+            return users
 
         def get_lang_id(self, user_id):
             self.cursor.execute("SELECT lang_code FROM users WHERE user_id=?;", [str(user_id)])
