@@ -187,6 +187,20 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found)
 
+    def test_get_lang_id(self):
+        """Test to check if receiving the lang_code works"""
+        user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+
+        # Check that user does not already exist
+        user_db = self.db.get_user(user.get("id"))
+        self.assertEqual(user_db, None)
+
+        # Add user to database
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        lang_id = self.db.get_lang_id(user.get("id"))
+        self.assertEqual(lang_id, user.get("lang_code"))
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
