@@ -202,6 +202,7 @@ class DBwrapper(object):
             pass
 
         def get_wishlists_for_user(self, user_id):
+            """Return all wishlists a user subscribed to"""
             self.cursor.execute(
                 "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url \
                  FROM 'wishlist_subscribers' AS ws \
