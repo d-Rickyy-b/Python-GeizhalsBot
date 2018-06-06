@@ -111,3 +111,29 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found, msg="Inserted wishlist was not found!")
 
+    def test_add_user(self):
+        """Test to check if adding users works as expected"""
+        user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+
+        # Check that user does not already exist
+        user_db = self.db.get_user(user.get("id"))
+        self.assertEqual(user_db, None)
+
+        # Add user to database
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        # Check if user was added
+        user_db = self.db.get_user(user.get("id"))
+        self.assertEqual(user_db.get("id"), user.get("id"))
+
+    def test_is_user_saved(self):
+        """Test to check if the 'check if a user exists' works as expected"""
+        user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+
+        # Check that user does not already exist
+        user_db = self.db.get_user(user.get("id"))
+        self.assertEqual(user_db, None)
+
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        self.assertTrue(self.db.is_user_saved(user.get("id")))
