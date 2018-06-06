@@ -95,6 +95,7 @@ class DBWrapperTest(unittest.TestCase):
             self.assertTrue(found, msg="Inserted wishlist was not found!")
 
     def test_get_all_products(self):
+        """Test to check if retreiving all products works"""
         products = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/a962572", "price": 62.80},
                     {"id": 924729, "name": "3W5NQ1QIHT", "url": "https://geizhals.de/a924729", "price": 46.00},
                     {"id": 614044, "name": "CTYCTW798V", "url": "https://geizhals.de/a614044", "price": 96.95},
