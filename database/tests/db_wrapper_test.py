@@ -154,6 +154,25 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(result[2], wl_url, msg="Url is not equal!")
         self.assertEqual(result[3], wl_price, msg="Price is not equal!")
 
+    def test_add_product(self):
+        """Test for checking if products are being added correctly"""
+        p_id = 123456
+        p_name = "Product"
+        p_url = "https://geizhals.de/a123456"
+        p_price = 123.45
+
+        # Make sure that element is not already in database
+        result = self.db.cursor.execute("SELECT count(*) FROM products WHERE product_id=?", [p_id]).fetchone()[0]
+        self.assertEqual(result, 0)
+
+        self.db.add_product(id=p_id, name=p_name, url=p_url, price=p_price)
+        result = self.db.cursor.execute("SELECT product_id, name, url, price FROM products WHERE product_id=?", [p_id]).fetchone()
+
+        self.assertEqual(result[0], p_id, msg="ID is not equal!")
+        self.assertEqual(result[1], p_name, msg="Name is not equal!")
+        self.assertEqual(result[2], p_url, msg="Url is not equal!")
+        self.assertEqual(result[3], p_price, msg="Price is not equal!")
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
