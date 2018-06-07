@@ -139,13 +139,15 @@ class DBwrapper(object):
             return None
 
         def is_wishlist_saved(self, wishlist_id):
-            self.cursor.execute("SELECT wishlists.wishlist_id FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
-            result = self.cursor.fetchone()
-            return result and len(result) > 0
+            self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
+            result = self.cursor.fetchone()[0]
+
+            return result > 0
 
         def is_product_saved(self, product_id):
-            #TODO implement
-            pass
+            self.cursor.execute("SELECT count(*) FROM products WHERE product_id=?;", [str(product_id)])
+            result = self.cursor.fetchone()[0]
+            return result > 0
 
         def add_wishlist(self, id, name, price, url):
             self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
