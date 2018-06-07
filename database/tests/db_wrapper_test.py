@@ -119,6 +119,39 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found, msg="Inserted product was not found!")
 
+    def test_get_wishlist_info(self):
+        self.fail()
+
+    def test_is_wishlist_saved(self):
+        wl_id = 123456
+        wl_name = "Wishlist"
+        wl_url = "https://geizhals.de/?cat=WL-123456"
+        wl_price = 123.45
+
+        # Check if wishlist is already saved
+        self.assertFalse(self.db.is_wishlist_saved(wl_id), "Wishlist is already saved!")
+
+        # Add wishlist to the database
+        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
+
+        # Check if wishlist is now saved in the db
+        self.assertTrue(self.db.is_wishlist_saved(wl_id), "Wishlist is not saved in the db!")
+
+    def test_is_product_saved(self):
+        p_id = 123456
+        p_name = "Product"
+        p_url = "https://geizhals.de/a123456"
+        p_price = 123.45
+
+        # Make sure product is not already saved
+        self.assertFalse(self.db.is_product_saved(p_id), "Product should not be saved yet!")
+
+        # Add product to the db
+        self.db.add_product(p_id, p_name, p_price, p_url)
+
+        # Check if product is saved afterwards
+        self.assertTrue(self.db.is_product_saved(p_id), "Product is not saved in the db!")
+
     def test_add_wishlist(self):
         """Test for checking if wishlists are being added correctly"""
         wl_id = 123456
@@ -156,6 +189,36 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(result[1], p_name, msg="Name is not equal!")
         self.assertEqual(result[2], p_url, msg="Url is not equal!")
         self.assertEqual(result[3], p_price, msg="Price is not equal!")
+
+    def test_rm_wishlist(self):
+        wl_id = 123456
+        wl_name = "Wishlist"
+        wl_url = "https://geizhals.de/?cat=WL-123456"
+        wl_price = 123.45
+
+        # Add wishlist and check if it's in the db
+        self.assertFalse(self.db.is_wishlist_saved(wl_id))
+        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
+        self.assertTrue(self.db.is_wishlist_saved(wl_id))
+
+        # Check if wishlist gets removed properly
+        self.db.rm_wishlist(wl_id)
+        self.assertFalse(self.db.is_wishlist_saved(wl_id))
+
+    def test_rm_product(self):
+        p_id = 123456
+        p_name = "Product"
+        p_url = "https://geizhals.de/a123456"
+        p_price = 123.45
+
+        # Add product and check if it's in the db
+        self.assertFalse(self.db.is_product_saved(p_id))
+        self.db.add_wishlist(p_id, p_name, p_price, p_url)
+        self.assertTrue(self.db.is_product_saved(p_id))
+
+        # Check if product gets removed properly
+        self.db.rm_wishlist(p_id)
+        self.assertFalse(self.db.is_product_saved(p_id))
 
     def test_get_all_users(self):
         """Test to check if retreiving all users from the database works"""
@@ -223,7 +286,8 @@ class DBWrapperTest(unittest.TestCase):
 
         # Check that user does not already exist
         user_db = self.db.get_user(user.get("id"))
-        self.assertEqual(user_db, None)
+        self.assertIsNone(user_db, "User is not None!")
+        self.assertFalse(self.db.is_user_saved(user.get("id")))
 
         self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
 
