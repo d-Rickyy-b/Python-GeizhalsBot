@@ -13,4 +13,4 @@ def link(url, name):
 
 def price(price_value):
     """Generates a formatted price tag from a value"""
-    return "{price:.2f} €".format(price=price_value)
+    return "{price:+.2f} €".format(price=price_value)
