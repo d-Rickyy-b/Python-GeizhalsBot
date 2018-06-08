@@ -259,7 +259,7 @@ def check_for_price_update(bot, job):
 
                 for user in db.get_users_for_wishlist(wishlist.id):
                     wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
-                                      "Ich entferne sie von deinen Wunschlisten.".format(link_name=link(wishlist.url, wishlist.price))
+                                      "Ich entferne sie von deinen Wunschlisten.".format(link_name=link(wishlist.url, wishlist.name))
                     bot.send_message(user, wishlist_hidden, parse_mode="HTML")
                     db.unsubscribe_wishlist(user, wishlist.id)
                 db.rm_wishlist(wishlist.id)
