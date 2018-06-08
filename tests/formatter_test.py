@@ -19,7 +19,6 @@ class DBWrapperTest(unittest.TestCase):
 
         self.assertEqual(formatter.bold(text), expected, "Text does not match expected bold string!")
 
-
     def test_link(self):
         text = "name"
         link = "www.example.com"
