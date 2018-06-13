@@ -159,10 +159,9 @@ def handle_text(bot, update):
     user_id = update.message.from_user.id
 
     for userstate in state_list:
-        if userstate.user_id() == user_id:
-            if userstate.state() == STATE_SEND_LINK:
-                add_wishlist(bot, update)
-                rm_state(user_id)
+        if userstate.user_id() == user_id and userstate.state() == STATE_SEND_LINK:
+            add_wishlist(bot, update)
+            rm_state(user_id)
 
 
 def add_wishlist(bot, update):
