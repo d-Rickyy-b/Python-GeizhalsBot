@@ -43,3 +43,10 @@ def parse_wishlist_name(html_str):
     selector = "h1.gh_listtitle"
     name = parse_html(html_str, selector)
     return name
+
+
+def parse_product_price(html_str):
+    pass
+
+def parse_product_name(html_str):
+    pass
