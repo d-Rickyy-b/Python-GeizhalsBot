@@ -6,6 +6,7 @@ import geizhals.core
 
 class Wishlist(object):
     """Representation of a Geizhals wishlist"""
+    url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
 
     def __init__(self, id, name, url, price):
         """Create a wishlist object by parameters"""
@@ -18,12 +19,11 @@ class Wishlist(object):
     @staticmethod
     def from_url(url):
         """Create a wishlist object by url"""
-        url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
 
         wl = Wishlist(0, "", url, 0)
         wl.price = wl.get_current_price()
         wl.name = wl.get_current_name()
-        wl.id = int(re.search(url_pattern, url).group(2))
+        wl.id = int(re.search(Wishlist.url_pattern, url).group(2))
 
         return wl
 
