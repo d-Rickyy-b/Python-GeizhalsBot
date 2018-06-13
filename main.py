@@ -318,6 +318,7 @@ def callback_handler_f(bot, update):
 
     if wishlist_id == -1 and (action != "cancel" or action != "remvoveMenu"):
         wishlist = None
+        # TODO just return because this is invalid data!
     else:
         try:
             wishlist = get_wishlist(wishlist_id)
