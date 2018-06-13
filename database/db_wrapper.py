@@ -98,6 +98,20 @@ class DBwrapper(object):
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
 
+        def get_subscribed_wishlist_count(self, user_id):
+            self.cursor.execute("SELECT COUNT(*)"
+                                "FROM wishlists"
+                                "INNER JOIN wishlist_subscribers on wishlist_subscribers.wishlist_id=wishlists.wishlist_id"
+                                "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
+
+        def get_subscribed_product_count(self, user_id):
+            self.cursor.execute("SELECT COUNT(*)"
+                                "FROM products"
+                                "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id"
+                                "WHERE product_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
+
         def get_wishlists(self, user_id):
             self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url "
                                 "FROM wishlists "
@@ -106,7 +120,11 @@ class DBwrapper(object):
             return self.cursor.fetchall()
 
         def get_products(self, user_id):
-            #TODO implement
+            self.cursor.execute("SELECT products.product_id, products.url"
+                                "FROM products"
+                                "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id"
+                                "WHERE product_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
             pass
 
         def get_all_wishlists(self):
