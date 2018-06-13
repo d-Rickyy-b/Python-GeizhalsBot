@@ -2,6 +2,7 @@
 import re
 
 import geizhals.core
+import geizhals.exceptions
 
 
 class Wishlist(object):
@@ -19,6 +20,8 @@ class Wishlist(object):
     @staticmethod
     def from_url(url):
         """Create a wishlist object by url"""
+        if not re.match(Wishlist.url_pattern, url):
+            raise geizhals.exceptions.InvalidWishlistURLException
 
         wl = Wishlist(0, "", url, 0)
         wl.price = wl.get_current_price()
