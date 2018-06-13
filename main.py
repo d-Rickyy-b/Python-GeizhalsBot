@@ -154,8 +154,8 @@ def remove(bot, update):
     # TODO add button to cancel request
 
 
-# Process text sent to the bot (links)
 def handle_text(bot, update):
+    """Handles plain text sent to the bot"""
     user_id = update.message.from_user.id
 
     for userstate in state_list:
