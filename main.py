@@ -6,15 +6,15 @@ import re
 from datetime import datetime
 from urllib.error import HTTPError
 
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from config import BOT_TOKEN
-from core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count, get_wishlists_for_user
+from core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count, get_wishlists_for_user, get_url
 from database.db_wrapper import DBwrapper
-from exceptions import AlreadySubscribedException, WishlistNotFoundException
+from exceptions import AlreadySubscribedException, WishlistNotFoundException, InvalidURLException, IncompleteRequestException
 from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
 from formatter import bold, link, price
 from geizhals.wishlist import Wishlist
@@ -169,28 +169,25 @@ def add_wishlist(bot, update):
     text = update.message.text
     user = update.message.from_user
 
+    keyboard = [[InlineKeyboardButton("Abbrechen", callback_data='cancel_-1')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     add_user_if_new(user)
 
-    if not re.match(Wishlist.url_pattern, text):
-        keyboard = [[InlineKeyboardButton("Abbrechen", callback_data='cancel_-1')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        if text == "/add" or text == "Neue Liste":
-            set_state(user.id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user.id,
-                            text="Bitte sende mir eine URL einer Wunschliste!",
-                            reply_markup=reply_markup)
-            return
-        elif "/add " in text:
-            url = text.split()[1]
-        else:
-            logger.debug("Invalid url '{}'!".format(text))
-            bot.sendMessage(chat_id=user.id,
-                            text="Die URL ist ungültig!",
-                            reply_markup=reply_markup)
-            return
-    else:
-        url = text
+    try:
+        url = get_url(text)
+    except IncompleteRequestException:
+        set_state(user.id, STATE_SEND_LINK)
+        bot.sendMessage(chat_id=user.id,
+                        text="Bitte sende mir eine URL einer Wunschliste!",
+                        reply_markup=reply_markup)
+        return
+    except InvalidURLException:
+        logger.debug("Invalid url '{}'!".format(text))
+        bot.sendMessage(chat_id=user.id,
+                        text="Die URL ist ungültig!",
+                        reply_markup=reply_markup)
+        return
 
     # Check if website is parsable!
     try:

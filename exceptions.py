@@ -10,3 +10,9 @@ class WishlistNotFoundException(Exception):
 
 class TooManyWishlistsException(Exception):
     pass
+
+class IncompleteRequestException(Exception):
+    pass
+
+class InvalidURLException(Exception):
+    pass

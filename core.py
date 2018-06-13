@@ -1,8 +1,11 @@
 """Core file for the business logic to interact with the backend"""
 # -*- coding: utf-8 -*-
 
+import re
+
 from database.db_wrapper import DBwrapper
-from exceptions import AlreadySubscribedException, WishlistNotFoundException
+from exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
+from geizhals.wishlist import Wishlist
 
 
 def add_user_if_new(user):
@@ -68,3 +71,17 @@ def get_wishlists_for_user(user_id):
     """Returns the subscribed wishlists for a certain user"""
     db = DBwrapper.get_instance()
     return db.get_wishlists_for_user(user_id)
+
+
+def get_url(text):
+    if re.match(Wishlist.url_pattern, text):
+        return text
+
+    if text == "/add" or text == "Neue Liste":
+        raise IncompleteRequestException
+    elif "/add " in text:
+        url = text.split()[1]
+    else:
+        raise InvalidURLException
+
+    return url
