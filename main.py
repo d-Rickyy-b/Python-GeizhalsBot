@@ -108,14 +108,15 @@ def delete(bot, update):
 def add(bot, update):
     user = update.message.from_user
 
-    if get_wishlist_count(user.id) >= 5:
-        keyboard = [[InlineKeyboardButton("Liste auswählen", callback_data='removeMenu_-1')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        bot.sendMessage(user.id,
-                        "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                        reply_markup=reply_markup)
-    else:
+    if get_wishlist_count(user.id) < 4:
         add_wishlist(bot, update)
+        return
+
+    keyboard = [[InlineKeyboardButton("Liste auswählen", callback_data='removeMenu_-1')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    bot.sendMessage(user.id,
+                    "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
+                    reply_markup=reply_markup)
 
 
 # Sends the user a message with all his wishlists
