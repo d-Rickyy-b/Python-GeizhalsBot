@@ -67,7 +67,6 @@ class Wishlist(object):
         if not self.__html:
             self.__html = geizhals.core.send_request(self.__url)
 
-    # Get the current price of a certain wishlist
     def get_current_price(self):
         """Get the current price of a wishlist from Geizhals"""
         self.get_html()
