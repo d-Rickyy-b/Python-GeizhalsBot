@@ -262,15 +262,15 @@ def check_for_price_update(bot, job):
                 db.update_wishlist_name(wishlist.id, new_name)
 
 
-def get_wishlist_keyboard(action, wishlists):
+def get_wishlist_keyboard(action, wishlists, columns=2):
     keyboard = []
     buttons = []
 
     for wishlist in wishlists:
-        button = InlineKeyboardButton(wishlist.name,
-                                      callback_data='{action}_{id}'.format(action=action, id=wishlist.id))
+        callback_data = '{action}_{id}'.format(action=action, id=wishlist.id)
+        button = InlineKeyboardButton(wishlist.name, callback_data=callback_data)
 
-        if len(buttons) >= 2:
+        if len(buttons) >= columns:
             keyboard.append(buttons)
             buttons = []
 
