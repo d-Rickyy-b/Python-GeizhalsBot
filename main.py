@@ -12,7 +12,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from config import BOT_TOKEN
-from core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count
+from core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count, get_wishlists_for_user
 from database.db_wrapper import DBwrapper
 from exceptions import AlreadySubscribedException, WishlistNotFoundException
 from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
@@ -122,8 +122,7 @@ def add(bot, update):
 # Sends the user a message with all his wishlists
 def my_lists(bot, update):
     user_id = update.message.from_user.id
-    db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_for_user(user_id)
+    wishlists = get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
@@ -142,8 +141,7 @@ def remove(bot, update):
     except AttributeError:
         user_id = update.callback_query.from_user.id
 
-    db = DBwrapper.get_instance()
-    wishlists = db.get_wishlists_for_user(user_id)
+    wishlists = get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
         bot.sendMessage(user_id, "Noch keine Wunschliste!")

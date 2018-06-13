@@ -63,3 +63,8 @@ def get_wishlist_count(user_id):
 
     return db.get_subscribed_wishlist_count(user.id)
 
+
+def get_wishlists_for_user(user_id):
+    """Returns the subscribed wishlists for a certain user"""
+    db = DBwrapper.get_instance()
+    return db.get_wishlists_for_user(user_id)
