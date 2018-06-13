@@ -12,10 +12,13 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from config import BOT_TOKEN
+from core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count
 from database.db_wrapper import DBwrapper
+from exceptions import AlreadySubscribedException, WishlistNotFoundException
 from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
 from formatter import bold, link, price
 from geizhals.wishlist import Wishlist
+from user import User
 from userstate import UserState
 
 __author__ = 'Rico'
@@ -76,20 +79,13 @@ def rm_state(user_id):
 
 def start(bot, update):
     user = update.message.from_user
-    user_id = user.id
-    first_name = user.first_name
-    username = user.username
-    lang_code = user.language_code
-    db = DBwrapper.get_instance()
 
     # If user is here for the first time > Save him to the DB
-    if not db.is_user_saved(user_id):
-        db.add_user(user_id, first_name, username, lang_code)
+    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
 
-    # Otherwise ask him what he wants to do
     keyboard = [[KeyboardButton("Neue Liste"), KeyboardButton("Liste löschen")], [KeyboardButton("Meine Wunschlisten")]]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
-    bot.sendMessage(user_id, "Was möchtest du tun?", reply_markup=reply_markup)
+    bot.sendMessage(user.id, "Was möchtest du tun?", reply_markup=reply_markup)
 
 
 def help(bot, update):
@@ -110,12 +106,12 @@ def delete(bot, update):
 
 
 def add(bot, update):
-    user_id = update.message.from_user.id
-    db = DBwrapper.get_instance()
-    if len(db.get_wishlists(user_id)) >= 5:
+    user = update.message.from_user
+
+    if get_wishlist_count(user.id) >= 5:
         keyboard = [[InlineKeyboardButton("Liste auswählen", callback_data='removeMenu_-1')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        bot.sendMessage(user_id,
+        bot.sendMessage(user.id,
                         "Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
                         reply_markup=reply_markup)
     else:
@@ -172,18 +168,17 @@ def handle_text(bot, update):
 
 def add_wishlist(bot, update):
     text = update.message.text
-    user_id = update.message.from_user.id
-    first_name = update.message.from_user.first_name
-    pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
-    db = DBwrapper.get_instance()
+    user = update.message.from_user
 
-    if not re.match(pattern, text):
+    add_user_if_new(user)
+
+    if not re.match(Wishlist.url_pattern, text):
         keyboard = [[InlineKeyboardButton("Abbrechen", callback_data='cancel_-1')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if text == "/add" or text == "Neue Liste":
-            set_state(user_id, STATE_SEND_LINK)
-            bot.sendMessage(chat_id=user_id,
+            set_state(user.id, STATE_SEND_LINK)
+            bot.sendMessage(chat_id=user.id,
                             text="Bitte sende mir eine URL einer Wunschliste!",
                             reply_markup=reply_markup)
             return
@@ -191,52 +186,44 @@ def add_wishlist(bot, update):
             url = text.split()[1]
         else:
             logger.debug("Invalid url '{}'!".format(text))
-            bot.sendMessage(chat_id=user_id,
+            bot.sendMessage(chat_id=user.id,
                             text="Die URL ist ungültig!",
                             reply_markup=reply_markup)
             return
     else:
         url = text
 
-    if not db.is_user_saved(user_id):
-        db.add_user(user_id, "en", first_name)
-
     # Check if website is parsable!
     try:
         wishlist = Wishlist.from_url(url)
     except HTTPError as e:
         if e.code == 403:
-            bot.sendMessage(chat_id=user_id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
+            bot.sendMessage(chat_id=user.id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
-        bot.sendMessage(chat_id=user_id,
+        bot.sendMessage(chat_id=user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
     except Exception as e:
         logger.error(e)
-        bot.sendMessage(chat_id=user_id,
+        bot.sendMessage(chat_id=user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht hinzugefügt!")
     else:
-        if not db.is_wishlist_saved(wishlist.id):
-            logger.debug("URL not in database!")
-            db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
-        else:
-            logger.debug("URL in database!")
+        add_wishlist_if_new(wishlist)
 
-        if db.is_user_wishlist_subscriber(user_id, wishlist.id):
+        try:
+            logger.debug("Subscribing to wishlist.")
+            subscribe_wishlist(user, wishlist)
+            bot.sendMessage(user.id,
+                            "Wunschliste {link_name} abboniert! Aktueller Preis: {price}".format(
+                                link_name=link(wishlist.url, wishlist.name),
+                                price=bold(price(wishlist.price))),
+                            parse_mode="HTML",
+                            disable_web_page_preview=True)
+            rm_state(user.id)
+        except AlreadySubscribedException as ase:
             logger.debug("User already subscribed!")
-            bot.sendMessage(user_id, "Du hast diese Wunschliste bereits abboniert!")
-            return
-
-        logger.debug("Subscribing to wishlist.")
-        bot.sendMessage(user_id,
-                        "Wunschliste {link_name} abboniert! Aktueller Preis: {price}".format(
-                            link_name=link(wishlist.url, wishlist.name),
-                            price=bold(price(wishlist.price))),
-                        parse_mode="HTML",
-                        disable_web_page_preview=True)
-        db.subscribe_wishlist(wishlist.id, user_id)
-        rm_state(user_id)
+            bot.sendMessage(user.id, "Du hast diese Wunschliste bereits abboniert!")
 
 
 # Method to check all wishlists for price updates
@@ -337,9 +324,9 @@ def callback_handler_f(bot, update):
     if wishlist_id == -1 and (action != "cancel" or action != "remvoveMenu"):
         wishlist = None
     else:
-        wishlist = db.get_wishlist_info(wishlist_id)
-
-        if wishlist is None:
+        try:
+            wishlist = get_wishlist(wishlist_id)
+        except WishlistNotFoundException:
             bot.answerCallbackQuery(callback_query_id=callback_query_id,
                                     text="Die Wunschliste existiert nicht!")
             bot.editMessageText(chat_id=user_id, message_id=message_id,
