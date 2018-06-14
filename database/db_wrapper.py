@@ -180,8 +180,8 @@ class DBwrapper(object):
             self.connection.commit()
 
         def rm_product(self, product_id):
-            #TODO implement
-            pass
+            self.cursor.execute("DELETE FROM products WHERE products.product_id=?", [str(product_id)])
+            self.connection.commit()
 
         def subscribe_wishlist(self, wishlist_id, user_id):
             self.cursor.execute("INSERT INTO wishlist_subscribers VALUES (?, ?);", [str(wishlist_id), str(user_id)])
