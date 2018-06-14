@@ -188,7 +188,7 @@ class DBwrapper(object):
             self.connection.commit()
 
         def subscribe_product(self, product_id, user_id):
-            #TODO implement
+            # TODO implement
             pass
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
@@ -196,7 +196,7 @@ class DBwrapper(object):
             self.connection.commit()
 
         def unsubscribe_product(self, product_id, user_id):
-            #TODO implement
+            # TODO implement
             pass
 
         def get_user(self, user_id):
@@ -218,7 +218,7 @@ class DBwrapper(object):
             return users
 
         def get_users_for_product(self, product_id):
-            #TODO implement
+            # TODO implement
             pass
 
         def get_wishlists_for_user(self, user_id):
@@ -270,7 +270,7 @@ class DBwrapper(object):
             self.connection.commit()
 
         def update_product_price(self):
-            #TODO implement
+            # TODO implement
             pass
 
         def get_all_users(self):
