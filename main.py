@@ -100,11 +100,6 @@ def help(bot, update):
     bot.sendMessage(user_id, help_text)
 
 
-def delete(bot, update):
-    # Ask user which wishlist he wants to delete
-    remove(bot, update)
-
-
 def add(bot, update):
     user = update.message.from_user
 
@@ -284,7 +279,6 @@ def get_wishlist_keyboard(action, wishlists, columns=2):
 
 # Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist, old_price):
-    # TODO lang_id = language
     diff = wishlist.price - old_price
 
     if diff > 0:
@@ -389,11 +383,11 @@ dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help))
 
 # Bot specific commands
 dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
-dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=delete))
+dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=remove))
 dp.add_handler(CommandHandler(['my_lists', 'show'], my_lists))
 
 dp.add_handler(MessageHandler(new_list_filter, add))
-dp.add_handler(MessageHandler(delete_list_filter, delete))
+dp.add_handler(MessageHandler(delete_list_filter, remove))
 dp.add_handler(MessageHandler(my_lists_filter, my_lists))
 
 # Callback, Text and fallback handlers
