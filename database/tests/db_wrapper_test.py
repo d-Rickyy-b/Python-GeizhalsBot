@@ -213,11 +213,11 @@ class DBWrapperTest(unittest.TestCase):
 
         # Add product and check if it's in the db
         self.assertFalse(self.db.is_product_saved(p_id))
-        self.db.add_wishlist(p_id, p_name, p_price, p_url)
+        self.db.add_product(p_id, p_name, p_price, p_url)
         self.assertTrue(self.db.is_product_saved(p_id))
 
         # Check if product gets removed properly
-        self.db.rm_wishlist(p_id)
+        self.db.rm_product(p_id)
         self.assertFalse(self.db.is_product_saved(p_id))
 
     def test_get_all_users(self):
