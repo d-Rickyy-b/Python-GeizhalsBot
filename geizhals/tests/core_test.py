@@ -5,7 +5,7 @@ import unittest
 import geizhals.core
 
 
-class Test(unittest.TestCase):
+class GeizhalsCoreTest(unittest.TestCase):
     dir_path = os.path.dirname(os.path.abspath(__file__))
     test_file_path = os.path.join(dir_path, "test.html")
 
