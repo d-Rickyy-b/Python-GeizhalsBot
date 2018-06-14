@@ -316,10 +316,7 @@ def callback_handler_f(bot, update):
     data = update.callback_query.data
     action, wishlist_id = data.split("_")
 
-    if wishlist_id == -1 and (action != "cancel" or action != "remvoveMenu"):
-        wishlist = None
-        # TODO just return because this is invalid data!
-    else:
+    if wishlist_id != "-1" and not (action == "cancel" or action == "remvoveMenu"):
         try:
             wishlist = get_wishlist(wishlist_id)
         except WishlistNotFoundException:
