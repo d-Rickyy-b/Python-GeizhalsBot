@@ -11,7 +11,9 @@ install:
 # command to run tests
 script:
   - python -m compileall ./
-  - python -m unittest discover -s . -v -p "*_test.py"
+#  - python -m unittest discover -s . -v -p "*_test.py"
+  - coverage run -m unittest discover -s . -v -p "*_test.py"
+  - coverage report -m
 
 after_success:
   - coveralls
