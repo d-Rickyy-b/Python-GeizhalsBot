@@ -2,7 +2,7 @@
 
 import unittest
 
-import formatter
+from util import formatter
 
 
 class FormatterTest(unittest.TestCase):

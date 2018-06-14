@@ -4,7 +4,7 @@
 import re
 
 from database.db_wrapper import DBwrapper
-from exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
+from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
 from geizhals.wishlist import Wishlist
 
 
