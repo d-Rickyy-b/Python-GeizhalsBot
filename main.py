@@ -323,10 +323,9 @@ def callback_handler_f(bot, update):
         try:
             wishlist = get_wishlist(wishlist_id)
         except WishlistNotFoundException:
-            bot.answerCallbackQuery(callback_query_id=callback_query_id,
-                                    text="Die Wunschliste existiert nicht!")
-            bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                text="Die Wunschliste existiert nicht!")
+            invalid_wl_text = "Die Wunschliste existiert nicht!"
+            bot.answerCallbackQuery(callback_query_id=callback_query_id, text=invalid_wl_text)
+            bot.editMessageText(chat_id=user_id, message_id=message_id, text=invalid_wl_text)
             return
 
     if action == "remove":
