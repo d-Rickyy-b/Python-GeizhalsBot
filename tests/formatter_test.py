@@ -5,7 +5,7 @@ import unittest
 import formatter
 
 
-class DBWrapperTest(unittest.TestCase):
+class FormatterTest(unittest.TestCase):
 
     def setUp(self):
         pass
