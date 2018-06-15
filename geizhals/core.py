@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+import html
 import logging
 import urllib.request
-import html
 
 from pyquery import PyQuery
 
 logger = logging.getLogger(__name__)
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 " \
-                "Safari/537.36"
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 " \
+            "Safari/537.36"
 
 
 def send_request(url):
@@ -47,6 +47,7 @@ def parse_wishlist_name(html_str):
 
 def parse_product_price(html_str):
     pass
+
 
 def parse_product_name(html_str):
     pass

@@ -1,4 +1,6 @@
 """User entity data model"""
+
+
 # -*- coding: utf-8 -*-
 
 

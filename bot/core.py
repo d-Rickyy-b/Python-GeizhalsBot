@@ -4,8 +4,8 @@
 import re
 
 from database.db_wrapper import DBwrapper
-from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
 from geizhals.wishlist import Wishlist
+from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
 
 
 def add_user_if_new(user):

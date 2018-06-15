@@ -1,4 +1,6 @@
 """Collection of all the geizhals exceptions"""
+
+
 # -*- coding: utf-8 -*-
 
 

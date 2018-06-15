@@ -2,6 +2,7 @@
 
 import os
 import unittest
+
 import geizhals.core
 
 
@@ -23,5 +24,3 @@ class GeizhalsCoreTest(unittest.TestCase):
     def test_parse_wishlist_name(self):
         name = geizhals.core.parse_wishlist_name(self.html)
         self.assertEqual(name, "NAS")
-
-
