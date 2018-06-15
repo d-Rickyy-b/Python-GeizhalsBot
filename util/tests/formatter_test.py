@@ -25,9 +25,16 @@ class FormatterTest(unittest.TestCase):
 
         self.assertEqual(formatter.link(link, text), "<a href=\"www.example.com\">name</a>")
 
-    def test_price(self):
+    def test_price_signed(self):
         price_pos = 1.752221
         price_neg = -1.82111
 
         self.assertEqual(formatter.price(price_pos), "+1.75 €", msg="Positive price not displayed correctly")
         self.assertEqual(formatter.price(price_neg), "-1.82 €", msg="Negative price not displayed correctly")
+
+    def test_price_unsigned(self):
+        price_pos = 1.752221
+        price_neg = -1.82111
+
+        self.assertEqual(formatter.price(price_pos, False), "1.75 €", msg="Positive price not displayed correctly")
+        self.assertEqual(formatter.price(price_neg, False), "-1.82 €", msg="Negative price not displayed correctly")

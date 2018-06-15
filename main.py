@@ -207,7 +207,7 @@ def add_wishlist(bot, update):
             bot.sendMessage(user.id,
                             "Wunschliste {link_name} abboniert! Aktueller Preis: {price}".format(
                                 link_name=link(wishlist.url, wishlist.name),
-                                price=bold(price(wishlist.price))),
+                                price=bold(price(wishlist.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
             rm_state(user.id)
