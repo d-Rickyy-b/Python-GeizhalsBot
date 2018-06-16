@@ -206,7 +206,37 @@ class DBWrapperTest(unittest.TestCase):
         self.db.rm_product(self.p.id)
         self.assertFalse(self.db.is_product_saved(self.p.id))
 
+    def test_subscribe_wishlist(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
 
+        self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
+        self.db.add_user(user_id, first_name, username)
+
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.id)]).fetchone()
+        self.assertEqual(result, None)
+
+        self.db.subscribe_wishlist(self.wl.id, user_id)
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.id)]).fetchone()
+
+        self.assertEqual(len(result), 1)
+
+    def test_subscribe_product(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
+
+        self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
+        self.db.add_user(user_id, first_name, username)
+
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
+        self.assertEqual(result, None)
+
+        self.db.subscribe_product(self.p.id, user_id)
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
+
+        self.assertEqual(len(result), 1)
     def test_update_wishlist_name(self):
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
