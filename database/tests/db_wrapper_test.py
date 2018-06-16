@@ -4,6 +4,8 @@ import os
 import unittest
 
 from database.db_wrapper import DBwrapper
+from geizhals.product import Product
+from geizhals.wishlist import Wishlist
 
 
 class DBWrapperTest(unittest.TestCase):
@@ -12,6 +14,10 @@ class DBWrapperTest(unittest.TestCase):
         self.db_name = "test.db"
         self.db_name_test_create = "test_create.db"
         self.db = DBwrapper.get_instance(self.db_name)
+
+        # Define sample wishlist and product
+        self.wl = Wishlist(123456, "Wishlist", "https://geizhals.de/?cat=WL-123456", 123.45)
+        self.p = Product(123456, "Product", "https://geizhals.de/a123456", 123.45)
 
     def tearDown(self):
         self.db.delete_all_tables()
@@ -122,127 +128,92 @@ class DBWrapperTest(unittest.TestCase):
     def test_get_wishlist_info(self):
         self.assertTrue(True)
 
-    def test_is_wishlist_saved(self):
-        wl_id = 123456
-        wl_name = "Wishlist"
-        wl_url = "https://geizhals.de/?cat=WL-123456"
-        wl_price = 123.45
 
+    def test_is_wishlist_saved(self):
         # Check if wishlist is already saved
-        self.assertFalse(self.db.is_wishlist_saved(wl_id), "Wishlist is already saved!")
+        self.assertFalse(self.db.is_wishlist_saved(self.wl.id), "Wishlist is already saved!")
 
         # Add wishlist to the database
-        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
 
         # Check if wishlist is now saved in the db
-        self.assertTrue(self.db.is_wishlist_saved(wl_id), "Wishlist is not saved in the db!")
+        self.assertTrue(self.db.is_wishlist_saved(self.wl.id), "Wishlist is not saved in the db!")
 
     def test_is_product_saved(self):
-        p_id = 123456
-        p_name = "Product"
-        p_url = "https://geizhals.de/a123456"
-        p_price = 123.45
-
         # Make sure product is not already saved
-        self.assertFalse(self.db.is_product_saved(p_id), "Product should not be saved yet!")
+        self.assertFalse(self.db.is_product_saved(self.p.id), "Product should not be saved yet!")
 
         # Add product to the db
-        self.db.add_product(p_id, p_name, p_price, p_url)
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
 
         # Check if product is saved afterwards
-        self.assertTrue(self.db.is_product_saved(p_id), "Product is not saved in the db!")
+        self.assertTrue(self.db.is_product_saved(self.p.id), "Product is not saved in the db!")
 
     def test_add_wishlist(self):
         """Test for checking if wishlists are being added correctly"""
-        wl_id = 123456
-        wl_name = "Wishlist"
-        wl_url = "https://geizhals.de/?cat=WL-123456"
-        wl_price = 123.45
-
         # Make sure that element is not already in database
-        result = self.db.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?", [wl_id]).fetchone()[0]
+        result = self.db.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()[0]
         self.assertEqual(result, 0)
 
-        self.db.add_wishlist(id=wl_id, name=wl_name, url=wl_url, price=wl_price)
-        result = self.db.cursor.execute("SELECT wishlist_id, name, url, price  FROM wishlists WHERE wishlist_id=?", [wl_id]).fetchone()
+        self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
+        result = self.db.cursor.execute("SELECT wishlist_id, name, url, price  FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()
 
-        self.assertEqual(result[0], wl_id, msg="ID is not equal!")
-        self.assertEqual(result[1], wl_name, msg="Name is not equal!")
-        self.assertEqual(result[2], wl_url, msg="Url is not equal!")
-        self.assertEqual(result[3], wl_price, msg="Price is not equal!")
+        self.assertEqual(result[0], self.wl.id, msg="ID is not equal!")
+        self.assertEqual(result[1], self.wl.name, msg="Name is not equal!")
+        self.assertEqual(result[2], self.wl.url, msg="Url is not equal!")
+        self.assertEqual(result[3], self.wl.price, msg="Price is not equal!")
 
     def test_add_product(self):
         """Test for checking if products are being added correctly"""
-        p_id = 123456
-        p_name = "Product"
-        p_url = "https://geizhals.de/a123456"
-        p_price = 123.45
-
         # Make sure that element is not already in database
-        result = self.db.cursor.execute("SELECT count(*) FROM products WHERE product_id=?", [p_id]).fetchone()[0]
+        result = self.db.cursor.execute("SELECT count(*) FROM products WHERE product_id=?", [self.p.id]).fetchone()[0]
         self.assertEqual(result, 0)
 
-        self.db.add_product(id=p_id, name=p_name, url=p_url, price=p_price)
-        result = self.db.cursor.execute("SELECT product_id, name, url, price FROM products WHERE product_id=?", [p_id]).fetchone()
+        # Check if product is saved afterwards
+        self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
+        result = self.db.cursor.execute("SELECT product_id, name, url, price FROM products WHERE product_id=?", [self.p.id]).fetchone()
 
-        self.assertEqual(result[0], p_id, msg="ID is not equal!")
-        self.assertEqual(result[1], p_name, msg="Name is not equal!")
-        self.assertEqual(result[2], p_url, msg="Url is not equal!")
-        self.assertEqual(result[3], p_price, msg="Price is not equal!")
+        self.assertEqual(result[0], self.p.id, msg="ID is not equal!")
+        self.assertEqual(result[1], self.p.name, msg="Name is not equal!")
+        self.assertEqual(result[2], self.p.url, msg="Url is not equal!")
+        self.assertEqual(result[3], self.p.price, msg="Price is not equal!")
 
     def test_rm_wishlist(self):
-        wl_id = 123456
-        wl_name = "Wishlist"
-        wl_url = "https://geizhals.de/?cat=WL-123456"
-        wl_price = 123.45
-
         # Add wishlist and check if it's in the db
-        self.assertFalse(self.db.is_wishlist_saved(wl_id))
-        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
-        self.assertTrue(self.db.is_wishlist_saved(wl_id))
+        self.assertFalse(self.db.is_wishlist_saved(self.wl.id))
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+        self.assertTrue(self.db.is_wishlist_saved(self.wl.id))
 
         # Check if wishlist gets removed properly
-        self.db.rm_wishlist(wl_id)
-        self.assertFalse(self.db.is_wishlist_saved(wl_id))
+        self.db.rm_wishlist(self.wl.id)
+        self.assertFalse(self.db.is_wishlist_saved(self.wl.id))
 
     def test_rm_product(self):
-        p_id = 123456
-        p_name = "Product"
-        p_url = "https://geizhals.de/a123456"
-        p_price = 123.45
-
         # Add product and check if it's in the db
-        self.assertFalse(self.db.is_product_saved(p_id))
-        self.db.add_product(p_id, p_name, p_price, p_url)
-        self.assertTrue(self.db.is_product_saved(p_id))
+        self.assertFalse(self.db.is_product_saved(self.p.id))
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+        self.assertTrue(self.db.is_product_saved(self.p.id))
 
         # Check if product gets removed properly
-        self.db.rm_product(p_id)
-        self.assertFalse(self.db.is_product_saved(p_id))
+        self.db.rm_product(self.p.id)
+        self.assertFalse(self.db.is_product_saved(self.p.id))
+
 
     def test_update_wishlist_name(self):
-        wl_id = 123456
-        wl_name = "Wishlist"
-        wl_url = "https://geizhals.de/?cat=WL-123456"
-        wl_price = 123.45
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+        self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
 
-        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
-        self.assertEqual(self.db.get_wishlist_info(wl_id).name, wl_name)
-
-        self.db.update_wishlist_name(wl_id, "New Wishlist")
-        self.assertEqual(self.db.get_wishlist_info(wl_id).name, "New Wishlist")
+        self.db.update_wishlist_name(self.wl.id, "New Wishlist")
+        self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, "New Wishlist")
 
     def test_update_product_name(self):
-        p_id = 123456
-        p_name = "Product"
-        p_url = "https://geizhals.de/a123456"
-        p_price = 123.45
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+        self.assertEqual(self.db.get_product_info(self.p.id).name, self.p.name)
 
-        self.db.add_product(p_id, p_name, p_price, p_url)
-        self.assertEqual(self.db.get_product_info(p_id).name, p_name)
+        self.db.update_product_name(self.p.id, "New Product")
+        self.assertEqual(self.db.get_product_info(self.p.id).name, "New Product")
 
-        self.db.update_product_name(p_id, "New Product")
-        self.assertEqual(self.db.get_product_info(p_id).name, "New Product")
+
 
     def test_get_all_users(self):
         """Test to check if retreiving all users from the database works"""
