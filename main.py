@@ -27,22 +27,18 @@ state_list = []
 STATE_SEND_LINK = 0
 
 
-def setup_logging():
-    global logger
-    logdir_path = os.path.dirname(os.path.abspath(__file__))
-    logfile_path = os.path.join(logdir_path, "logs", "bot.log")
+global logger
+logdir_path = os.path.dirname(os.path.abspath(__file__))
+logfile_path = os.path.join(logdir_path, "logs", "bot.log")
 
-    if not os.path.exists(os.path.join(logdir_path, "logs")):
-        os.makedirs(os.path.join(logdir_path, "logs"))
+if not os.path.exists(os.path.join(logdir_path, "logs")):
+    os.makedirs(os.path.join(logdir_path, "logs"))
 
-    logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO, handlers=[logfile_handler])
+logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO, handlers=[logfile_handler, logging.StreamHandler()])
 
-    logger = logging.getLogger(__name__)
-
-
-setup_logging()
+logger = logging.getLogger(__name__)
 
 if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
