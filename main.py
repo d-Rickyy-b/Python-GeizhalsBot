@@ -88,7 +88,8 @@ def start(bot, update):
     bot.sendMessage(user.id, "Was möchtest du tun?", reply_markup=reply_markup)
 
 
-def help(bot, update):
+def help_cmd(bot, update):
+    """Bot help command"""
     user_id = update.message.from_user.id
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
                 "/start	-	Startmenü\n" \
@@ -379,7 +380,7 @@ def error_callback(bot, update, error):
 
 # Basic handlers for standard commands
 dp.add_handler(CommandHandler('start', callback=start))
-dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help))
+dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 
 # Bot specific commands
 dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
