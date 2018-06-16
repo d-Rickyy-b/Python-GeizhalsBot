@@ -46,9 +46,6 @@ if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
 
 updater = Updater(token=BOT_TOKEN)
 dp = updater.dispatcher
-useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 " \
-            "Safari/537.36"
 
 
 def set_state(user_id, state):
@@ -74,6 +71,7 @@ def rm_state(user_id):
 
 
 def start(bot, update):
+    """Bot start command"""
     user = update.message.from_user
 
     # If user is here for the first time > Save him to the DB
@@ -255,6 +253,7 @@ def check_for_price_update(bot, job):
 
 
 def get_wishlist_keyboard(action, wishlists, columns=2):
+    """Returns a formatted keyboard for wishlist buttons"""
     keyboard = []
     buttons = []
 
@@ -353,6 +352,7 @@ def callback_handler_f(bot, update):
 
 
 def unknown(bot, update):
+    """Bot method which gets called when no command could be recognized"""
     bot.send_message(chat_id=update.message.chat_id,
                      text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
