@@ -220,6 +220,30 @@ class DBWrapperTest(unittest.TestCase):
         self.db.rm_product(p_id)
         self.assertFalse(self.db.is_product_saved(p_id))
 
+    def test_update_wishlist_name(self):
+        wl_id = 123456
+        wl_name = "Wishlist"
+        wl_url = "https://geizhals.de/?cat=WL-123456"
+        wl_price = 123.45
+
+        self.db.add_wishlist(wl_id, wl_name, wl_price, wl_url)
+        self.assertEqual(self.db.get_wishlist_info(wl_id).name, wl_name)
+
+        self.db.update_wishlist_name(wl_id, "New Wishlist")
+        self.assertEqual(self.db.get_wishlist_info(wl_id).name, "New Wishlist")
+
+    def test_update_product_name(self):
+        p_id = 123456
+        p_name = "Product"
+        p_url = "https://geizhals.de/a123456"
+        p_price = 123.45
+
+        self.db.add_product(p_id, p_name, p_price, p_url)
+        self.assertEqual(self.db.get_product_info(p_id).name, p_name)
+
+        self.db.update_product_name(p_id, "New Product")
+        self.assertEqual(self.db.get_product_info(p_id).name, "New Product")
+
     def test_get_all_users(self):
         """Test to check if retreiving all users from the database works"""
         users = [{"id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"},

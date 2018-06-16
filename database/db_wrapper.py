@@ -156,6 +156,15 @@ class DBwrapper(object):
 
             return None
 
+        def get_product_info(self, product_id):
+            self.cursor.execute("SELECT product_id, name, price, url FROM products WHERE product_id=?;", [str(product_id)])
+            product = self.cursor.fetchone()
+
+            if product is not None:
+                return Product(id=str(product[0]), name=product[1], price=product[2], url=product[3])
+
+            return None
+
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
             result = self.cursor.fetchone()[0]
@@ -188,16 +197,16 @@ class DBwrapper(object):
             self.connection.commit()
 
         def subscribe_product(self, product_id, user_id):
-            # TODO implement
-            pass
+            self.cursor.execute("INSERT INTO product_subscribers VALUES (?, ?);", [str(product_id), str(user_id)])
+            self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
             self.cursor.execute("DELETE FROM wishlist_subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
 
         def unsubscribe_product(self, product_id, user_id):
-            # TODO implement
-            pass
+            self.cursor.execute("DELETE FROM product_subscribers WHERE user_id=? and product_id=?;", [str(user_id), str(product_id)])
+            self.connection.commit()
 
         def get_user(self, user_id):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
@@ -258,6 +267,10 @@ class DBwrapper(object):
 
         def update_wishlist_name(self, wishlist_id, name):
             self.cursor.execute("UPDATE wishlists SET name=? WHERE wishlist_id=?;", [str(name), str(wishlist_id)])
+            self.connection.commit()
+
+        def update_product_name(self, product_id, name):
+            self.cursor.execute("UPDATE products SET name=? WHERE product_id=?;", [str(name), str(product_id)])
             self.connection.commit()
 
         def update_wishlist_price(self, wishlist_id, price):

@@ -73,6 +73,12 @@ def get_wishlists_for_user(user_id):
     return db.get_wishlists_for_user(user_id)
 
 
+def get_products_for_user(user_id):
+    """Returns the subscribed wishlists for a certain user"""
+    db = DBwrapper.get_instance()
+    return db.get_products_for_user(user_id)
+
+
 def get_url(text):
     if re.match(Wishlist.url_pattern, text):
         return text
