@@ -293,7 +293,7 @@ def notify_user(bot, user_id, wishlist, old_price):
 
     message = "Der Preis von {link_name} hat sich geändert: {price}\n\n" \
               "{emoji} {diff} {change}".format(link_name=link(wishlist.url, wishlist.name),
-                                               price=bold(price(wishlist.price)),
+                                               price=bold(price(wishlist.price, signed=False)),
                                                emoji=emoji,
                                                diff=bold(price(diff)),
                                                change=change)
