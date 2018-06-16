@@ -98,6 +98,20 @@ class DBwrapper(object):
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
 
+        def get_subscribed_wishlist_count(self, user_id):
+            self.cursor.execute("SELECT COUNT(*) "
+                                "FROM wishlists "
+                                "INNER JOIN wishlist_subscribers on wishlist_subscribers.wishlist_id=wishlists.wishlist_id "
+                                "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
+
+        def get_subscribed_product_count(self, user_id):
+            self.cursor.execute("SELECT COUNT(*) "
+                                "FROM products "
+                                "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id "
+                                "WHERE product_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
+
         def get_wishlists(self, user_id):
             self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url "
                                 "FROM wishlists "
@@ -106,7 +120,11 @@ class DBwrapper(object):
             return self.cursor.fetchall()
 
         def get_products(self, user_id):
-            #TODO implement
+            self.cursor.execute("SELECT products.product_id, products.url "
+                                "FROM products "
+                                "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id "
+                                "WHERE product_subscribers.user_id=?;", [str(user_id)])
+            return self.cursor.fetchone()[0]
             pass
 
         def get_all_wishlists(self):
@@ -138,6 +156,15 @@ class DBwrapper(object):
 
             return None
 
+        def get_product_info(self, product_id):
+            self.cursor.execute("SELECT product_id, name, price, url FROM products WHERE product_id=?;", [str(product_id)])
+            product = self.cursor.fetchone()
+
+            if product is not None:
+                return Product(id=str(product[0]), name=product[1], price=product[2], url=product[3])
+
+            return None
+
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
             result = self.cursor.fetchone()[0]
@@ -162,24 +189,24 @@ class DBwrapper(object):
             self.connection.commit()
 
         def rm_product(self, product_id):
-            #TODO implement
-            pass
+            self.cursor.execute("DELETE FROM products WHERE products.product_id=?", [str(product_id)])
+            self.connection.commit()
 
         def subscribe_wishlist(self, wishlist_id, user_id):
             self.cursor.execute("INSERT INTO wishlist_subscribers VALUES (?, ?);", [str(wishlist_id), str(user_id)])
             self.connection.commit()
 
         def subscribe_product(self, product_id, user_id):
-            #TODO implement
-            pass
+            self.cursor.execute("INSERT INTO product_subscribers VALUES (?, ?);", [str(product_id), str(user_id)])
+            self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
             self.cursor.execute("DELETE FROM wishlist_subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
 
         def unsubscribe_product(self, product_id, user_id):
-            #TODO implement
-            pass
+            self.cursor.execute("DELETE FROM product_subscribers WHERE user_id=? and product_id=?;", [str(user_id), str(product_id)])
+            self.connection.commit()
 
         def get_user(self, user_id):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
@@ -200,7 +227,7 @@ class DBwrapper(object):
             return users
 
         def get_users_for_product(self, product_id):
-            #TODO implement
+            # TODO implement
             pass
 
         def get_wishlists_for_user(self, user_id):
@@ -242,6 +269,10 @@ class DBwrapper(object):
             self.cursor.execute("UPDATE wishlists SET name=? WHERE wishlist_id=?;", [str(name), str(wishlist_id)])
             self.connection.commit()
 
+        def update_product_name(self, product_id, name):
+            self.cursor.execute("UPDATE products SET name=? WHERE product_id=?;", [str(name), str(product_id)])
+            self.connection.commit()
+
         def update_wishlist_price(self, wishlist_id, price):
             self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
             try:
@@ -252,7 +283,7 @@ class DBwrapper(object):
             self.connection.commit()
 
         def update_product_price(self):
-            #TODO implement
+            # TODO implement
             pass
 
         def get_all_users(self):

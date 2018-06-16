@@ -2,10 +2,12 @@
 import re
 
 import geizhals.core
+import geizhals.exceptions
 
 
 class Wishlist(object):
     """Representation of a Geizhals wishlist"""
+    url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
 
     def __init__(self, id, name, url, price):
         """Create a wishlist object by parameters"""
@@ -18,12 +20,13 @@ class Wishlist(object):
     @staticmethod
     def from_url(url):
         """Create a wishlist object by url"""
-        url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
+        if not re.match(Wishlist.url_pattern, url):
+            raise geizhals.exceptions.InvalidWishlistURLException
 
         wl = Wishlist(0, "", url, 0)
         wl.price = wl.get_current_price()
         wl.name = wl.get_current_name()
-        wl.id = int(re.search(url_pattern, url).group(2))
+        wl.id = int(re.search(Wishlist.url_pattern, url).group(2))
 
         return wl
 
@@ -64,7 +67,6 @@ class Wishlist(object):
         if not self.__html:
             self.__html = geizhals.core.send_request(self.__url)
 
-    # Get the current price of a certain wishlist
     def get_current_price(self):
         """Get the current price of a wishlist from Geizhals"""
         self.get_html()
