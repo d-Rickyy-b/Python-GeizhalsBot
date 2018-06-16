@@ -125,7 +125,6 @@ class DBwrapper(object):
                                 "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id "
                                 "WHERE product_subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchone()[0]
-            pass
 
         def get_all_wishlists(self):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists;")
@@ -315,12 +314,12 @@ class DBwrapper(object):
 
         def is_user_saved(self, user_id):
             self.cursor.execute("SELECT rowid, * FROM users WHERE user_id=?;", [str(user_id)])
-
             result = self.cursor.fetchall()
+
             if len(result) > 0:
                 return True
-            else:
-                return False
+
+            return False
 
         def close_conn(self):
             self.connection.close()
