@@ -126,8 +126,16 @@ class DBWrapperTest(unittest.TestCase):
             self.assertTrue(found, msg="Inserted product was not found!")
 
     def test_get_wishlist_info(self):
-        self.assertTrue(True)
+        """Test to check if fetching information for a wishlist works"""
+        self.assertFalse(self.db.is_wishlist_saved(self.wl.id), "Wishlist is already saved!")
 
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+        wishlist = self.db.get_wishlist_info(self.wl.id)
+
+        self.assertEqual(wishlist.id, self.wl.id)
+        self.assertEqual(wishlist.name, self.wl.name)
+        self.assertEqual(wishlist.url, self.wl.url)
+        self.assertEqual(wishlist.price, self.wl.price)
 
     def test_is_wishlist_saved(self):
         # Check if wishlist is already saved
