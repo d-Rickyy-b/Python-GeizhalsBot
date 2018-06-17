@@ -111,6 +111,16 @@ def add_menu(bot, update):
     )
 
 
+def show_menu(bot, update):
+    keyboard = [[InlineKeyboardButton("Wunschlisten", callback_data='showWishlists'),
+                 InlineKeyboardButton("Produkte", callback_data='showProducts')]]
+
+    update.message.reply_text(
+        "Welche Preisagenten möchtest du einsehen?",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
 def add(bot, update):
     user = update.message.from_user
 
