@@ -74,7 +74,7 @@ def rm_state(user_id):
         index += 1
 
 
-def start(bot, update):
+def start_cmd(bot, update):
     """Bot start command"""
     user = update.message.from_user
 
@@ -441,7 +441,7 @@ def error_callback(bot, update, error):
 
 
 # Basic handlers for standard commands
-dp.add_handler(CommandHandler('start', callback=start))
+dp.add_handler(CommandHandler('start', callback=start_cmd))
 dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 
 # Bot specific commands
