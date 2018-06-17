@@ -248,7 +248,7 @@ class DBwrapper(object):
             """Returns all products a user subscribed to"""
             self.cursor.execute(
                 "SELECT products.product_id, products.name, products.price, products.url \
-                 FROM 'products_subscribers' AS ps \
+                 FROM 'product_subscribers' AS ps \
                  INNER JOIN products on products.product_id=ps.product_id \
                  WHERE ps.user_id=?;", [str(user_id)])
             product_l = self.cursor.fetchall()
