@@ -120,7 +120,7 @@ def my_lists(bot, update):
         bot.sendMessage(user_id, "Noch keine Wunschliste!")
         return
 
-    keyboard = get_wishlist_keyboard("show", wishlists)
+    keyboard = get_wishlist_keyboard("show_wl", wishlists)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
@@ -331,7 +331,7 @@ def callback_handler_f(bot, update):
                                 reply_markup=reply_markup,
                                 parse_mode="HTML", disable_web_page_preview=True)
             bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Die Wunschliste wurde gelöscht!")
-        elif action == "show":
+        elif action == "show_wl":
             bot.editMessageText(chat_id=user_id, message_id=message_id,
                                 text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                     link_name=link(wishlist.url, wishlist.name), price=bold(price(wishlist.price, signed=False))),
