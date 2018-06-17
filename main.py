@@ -47,7 +47,7 @@ if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
 updater = Updater(token=BOT_TOKEN)
 dp = updater.dispatcher
 
-cancel_button = InlineKeyboardButton("Abbrechen", callback_data='cancel')
+cancel_button = InlineKeyboardButton("🚫 Abbrechen", callback_data='cancel')
 
 
 def set_state(user_id, state):
@@ -141,8 +141,7 @@ def remove(bot, update):
 
     keyboard = get_wishlist_keyboard("remove", wishlists)
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=reply_markup)
+    bot.sendMessage(user_id, "Bitte wähle die Wunschliste, die du löschen möchtest!", reply_markup=keyboard)
 
 
 def handle_text(bot, update):
