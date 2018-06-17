@@ -273,6 +273,7 @@ class DBwrapper(object):
             self.connection.commit()
 
         def update_wishlist_price(self, wishlist_id, price):
+            """Update the price of a wishlist in the database and add a price entry in the wishlist_prices table"""
             self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
             try:
                 utc_timestamp_now = int(datetime.utcnow().timestamp())
@@ -281,9 +282,15 @@ class DBwrapper(object):
                 self.logger.error("Insert into wishlist_prices not possible: {}, {}".format(wishlist_id, price))
             self.connection.commit()
 
-        def update_product_price(self):
-            # TODO implement
-            pass
+        def update_product_price(self, product_id, price):
+            """Update the price of a product in the database and add a price entry in the product_prices table"""
+            self.cursor.execute("UPDATE products SET price=? WHERE product_id=?;", [str(price), str(product_id)])
+            try:
+                utc_timestamp_now = int(datetime.utcnow().timestamp())
+                self.cursor.execute("INSERT INTO product_prices VALUES (?, ?, ?)", [str(product_id), str(price), str(utc_timestamp_now)])
+            except sqlite3.IntegrityError:
+                self.logger.error("Insert into product_prices not possible: {}, {}".format(product_id, price))
+            self.connection.commit()
 
         def get_all_users(self):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users;")

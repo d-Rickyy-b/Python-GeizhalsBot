@@ -251,7 +251,25 @@ class DBWrapperTest(unittest.TestCase):
         self.db.update_product_name(self.p.id, "New Product")
         self.assertEqual(self.db.get_product_info(self.p.id).name, "New Product")
 
+    def test_update_wishlist_price(self):
+        """Test to check if updating the wishlist price in the database works as intended"""
+        new_price = 999.99
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+        self.db.update_wishlist_price(wishlist_id=self.wl.id, price=new_price)
 
+        price = self.db.cursor.execute("SELECT price FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()[0]
+
+        self.assertEqual(price, new_price)
+
+    def test_update_product_price(self):
+        """Test to check if updating the product price in the database works as intended"""
+        new_price = 999.99
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+        self.db.update_product_price(product_id=self.p.id, price=new_price)
+
+        price = self.db.cursor.execute("SELECT price FROM products WHERE product_id=?", [self.p.id]).fetchone()[0]
+
+        self.assertEqual(price, new_price)
 
     def test_get_all_users(self):
         """Test to check if retreiving all users from the database works"""
