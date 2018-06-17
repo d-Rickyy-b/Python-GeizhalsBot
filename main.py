@@ -11,7 +11,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count, get_wishlists_for_user, get_url
+from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_wishlist_count, get_wishlists_for_user, get_url, get_products_for_user
 from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
