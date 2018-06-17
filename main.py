@@ -74,6 +74,7 @@ def rm_state(user_id):
         index += 1
 
 
+# Text commands
 def start_cmd(bot, update):
     """Bot start command"""
     user = update.message.from_user
@@ -97,6 +98,7 @@ def help_cmd(bot, update):
                 "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
+
 
 # Inline menus
 def add_menu(bot, update):
@@ -242,6 +244,7 @@ def add_wishlist(bot, update):
 def check_for_price_update(bot, job):
     logger.debug("Checking for updates!")
     db = DBwrapper.get_instance()
+    # TODO only get wishlists which have subscribers
     wishlists = db.get_all_wishlists()
 
     # Check all wishlists for price updates
@@ -390,6 +393,7 @@ def callback_handler_f(bot, update):
             bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
 
     elif action == "cancel":
+        """Reset the user's state"""
         rm_state(user_id)
         text = "Okay, Ich habe die Aktion abgebrochen!"
         bot.editMessageText(chat_id=user_id, message_id=message_id, text=text)
@@ -410,7 +414,7 @@ def callback_handler_f(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
         bot.answerCallbackQuery(callback_query_id=callback_query_id)
     elif action == "addProduct":
-        # TODO Check if >= 5 wishlists already subscribed
+        # TODO Check if >= 5 products already subscribed
         set_state(user_id, STATE_SEND_P_LINK)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
