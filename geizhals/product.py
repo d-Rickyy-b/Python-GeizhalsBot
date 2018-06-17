@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 import geizhals.core
+import geizhals.exceptions
 
 
 class Product(object):
+    url_pattern = "https:\/\/geizhals\.(de|at|eu)\/[0-9a-zA-Z\-]*a([0-9]+).html"
+
     def __init__(self, id, name, url, price):
         self.__html = None
         self.__id = int(id)
