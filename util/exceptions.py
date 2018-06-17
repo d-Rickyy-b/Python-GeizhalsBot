@@ -12,6 +12,10 @@ class WishlistNotFoundException(Exception):
     pass
 
 
+class ProductNotFoundException(Exception):
+    pass
+
+
 class TooManyWishlistsException(Exception):
     pass
 

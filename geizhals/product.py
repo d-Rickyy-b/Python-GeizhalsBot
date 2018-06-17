@@ -16,6 +16,18 @@ class Product(object):
         self.__url = str(url)
         self.__price = float(price)
 
+    @staticmethod
+    def from_url(url):
+        if not re.match(Product.url_pattern, url):
+            raise geizhals.exceptions.InvalidWishlistURLException
+
+        p = Product(0, "", url, 0)
+        p.price = p.get_current_price()
+        p.name = p.get_current_name()
+        p.id = int(re.search(Product.url_pattern, url).group(2))
+
+        return p
+
     @property
     def id(self):
         return self.__id
@@ -52,3 +64,29 @@ class Product(object):
         """Check if html for product is already downloaded - if not download html and save in wishlist.__html"""
         if not self.__html:
             self.__html = geizhals.core.send_request(self.__url)
+
+    def get_current_price(self):
+        """Get the current price of a wishlist from Geizhals"""
+        self.get_html()
+        self.get_current_name()
+        price = geizhals.core.parse_product_price(self.__html)
+
+        # Parse price so that it's a proper comma value (no `,--`)
+        pattern = "([0-9]+)\.([0-9]+|[-]+)"
+        pattern_dash = "([0-9]+)\.([-]+)"
+
+        if re.match(pattern, price):
+            if re.match(pattern_dash, price):
+                price = float(re.search(pattern_dash, price).group(1))
+        else:
+            raise ValueError("Couldn't parse price!")
+
+        return float(price)
+
+    def get_current_name(self):
+        """Get the current name of a wishlist from Geizhals"""
+        self.get_html()
+
+        name = geizhals.core.parse_product_name(self.__html)
+
+        return name
