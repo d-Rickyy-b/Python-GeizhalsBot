@@ -254,24 +254,43 @@ def check_for_price_update(bot, job):
 
 def get_wishlist_keyboard(action, wishlists, columns=2):
     """Returns a formatted keyboard for wishlist buttons"""
-    keyboard = []
     buttons = []
 
     for wishlist in wishlists:
         callback_data = '{action}_{id}'.format(action=action, id=wishlist.id)
         button = InlineKeyboardButton(wishlist.name, callback_data=callback_data)
-
-        if len(buttons) >= columns:
-            keyboard.append(buttons)
-            buttons = []
-
         buttons.append(button)
 
-    if len(buttons) > 0:
-        keyboard.append(buttons)
-        keyboard.append([cancel_button])
+    return generate_keyboard(buttons, columns)
 
-    return keyboard
+
+def get_product_keyboard(action, products, columns=2):
+    """Returns a formatted keyboard for wishlist buttons"""
+    buttons = []
+
+    for product in products:
+        callback_data = '{action}_{id}'.format(action=action, id=product.id)
+        button = InlineKeyboardButton(product.name, callback_data=callback_data)
+        buttons.append(button)
+
+    return generate_keyboard(buttons, columns)
+
+
+def generate_keyboard(buttons, columns):
+    """Generate a keyboard with the specified amount of columns"""
+    keyboard = []
+
+    row = []
+    for button in buttons:
+        row.append(button)
+        if len(row) >= columns:
+            keyboard.append(row)
+            row = []
+
+    if len(row) > 0:
+        keyboard.append(row)
+
+    return InlineKeyboardMarkup(keyboard)
 
 
 # Notify a user that his wishlist updated it's price
