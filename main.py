@@ -15,7 +15,7 @@ from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, g
 from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
-from filters.own_filters import delete_list_filter, my_lists_filter, new_list_filter
+from filters.own_filters import new_filter, show_filter
 from geizhals.wishlist import Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, InvalidURLException, IncompleteRequestException
@@ -431,6 +431,35 @@ def callback_handler_f(bot, update):
                             text="Bitte sende mir eine URL eines Produkts!",
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
         bot.answerCallbackQuery(callback_query_id=callback_query_id)
+    elif action == "showWishlists":
+        wishlists = get_wishlists_for_user(user_id)
+
+        if len(wishlists) == 0:
+            bot.editMessageText(chat_id=user_id, message_id=message_id,
+                                text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!")
+            return
+
+        keyboard = get_wishlist_keyboard("showWl", wishlists)
+
+        bot.answerCallbackQuery(callback_query_id=callback_query_id)
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
+                            text="Das sind deine Preisagenten für deine Wunschlisten:",
+                            reply_markup=keyboard)
+    elif action == "showProducts":
+        products = get_products_for_user(user_id)
+
+        if len(products) == 0:
+            bot.editMessageText(chat_id=user_id, message_id=message_id,
+                                text="Du hast noch keinen Preisagenten für ein Produkt angelegt!")
+            return
+
+        keyboard = get_product_keyboard("showP", products)
+
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
+                            text="Das sind deine Preisagenten für deine Produkte:",
+                            reply_markup=keyboard)
+
+
 def unknown(bot, update):
     """Bot method which gets called when no command could be recognized"""
     bot.send_message(chat_id=update.message.chat_id,
@@ -459,13 +488,13 @@ dp.add_handler(CommandHandler('start', callback=start_cmd))
 dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 
 # Bot specific commands
-dp.add_handler(CommandHandler(['add', 'hinzufügen', 'new_list'], callback=add))
+dp.add_handler(CommandHandler(['add', 'hinzufügen'], callback=add_menu))
 dp.add_handler(CommandHandler(['delete', 'remove', 'unsubscribe'], callback=remove))
-dp.add_handler(CommandHandler(['my_lists', 'show'], my_lists))
+dp.add_handler(CommandHandler("show", show_menu))
+dp.add_handler(CommandHandler("my_lists", my_lists))
 
-dp.add_handler(MessageHandler(new_list_filter, add))
-dp.add_handler(MessageHandler(delete_list_filter, remove))
-dp.add_handler(MessageHandler(my_lists_filter, my_lists))
+dp.add_handler(MessageHandler(new_filter, add_menu))
+dp.add_handler(MessageHandler(show_filter, show_menu))
 
 # Callback, Text and fallback handlers
 dp.add_handler(CallbackQueryHandler(callback_handler_f))

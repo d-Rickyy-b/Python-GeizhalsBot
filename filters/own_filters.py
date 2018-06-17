@@ -3,25 +3,17 @@
 from telegram.ext import BaseFilter
 
 
-class _FilterNewList(BaseFilter):
+class _FilterNew(BaseFilter):
     def filter(self, message):
-        return message.text.startswith("Neue Liste")
+        commands = ["Neuer Preisagent"]
+        return message.text in commands
 
 
-new_list_filter = _FilterNewList()
-
-
-class _FilterDeleteList(BaseFilter):
+class _FilterShow(BaseFilter):
     def filter(self, message):
-        return message.text.startswith("Liste löschen")
+        commands = ["Meine Preisagenten"]
+        return message.text in commands
 
 
-delete_list_filter = _FilterDeleteList()
-
-
-class _FilterMyLists(BaseFilter):
-    def filter(self, message):
-        return message.text.startswith("Meine Wunschlisten")
-
-
-my_lists_filter = _FilterMyLists()
+new_filter = _FilterNew()
+show_filter = _FilterShow()
