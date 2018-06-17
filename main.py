@@ -81,7 +81,7 @@ def start(bot, update):
     # If user is here for the first time > Save him to the DB
     add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
 
-    keyboard = [[KeyboardButton("Neue Liste"), KeyboardButton("Liste löschen")], [KeyboardButton("Meine Wunschlisten")]]
+    keyboard = [[KeyboardButton("Neuer Preisagent"), KeyboardButton("Meine Preisagenten")]]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
     bot.sendMessage(user.id, "Was möchtest du tun?", reply_markup=reply_markup)
 
