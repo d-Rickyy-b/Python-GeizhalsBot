@@ -12,7 +12,7 @@ def add_user_if_new(user):
     """Save a user to the database, if the user is not already stored"""
     db = DBwrapper.get_instance()
     if not db.is_user_saved(user.id):
-        db.add_user(user.id, user.first_name, user.username, user.lang_code)
+        db.add_user(user.id, user.first_name, user.username, user.language_code)
 
 
 def add_wishlist_if_new(wishlist):
