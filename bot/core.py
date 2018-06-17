@@ -5,7 +5,8 @@ import re
 
 from database.db_wrapper import DBwrapper
 from geizhals.wishlist import Wishlist
-from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, IncompleteRequestException, InvalidURLException
+from geizhals.product import Product
+from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, InvalidURLException
 
 
 def add_user_if_new(user):
@@ -60,10 +61,25 @@ def get_wishlist(id):
     return wishlist
 
 
+def get_product(id):
+    """Returns the product object for an id"""
+    db = DBwrapper.get_instance()
+    product = db.get_product_info(id)
+
+    if product is None:
+        raise ProductNotFoundException
+
+    return product
+
 def get_wishlist_count(user_id):
     """Returns the count of subscribed wishlists for a user"""
     db = DBwrapper.get_instance()
     return db.get_subscribed_wishlist_count(user_id)
+
+
+def get_product_count(user_id):
+    db = DBwrapper.get_instance()
+    return db.get_subscribed_product_count(user_id)
 
 
 def get_wishlists_for_user(user_id):
@@ -78,15 +94,15 @@ def get_products_for_user(user_id):
     return db.get_products_for_user(user_id)
 
 
-def get_url(text):
+def get_wl_url(text):
     if re.match(Wishlist.url_pattern, text):
         return text
-
-    if text == "/add" or text == "Neue Liste":
-        raise IncompleteRequestException
-    elif "/add " in text:
-        url = text.split()[1]
     else:
         raise InvalidURLException
 
-    return url
+
+def get_p_url(text):
+    if re.match(Product.url_pattern, text):
+        return text
+    else:
+        raise InvalidURLException
