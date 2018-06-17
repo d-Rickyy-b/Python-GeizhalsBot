@@ -46,8 +46,14 @@ def parse_wishlist_name(html_str):
 
 
 def parse_product_price(html_str):
-    pass
+    # TODO Add selector
+    selector = ""
+    price = parse_html(html_str, selector)
+    return price
 
 
 def parse_product_name(html_str):
-    pass
+    # TODO Add selector
+    selector = ""
+    name = parse_html(html_str, selector)
+    return name
