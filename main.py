@@ -220,7 +220,8 @@ def add_wishlist(bot, update):
             rm_state(user.id)
         except AlreadySubscribedException as ase:
             logger.debug("User already subscribed!")
-            bot.sendMessage(user.id, "Du hast diese Wunschliste bereits abboniert!")
+            bot.sendMessage(user.id, "Du hast diese Wunschliste bereits abboniert! Bitte sende mir eine andere URL.",
+                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
 # Method to check all wishlists for price updates
