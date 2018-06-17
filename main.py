@@ -113,17 +113,30 @@ def add(bot, update):
 
 # Sends the user a message with all his wishlists
 def my_lists(bot, update):
+    """Returns all price agents for the user's wishlists"""
     user_id = update.message.from_user.id
     wishlists = get_wishlists_for_user(user_id)
 
     if len(wishlists) == 0:
-        bot.sendMessage(user_id, "Noch keine Wunschliste!")
+        bot.sendMessage(user_id, "Du hast noch keinen Preisagenten für eine Wunschliste angelegt!")
         return
 
     keyboard = get_wishlist_keyboard("show_wl", wishlists)
 
+    bot.sendMessage(user_id, "Das sind deine Preisagenten für deine Wunschlisten:", reply_markup=keyboard)
+
+
+def my_products(bot, update):
+    user_id = update.message.from_user.id
+    products = get_products_for_user(user_id)
+
+    if len(products) == 0:
+        bot.sendMessage(user_id, "Du hast noch keine Preisagenten für Produkte!")
+        return
+
+    keyboard = None  # TODO
     reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.sendMessage(user_id, "Das sind deine Wunschlisten:", reply_markup=reply_markup)
+    bot.sendMessage(user_id, "Das sind deine Produkte:", reply_markup=reply_markup)
 
 
 # Remove a wishlist from a user's account
