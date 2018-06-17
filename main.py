@@ -25,6 +25,8 @@ __author__ = 'Rico'
 
 state_list = []
 STATE_SEND_LINK = 0
+STATE_SEND_WL_LINK = 1
+STATE_SEND_P_LINK = 2
 
 
 global logger
@@ -96,6 +98,16 @@ def help_cmd(bot, update):
 
     bot.sendMessage(user_id, help_text)
 
+# Inline menus
+def add_menu(bot, update):
+    keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
+                 InlineKeyboardButton("Produkt", callback_data='addProduct')]]
+
+    update.message.reply_text(
+        "Was möchtest du hinzufügen?",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
 
 def add(bot, update):
     user = update.message.from_user
@@ -162,9 +174,11 @@ def handle_text(bot, update):
     user_id = update.message.from_user.id
 
     for userstate in state_list:
-        if userstate.user_id() == user_id and userstate.state() == STATE_SEND_LINK:
-            add_wishlist(bot, update)
-            rm_state(user_id)
+        if userstate.user_id() == user_id:
+            if userstate.state() == STATE_SEND_P_LINK:
+                pass
+            elif userstate.state() == STATE_SEND_WL_LINK:
+                add_wishlist(bot, update)
 
 
 def add_wishlist(bot, update):
@@ -387,8 +401,22 @@ def callback_handler_f(bot, update):
         bot.answerCallbackQuery(callback_query_id=callback_query_id,
                                 text="Bitte lösche zuerst eine andere Wunschliste.")
         remove(bot, update)
+    elif action == "addWishlist":
+        # TODO Check if >= 5 wishlists already subscribed
+        set_state(user_id, STATE_SEND_WL_LINK)
 
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
+                            text="Bitte sende mir eine URL einer Wunschliste!",
+                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+        bot.answerCallbackQuery(callback_query_id=callback_query_id)
+    elif action == "addProduct":
+        # TODO Check if >= 5 wishlists already subscribed
+        set_state(user_id, STATE_SEND_P_LINK)
 
+        bot.editMessageText(chat_id=user_id, message_id=message_id,
+                            text="Bitte sende mir eine URL eines Produkts!",
+                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+        bot.answerCallbackQuery(callback_query_id=callback_query_id)
 def unknown(bot, update):
     """Bot method which gets called when no command could be recognized"""
     bot.send_message(chat_id=update.message.chat_id,
