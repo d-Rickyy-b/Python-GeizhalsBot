@@ -92,13 +92,13 @@ class DBWrapperTest(unittest.TestCase):
 
         db_wishlists = self.db.get_all_wishlists()
 
-        for db_wl in db_wishlists:
+        for wl in wishlists:
             found = False
-            for wl in wishlists:
+            for db_wl in db_wishlists:
                 if db_wl.id == wl.get("id"):
                     found = True
 
-            self.assertTrue(found, msg="Inserted wishlist was not found!")
+            self.assertTrue(found, msg="Inserted wishlist {} was not found!".format(wl.get("id")))
 
     def test_get_all_products(self):
         """Test to check if retreiving all products works"""
