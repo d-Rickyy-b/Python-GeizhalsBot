@@ -12,7 +12,8 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_product, \
-    get_wishlist_count, get_product_count, get_wishlists_for_user, get_wl_url, get_p_url, get_products_for_user
+    get_wishlist_count, get_product_count, get_wishlists_for_user, get_wl_url, get_p_url, get_products_for_user, \
+    subscribe_product, add_product_if_new
 from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
@@ -224,11 +225,11 @@ def add_product(bot, update):
         bot.sendMessage(chat_id=user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
     else:
-        add_wishlist_if_new(product)
+        add_product_if_new(product)
 
         try:
             logger.debug("Subscribing to product.")
-            subscribe_wishlist(user, product)
+            subscribe_product(user, product)
             bot.sendMessage(user.id,
                             "Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(product.url, product.name),

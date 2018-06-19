@@ -27,6 +27,15 @@ def add_wishlist_if_new(wishlist):
         pass
         # logger.debug("URL in database!")
 
+def add_product_if_new(product):
+    """Save a product to the database, if it is not already stored"""
+    db = DBwrapper.get_instance()
+
+    if not db.is_product_saved(product.id):
+        db.add_product(product.id, product.name, product.price, product.url)
+    else:
+        pass
+
 
 def is_user_wishlist_subscriber(user, wishlist):
     """Returns if a user is a wishlist subscriber"""
@@ -45,9 +54,14 @@ def subscribe_wishlist(user, wishlist):
         raise AlreadySubscribedException
 
 
-def subscribe_product():
+def subscribe_product(user, product):
     """Subscribe to a product as a user"""
-    pass
+    db = DBwrapper.get_instance()
+
+    if not db.is_user_product_subscriber(user.id, product.id):
+        db.subscribe_product(product.id, user.id)
+    else:
+        raise AlreadySubscribedException
 
 
 def get_wishlist(id):

@@ -265,7 +265,7 @@ class DBwrapper(object):
             return result and len(result) > 0
 
         def is_user_product_subscriber(self, user_id, product_id):
-            self.cursor.execute("SELECT * FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.wishlist_id=?;", [str(user_id), str(product_id)])
+            self.cursor.execute("SELECT * FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(product_id)])
             result = self.cursor.fetchone()
             return result and len(result) > 0
 
