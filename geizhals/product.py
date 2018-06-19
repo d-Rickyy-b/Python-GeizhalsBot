@@ -8,6 +8,7 @@ import geizhals.exceptions
 
 class Product(object):
     url_pattern = "https:\/\/geizhals\.(de|at|eu)\/[0-9a-zA-Z\-]*a([0-9]+).html"
+    type = "p"
 
     def __init__(self, id, name, url, price):
         self.__html = None

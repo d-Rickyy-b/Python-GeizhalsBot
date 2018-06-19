@@ -375,7 +375,7 @@ def callback_handler_f(bot, update):
 
     if entity_id:
         """Check if it's just a command or if an ID/type is passed"""
-        if entity_type == "wl":
+        if entity_type == Wishlist.type:
             wishlist_id = entity_id
             try:
                 wishlist = get_wishlist(wishlist_id)
@@ -409,7 +409,7 @@ def callback_handler_f(bot, update):
                 bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
                                     disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
-        elif entity_type == "p":
+        elif entity_type == Product.type:
             product_id = entity_id
             try:
                 product = get_product(product_id)

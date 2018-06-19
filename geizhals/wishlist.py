@@ -8,6 +8,7 @@ import geizhals.exceptions
 class Wishlist(object):
     """Representation of a Geizhals wishlist"""
     url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
+    type = "wl"
 
     def __init__(self, id, name, url, price):
         """Create a wishlist object by parameters"""
