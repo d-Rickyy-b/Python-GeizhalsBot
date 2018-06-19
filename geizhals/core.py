@@ -46,14 +46,12 @@ def parse_wishlist_name(html_str):
 
 
 def parse_product_price(html_str):
-    # TODO Add selector
-    selector = ""
+    selector = "div#offer__price-0 span.gh_price"
     price = parse_html(html_str, selector)
     return price
 
 
 def parse_product_name(html_str):
-    # TODO Add selector
-    selector = ""
+    selector = "div#gh_artbox span[itemprop='name']"
     name = parse_html(html_str, selector)
     return name
