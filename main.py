@@ -332,9 +332,9 @@ def generate_keyboard(buttons, columns, cancel=False):
     return InlineKeyboardMarkup(keyboard)
 
 
-def notify_user(bot, user_id, wishlist, old_price):
-    diff = wishlist.price - old_price
+def notify_user(bot, user_id, entity, old_price):
     """Notify a user of price changes"""
+    diff = entity.price - old_price
 
     if diff > 0:
         emoji = "📈"
@@ -346,8 +346,8 @@ def notify_user(bot, user_id, wishlist, old_price):
     logger.info("Notifying user {}!".format(user_id))
 
     message = "Der Preis von {link_name} hat sich geändert: {price}\n\n" \
-              "{emoji} {diff} {change}".format(link_name=link(wishlist.url, wishlist.name),
-                                               price=bold(price(wishlist.price, signed=False)),
+              "{emoji} {diff} {change}".format(link_name=link(entity.url, entity.name),
+                                               price=bold(price(entity.price, signed=False)),
                                                emoji=emoji,
                                                diff=bold(price(diff)),
                                                change=change)
