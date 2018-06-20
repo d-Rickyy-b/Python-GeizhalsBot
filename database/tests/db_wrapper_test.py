@@ -72,8 +72,6 @@ class DBWrapperTest(unittest.TestCase):
             result = self.db.cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;", [table_name]).fetchone()[0]
             self.assertEqual(result, 1, msg="Table '{}' does not exist!".format(table_name))
 
-
-
     def test_get_all_wishlists(self):
         """Test to check if all wishlists can be retreived from the db"""
         wishlists = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/?cat=WL-962572", "price": 62.80},
@@ -237,6 +235,7 @@ class DBWrapperTest(unittest.TestCase):
         result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
 
         self.assertEqual(len(result), 1)
+
     def test_update_wishlist_name(self):
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
