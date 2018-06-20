@@ -13,7 +13,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_product, \
     get_wishlist_count, get_product_count, get_wishlists_for_user, get_wl_url, get_p_url, get_products_for_user, \
-    subscribe_product, add_product_if_new
+    subscribe_product, add_product_if_new, update_entity_name, update_entity_price, get_entity_subscribers
 from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
@@ -251,41 +251,52 @@ def check_for_price_update(bot, job):
     db = DBwrapper.get_instance()
     # TODO only get wishlists which have subscribers
     wishlists = db.get_all_wishlists()
+    products = db.get_all_products()
 
-    # Check all wishlists for price updates
-    for wishlist in wishlists:
-        logger.debug("URL is '{}'".format(wishlist.url))
-        old_price = wishlist.price
-        old_name = wishlist.name
+    entities = wishlists + products
+
+    # Check all entities for price updates
+    for entity in entities:
+        logger.debug("URL is '{}'".format(entity.url))
+        old_price = entity.price
+        old_name = entity.name
         try:
-            new_price = wishlist.get_current_price()
-            new_name = wishlist.get_current_name()
+            new_price = entity.get_current_price()
+            new_name = entity.get_current_name()
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Wunschliste ist nicht öffentlich!")
 
-                for user in db.get_users_for_wishlist(wishlist.id):
+                if entity.TYPE == EntityType.PRODUCT:
+                    product_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
+                                     "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
+                    for user_id in db.get_users_for_product(entity.id):
+                        bot.send_message(user_id, product_hidden, parse_mode="HTML")
+                        db.unsubscribe_product(user_id, entity.id)
+                    db.rm_product(entity.id)
+                elif entity.TYPE == EntityType.WISHLIST:
                     wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
-                                      "Ich entferne diesen Preisagent.".format(
-                        link_name=link(wishlist.url, wishlist.name))
-                    bot.send_message(user, wishlist_hidden, parse_mode="HTML")
-                    db.unsubscribe_wishlist(user, wishlist.id)
-                db.rm_wishlist(wishlist.id)
+                                      "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
+                    for user_id in db.get_users_for_wishlist(entity.id):
+                        bot.send_message(user_id, wishlist_hidden, parse_mode="HTML")
+                        db.unsubscribe_wishlist(user_id, entity.id)
+                    db.rm_wishlist(entity.id)
         except ValueError as e:
             logger.error(e)
         except Exception as e:
             logger.error(e)
         else:
             if old_price != new_price:
-                wishlist.price = new_price
-                db.update_wishlist_price(wishlist_id=wishlist.id, price=new_price)
+                entity.price = new_price
+                update_entity_price(entity, new_price)
+                entity_subscribers = get_entity_subscribers(entity)
 
-                for user in db.get_users_for_wishlist(wishlist.id):
-                    # Notify each user who subscribed to one wishlist
-                    notify_user(bot, user, wishlist, old_price)
+                for user_id in entity_subscribers:
+                    # Notify each subscriber
+                    notify_user(bot, user_id, entity, old_price)
 
             if old_name != new_name:
-                db.update_wishlist_name(wishlist.id, new_name)
+                update_entity_name(entity, new_name)
 
 
 def get_inline_back_button(action):
