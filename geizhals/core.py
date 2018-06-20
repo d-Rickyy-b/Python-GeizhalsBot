@@ -2,6 +2,7 @@
 import html
 import logging
 import urllib.request
+from geizhals.entity import EntityType
 
 from pyquery import PyQuery
 
@@ -31,27 +32,27 @@ def parse_html(html_str, selector):
     return pq(selector).text()
 
 
-def parse_wishlist_price(html_str):
-    selector = "div.productlist__footer-cell span.gh_price"
+def parse_entity_price(html_str, entity_type):
+    if entity_type == EntityType.WISHLIST:
+        selector = "div.productlist__footer-cell span.gh_price"
+    elif entity_type == EntityType.PRODUCT:
+        selector = "div#offer__price-0 span.gh_price"
+    else:
+        raise ValueError("The given type is unknown!")
+
     price = parse_html(html_str, selector)
     price = price[2:]  # Cut off the '€ ' before the real price
     price = price.replace(',', '.')
     return price
 
 
-def parse_wishlist_name(html_str):
-    selector = "h1.gh_listtitle"
-    name = parse_html(html_str, selector)
-    return name
+def parse_entity_name(html_str, entity_type):
+    if entity_type == EntityType.WISHLIST:
+        selector = "h1.gh_listtitle"
+    elif entity_type == EntityType.PRODUCT:
+        selector = "div#gh_artbox span[itemprop='name']"
+    else:
+        raise ValueError("The given type is unknown!")
 
-
-def parse_product_price(html_str):
-    selector = "div#offer__price-0 span.gh_price"
-    price = parse_html(html_str, selector)
-    return price
-
-
-def parse_product_name(html_str):
-    selector = "div#gh_artbox span[itemprop='name']"
     name = parse_html(html_str, selector)
     return name
