@@ -304,7 +304,7 @@ def get_entity_keyboard(action, entities, prefix_text="", cancel=False, columns=
     buttons = []
 
     for entity in entities:
-        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.id, type=entity.type)
+        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.id, type=entity.TYPE)
         button = InlineKeyboardButton(prefix_text + entity.name, callback_data=callback_data)
         buttons.append(button)
 
