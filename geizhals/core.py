@@ -2,9 +2,10 @@
 import html
 import logging
 import urllib.request
-from geizhals.entity import EntityType
 
 from pyquery import PyQuery
+
+from geizhals.entity import EntityType
 
 logger = logging.getLogger(__name__)
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \

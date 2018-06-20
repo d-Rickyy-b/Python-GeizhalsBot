@@ -18,9 +18,9 @@ from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
 from filters.own_filters import new_filter, show_filter
+from geizhals.entity import EntityType
 from geizhals.product import Product
 from geizhals.wishlist import Wishlist
-from geizhals.entity import EntityType
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
