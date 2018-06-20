@@ -4,8 +4,9 @@
 import re
 
 from database.db_wrapper import DBwrapper
-from geizhals.wishlist import Wishlist
+from geizhals.entity import EntityType
 from geizhals.product import Product
+from geizhals.wishlist import Wishlist
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 
@@ -123,3 +124,36 @@ def get_p_url(text):
         return text
     else:
         raise InvalidURLException
+
+
+def get_entity_subscribers(entity):
+    """Returns the subscribers of an entity"""
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        return db.get_users_for_wishlist(entity.id)
+    elif entity.TYPE == EntityType.PRODUCT:
+        return db.get_users_for_product(entity.id)
+    else:
+        raise ValueError("Unknown EntityType")
+
+
+def update_entity_price(entity, price):
+    """Update the price of an entity"""
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        db.update_wishlist_price(entity.id, price)
+    elif entity.TYPE == EntityType.PRODUCT:
+        db.update_product_price(entity.id, price)
+    else:
+        raise ValueError("Unknown EntityType")
+
+
+def update_entity_name(entity, name):
+    """Update the name of an entity"""
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        db.update_wishlist_name(entity.id, name)
+    elif entity.TYPE == EntityType.PRODUCT:
+        db.update_product_name(entity.id, name)
+    else:
+        raise ValueError("Unknown EntityType")
