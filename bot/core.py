@@ -6,7 +6,8 @@ import re
 from database.db_wrapper import DBwrapper
 from geizhals.wishlist import Wishlist
 from geizhals.product import Product
-from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, InvalidURLException
+from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
+    InvalidURLException
 
 
 def add_user_if_new(user):
@@ -26,6 +27,7 @@ def add_wishlist_if_new(wishlist):
     else:
         pass
         # logger.debug("URL in database!")
+
 
 def add_product_if_new(product):
     """Save a product to the database, if it is not already stored"""
@@ -84,6 +86,7 @@ def get_product(id):
         raise ProductNotFoundException
 
     return product
+
 
 def get_wishlist_count(user_id):
     """Returns the count of subscribed wishlists for a user"""
