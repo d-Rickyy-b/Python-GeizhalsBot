@@ -18,7 +18,7 @@ class Wishlist(Entity):
         if not re.match(Wishlist.url_pattern, url):
             raise geizhals.exceptions.InvalidWishlistURLException
 
-        wl = Wishlist(0, "", url, 0)
+        wl = Wishlist(id=0, name="", url=url, price=0)
         wl.price = wl.get_current_price()
         wl.name = wl.get_current_name()
         wl.id = int(re.search(Wishlist.url_pattern, url).group(2))
