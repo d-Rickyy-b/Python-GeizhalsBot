@@ -375,6 +375,7 @@ def callback_handler_f(bot, update):
 
     data = update.callback_query.data
     if "_" in data:
+        # TODO Input validation!
         action, entity_id, entity_type_value = data.split("_")
         entity_type = EntityType(int(entity_type_value))
     else:
@@ -434,6 +435,7 @@ def callback_handler_f(bot, update):
                 return
 
             if action == "delete":
+                # TODO implement delete keyboard
                 pass
             elif action == "show":
                 bot.editMessageText(chat_id=user_id, message_id=message_id,
