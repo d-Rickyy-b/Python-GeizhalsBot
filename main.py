@@ -398,8 +398,11 @@ def callback_handler_f(bot, update):
             if action == "delete":
                 db.unsubscribe_wishlist(user_id, wishlist_id)
 
+                callback_data = 'subscribe_{id}_{type}'.format(id=wishlist_id,
+                                                               type=EntityType.WISHLIST.value)
+
                 keyboard = [
-                    [InlineKeyboardButton("Rückgängig", callback_data='subscribe_{id}_wl'.format(id=wishlist_id))]]
+                    [InlineKeyboardButton("Rückgängig", callback_data=callback_data)]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
 
                 bot.editMessageText(chat_id=user_id, message_id=message_id,
