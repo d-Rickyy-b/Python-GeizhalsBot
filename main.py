@@ -301,7 +301,7 @@ def get_delete_keyboard(entity_type, entity_id, back_action):
 
 
 def get_entity_keyboard(action, entities, prefix_text="", cancel=False, columns=2):
-    """Returns a formatted keyboard for entity buttons"""
+    """Returns a formatted inline keyboard for entity buttons"""
     buttons = []
 
     for entity in entities:
@@ -313,7 +313,7 @@ def get_entity_keyboard(action, entities, prefix_text="", cancel=False, columns=
 
 
 def generate_keyboard(buttons, columns, cancel=False):
-    """Generate a keyboard with the specified amount of columns"""
+    """Generate an inline keyboard with the specified amount of columns"""
     keyboard = []
 
     row = []
@@ -332,9 +332,9 @@ def generate_keyboard(buttons, columns, cancel=False):
     return InlineKeyboardMarkup(keyboard)
 
 
-# Notify a user that his wishlist updated it's price
 def notify_user(bot, user_id, wishlist, old_price):
     diff = wishlist.price - old_price
+    """Notify a user of price changes"""
 
     if diff > 0:
         emoji = "📈"
