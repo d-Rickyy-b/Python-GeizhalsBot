@@ -35,6 +35,6 @@ class GeizhalsCoreTest(unittest.TestCase):
         price = geizhals.core.parse_entity_price(self.html, EntityType.WISHLIST)
         self.assertEqual(price, "717.81")
 
-    def test_parse_wishlist_name(self):
-        name = geizhals.core.parse_wishlist_name(self.html)
+    def test_parse_entity_name(self):
+        name = geizhals.core.parse_entity_name(self.html, EntityType.WISHLIST)
         self.assertEqual(name, "NAS")
