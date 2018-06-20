@@ -444,6 +444,7 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
+                # TODO implement
                 pass
     elif action == "newPriceAgent":
         keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
