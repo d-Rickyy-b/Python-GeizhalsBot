@@ -5,6 +5,7 @@ import re
 import unittest
 
 import geizhals.core
+from geizhals.entity import EntityType
 
 
 class GeizhalsCoreTest(unittest.TestCase):
@@ -30,8 +31,8 @@ class GeizhalsCoreTest(unittest.TestCase):
         # Replace all the whitespace to not have any issue with too many or little of them.
         self.assertEqual(regex.sub("", html), regex.sub("", example_html))
 
-    def test_parse_wishlist_price(self):
-        price = geizhals.core.parse_wishlist_price(self.html)
+    def test_parse_entity_price(self):
+        price = geizhals.core.parse_entity_price(self.html, EntityType.WISHLIST)
         self.assertEqual(price, "717.81")
 
     def test_parse_wishlist_name(self):
