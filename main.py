@@ -304,7 +304,7 @@ def get_entity_keyboard(action, entities, prefix_text="", cancel=False, columns=
     buttons = []
 
     for entity in entities:
-        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.id, type=entity.TYPE)
+        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.id, type=entity.TYPE.value)
         button = InlineKeyboardButton(prefix_text + entity.name, callback_data=callback_data)
         buttons.append(button)
 
@@ -363,7 +363,8 @@ def callback_handler_f(bot, update):
 
     data = update.callback_query.data
     if "_" in data:
-        action, entity_id, entity_type = data.split("_")
+        action, entity_id, entity_type_value = data.split("_")
+        entity_type = EntityType(int(entity_type_value))
     else:
         action = data
         entity_id = None
