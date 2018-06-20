@@ -20,6 +20,7 @@ from database.db_wrapper import DBwrapper
 from filters.own_filters import new_filter, show_filter
 from geizhals.product import Product
 from geizhals.wishlist import Wishlist
+from geizhals.entity import EntityType
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -295,7 +296,7 @@ def get_inline_back_button(action):
 def get_delete_keyboard(entity_type, entity_id, back_action):
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
     delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
-        entity_type=entity_type, entity_id=entity_id))
+        entity_type=entity_type.value, entity_id=entity_id))
     return InlineKeyboardMarkup([[delete_button], [back_button]])
 
 
@@ -372,7 +373,7 @@ def callback_handler_f(bot, update):
 
     if entity_id:
         """Check if it's just a command or if an ID/type is passed"""
-        if entity_type == Wishlist.type:
+        if entity_type == EntityType.WISHLIST:
             wishlist_id = entity_id
             try:
                 wishlist = get_wishlist(wishlist_id)
@@ -401,7 +402,7 @@ def callback_handler_f(bot, update):
                                     text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                         link_name=link(wishlist.url, wishlist.name),
                                         price=bold(price(wishlist.price, signed=False))),
-                                    reply_markup=get_delete_keyboard("wl", wishlist.id, "showWishlists"),
+                                    reply_markup=get_delete_keyboard(EntityType.WISHLIST, wishlist.id, "showWishlists"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
@@ -411,7 +412,7 @@ def callback_handler_f(bot, update):
                 bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
                                     disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
-        elif entity_type == Product.type:
+        elif entity_type == EntityType.PRODUCT:
             product_id = entity_id
             try:
                 product = get_product(product_id)
@@ -428,7 +429,7 @@ def callback_handler_f(bot, update):
                                     text="Das Produkt {link_name} kostet aktuell {price}".format(
                                         link_name=link(product.url, product.name),
                                         price=bold(price(product.price, signed=False))),
-                                    reply_markup=get_delete_keyboard("P", product.id, "showProducts"),
+                                    reply_markup=get_delete_keyboard(EntityType.PRODUCT, product.id, "showProducts"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
