@@ -177,7 +177,7 @@ def add_wishlist(bot, update):
 
         try:
             logger.debug("Subscribing to wishlist.")
-            subscribe_wishlist(user, wishlist)
+            subscribe_entity(user, wishlist)
             bot.sendMessage(user.id,
                             "Preisagent für die Wunschliste {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(wishlist.url, wishlist.name),
@@ -228,7 +228,7 @@ def add_product(bot, update):
 
         try:
             logger.debug("Subscribing to product.")
-            subscribe_product(user, product)
+            subscribe_entity(user, product)
             bot.sendMessage(user.id,
                             "Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(product.url, product.name),
@@ -263,19 +263,19 @@ def check_for_price_update(bot, job):
             new_name = entity.get_current_name()
         except HTTPError as e:
             if e.code == 403:
-                logger.error("Wunschliste ist nicht öffentlich!")
+                logger.error("Entity ist nicht öffentlich!")
 
                 if entity.TYPE == EntityType.PRODUCT:
                     product_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
                                      "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
-                    for user_id in db.get_users_for_product(entity.id):
+                    for user_id in get_entity_subscribers(entity):
                         bot.send_message(user_id, product_hidden, parse_mode="HTML")
                         db.unsubscribe_product(user_id, entity.id)
                     db.rm_product(entity.id)
                 elif entity.TYPE == EntityType.WISHLIST:
                     wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
                                       "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
-                    for user_id in db.get_users_for_wishlist(entity.id):
+                    for user_id in get_entity_subscribers(entity):
                         bot.send_message(user_id, wishlist_hidden, parse_mode="HTML")
                         db.unsubscribe_wishlist(user_id, entity.id)
                     db.rm_wishlist(entity.id)

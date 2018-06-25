@@ -47,27 +47,8 @@ def is_user_wishlist_subscriber(user, wishlist):
     return db.is_user_wishlist_subscriber(user.id, wishlist.id)
 
 
-def subscribe_wishlist(user, wishlist):
-    """Subscribe to a  wishlist as a user"""
-    db = DBwrapper.get_instance()
-
-    if not db.is_user_wishlist_subscriber(user.id, wishlist.id):
-        db.subscribe_wishlist(wishlist.id, user.id)
-    else:
-        raise AlreadySubscribedException
-
-
-def subscribe_product(user, product):
-    """Subscribe to a product as a user"""
-    db = DBwrapper.get_instance()
-
-    if not db.is_user_product_subscriber(user.id, product.id):
-        db.subscribe_product(product.id, user.id)
-    else:
-        raise AlreadySubscribedException
-
-
 def subscribe_entity(user, entity):
+    """Subscribe to an entity as a user"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
         if not db.is_user_wishlist_subscriber(user.id, entity.id):
