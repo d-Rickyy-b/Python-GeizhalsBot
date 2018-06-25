@@ -440,8 +440,21 @@ def callback_handler_f(bot, update):
                 return
 
             if action == "delete":
-                # TODO implement delete keyboard
-                pass
+                unsubscribe_entity(user, product)
+
+                callback_data = 'subscribe_{id}_{type}'.format(id=product_id,
+                                                               type=EntityType.PRODUCT.value)
+
+                keyboard = [[InlineKeyboardButton("Rückgängig", callback_data=callback_data)]]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+
+                bot.editMessageText(chat_id=user_id, message_id=message_id,
+                                    text="Preisagent für das Produkt {link_name} wurde gelöscht!".format(
+                                        link_name=link(product.url, product.name)),
+                                    reply_markup=reply_markup,
+                                    parse_mode="HTML", disable_web_page_preview=True)
+                bot.answerCallbackQuery(callback_query_id=callback_query_id,
+                                        text="Preisagent für das Produkt wurde gelöscht!")
             elif action == "show":
                 bot.editMessageText(chat_id=user_id, message_id=message_id,
                                     text="Das Produkt {link_name} kostet aktuell {price}".format(
