@@ -6,6 +6,7 @@ from datetime import datetime
 
 from geizhals.product import Product
 from geizhals.wishlist import Wishlist
+from bot.user import User
 
 __author__ = 'Rico'
 
@@ -211,8 +212,7 @@ class DBwrapper(object):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
             user_data = self.cursor.fetchone()
             if user_data:
-                user = {"id": user_data[0], "first_name": user_data[1], "username": user_data[2], "lang_code": user_data[3]}
-                return user
+                return User(id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
             return None
 
         def get_users_for_wishlist(self, wishlist_id):

@@ -236,6 +236,21 @@ class DBWrapperTest(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
 
+    def test_get_user(self):
+        # Check that None is returned if no user is saved
+        user = {"id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"}
+
+        user_db = self.db.get_user(user.get("id"))
+        self.assertIsNone(user_db)
+
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        user_db = self.db.get_user(user.get("id"))
+
+        self.assertEqual(user_db.id, user.get("id"))
+        self.assertEqual(user_db.first_name, user.get("first_name"))
+        self.assertEqual(user_db.username, user.get("username"))
+        self.assertEqual(user_db.lang_code, user.get("lang_code"))
+
     def test_update_wishlist_name(self):
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
@@ -328,7 +343,7 @@ class DBWrapperTest(unittest.TestCase):
 
         # Check if user was added
         user_db = self.db.get_user(user.get("id"))
-        self.assertEqual(user_db.get("id"), user.get("id"))
+        self.assertEqual(user_db.id, user.get("id"))
 
     def test_is_user_saved(self):
         """Test to check if the 'check if a user exists' works as expected"""
