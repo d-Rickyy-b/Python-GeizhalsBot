@@ -229,8 +229,18 @@ class DBwrapper(object):
             return user_ids
 
         def get_users_for_product(self, product_id):
-            # TODO implement
-            pass
+            self.cursor.execute("SELECT user_id FROM 'product_subscribers' AS ps "
+                                "INNER JOIN Products "
+                                "ON Products.product_id=ps.wishlist_id "
+                                "WHERE ps.product_id=?;", [str(product_id)])
+
+            user_list = self.cursor.fetchall()
+            user_ids = []
+
+            for line in user_list:
+                user_ids.append(line[0])
+
+            return user_ids
 
         def get_wishlists_for_user(self, user_id):
             """Return all wishlists a user subscribed to"""
