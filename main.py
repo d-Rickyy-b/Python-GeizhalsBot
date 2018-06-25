@@ -423,7 +423,7 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
-                db.subscribe_wishlist(wishlist_id, user_id)
+                subscribe_entity(user, wishlist)
                 text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(
                     link_name=link(wishlist.url, wishlist.name))
                 bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
