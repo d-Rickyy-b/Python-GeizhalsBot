@@ -423,6 +423,7 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
+                # TODO catch AlreadySubscribedException
                 subscribe_entity(user, wishlist)
                 text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(
                     link_name=link(wishlist.url, wishlist.name))
@@ -464,6 +465,7 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
+                # TODO catch AlreadySubscribedException
                 subscribe_entity(user, product)
                 text = "Du hast das Produkt {link_name} erneut abboniert!".format(
                     link_name=link(product.url, product.name))
