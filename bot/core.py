@@ -67,6 +67,22 @@ def subscribe_product(user, product):
         raise AlreadySubscribedException
 
 
+def subscribe_entity(user, entity):
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        if not db.is_user_wishlist_subscriber(user.id, entity.id):
+            db.subscribe_wishlist(entity.id, user.id)
+        else:
+            raise AlreadySubscribedException
+    elif entity.TYPE == EntityType.PRODUCT:
+        if not db.is_user_product_subscriber(user.id, entity.id):
+            db.subscribe_product(entity.id, user.id)
+        else:
+            raise AlreadySubscribedException
+    else:
+        raise ValueError("Unknown EntityType")
+
+
 def get_wishlist(id):
     """Returns the wishlist object for an id"""
     db = DBwrapper.get_instance()
@@ -110,6 +126,11 @@ def get_products_for_user(user_id):
     """Returns the subscribed wishlists for a certain user"""
     db = DBwrapper.get_instance()
     return db.get_products_for_user(user_id)
+
+
+def get_user_by_id(user_id):
+    db = DBwrapper.get_instance()
+    return db.get_user(user_id)
 
 
 def get_wl_url(text):
