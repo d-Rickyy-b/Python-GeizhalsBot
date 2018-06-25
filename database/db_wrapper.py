@@ -204,7 +204,7 @@ class DBwrapper(object):
             self.cursor.execute("DELETE FROM wishlist_subscribers WHERE user_id=? and wishlist_id=?;", [str(user_id), str(wishlist_id)])
             self.connection.commit()
 
-        def unsubscribe_product(self, product_id, user_id):
+        def unsubscribe_product(self, user_id, product_id):
             self.cursor.execute("DELETE FROM product_subscribers WHERE user_id=? and product_id=?;", [str(user_id), str(product_id)])
             self.connection.commit()
 
