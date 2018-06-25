@@ -255,7 +255,7 @@ class DBwrapper(object):
             products = []
 
             for line in product_l:
-                products.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return products
 
