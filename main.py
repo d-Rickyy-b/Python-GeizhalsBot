@@ -11,9 +11,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-from bot.core import add_user_if_new, add_wishlist_if_new, subscribe_wishlist, get_wishlist, get_product, \
-    get_wishlist_count, get_product_count, get_wishlists_for_user, get_wl_url, get_p_url, get_products_for_user, \
-    subscribe_product, add_product_if_new, update_entity_name, update_entity_price, get_entity_subscribers
+from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN
 from database.db_wrapper import DBwrapper
@@ -453,8 +451,12 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
-                # TODO implement
-                pass
+                subscribe_entity(user, product)
+                text = "Du hast das Produkt {link_name} erneut abboniert!".format(
+                    link_name=link(product.url, product.name))
+                bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
+                                    disable_web_page_preview=True)
+                bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Produkt erneut abboniert")
     elif action == "newPriceAgent":
         keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
                      InlineKeyboardButton("Produkt", callback_data='addProduct')]]
