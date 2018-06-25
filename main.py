@@ -370,6 +370,10 @@ def callback_handler_f(bot, update):
     user_id = update.callback_query.from_user.id
     message_id = update.callback_query.message.message_id
     callback_query_id = update.callback_query.id
+    user = get_user_by_id(user_id)
+
+    if user is None:
+        return
 
     db = DBwrapper.get_instance()
 
