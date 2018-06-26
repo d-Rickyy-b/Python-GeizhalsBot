@@ -307,6 +307,10 @@ def get_entity_keyboard(entity_type, entity_id, back_action):
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
     delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
         entity_id=entity_id, entity_type=entity_type.value))
+    history_button = InlineKeyboardButton("📊 Preisverlauf", callback_data="history_{entity_id}_{entity_type}".format(
+        entity_id=entity_id, entity_type=entity_type))
+    # TODO implement history button and functionality
+
     return InlineKeyboardMarkup([[delete_button], [back_button]])
 
 
