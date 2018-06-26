@@ -169,3 +169,13 @@ def update_entity_name(entity, name):
         db.update_product_name(entity.id, name)
     else:
         raise ValueError("Unknown EntityType")
+
+
+def rm_entity(entity):
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        db.rm_wishlist(entity.id)
+    elif entity.TYPE == EntityType.PRODUCT:
+        db.rm_product(entity.id)
+    else:
+        raise ValueError("Unknown EntityType")
