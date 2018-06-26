@@ -2,7 +2,6 @@
 
 import logging.handlers
 import os
-import re
 from datetime import datetime
 from urllib.error import HTTPError
 
@@ -109,6 +108,7 @@ def help_cmd(bot, update):
 
 # Inline menus
 def add_menu(bot, update):
+    """Send inline menu to add a new price agent"""
     keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
                  InlineKeyboardButton("Produkt", callback_data='addProduct')]]
 
@@ -119,6 +119,7 @@ def add_menu(bot, update):
 
 
 def show_menu(bot, update):
+    """Send inline menu to display all price agents"""
     keyboard = [[InlineKeyboardButton("Wunschlisten", callback_data='showWishlists'),
                  InlineKeyboardButton("Produkte", callback_data='showProducts')]]
 
@@ -243,8 +244,8 @@ def add_product(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
-# Method to check all wishlists for price updates
 def check_for_price_update(bot, job):
+    """Check if the price of any subscribed wishlist or product was updated"""
     logger.debug("Checking for updates!")
     db = DBwrapper.get_instance()
     # TODO only get wishlists which have subscribers
@@ -267,10 +268,10 @@ def check_for_price_update(bot, job):
 
                 if entity.TYPE == EntityType.PRODUCT:
                     entity_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
-                                     "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
+                                    "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
                 elif entity.TYPE == EntityType.WISHLIST:
                     entity_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
-                                      "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
+                                    "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
                 else:
                     raise ValueError("No such entity type '{}'!".format(entity.TYPE))
 
@@ -304,6 +305,7 @@ def get_inline_back_button(action):
 
 
 def get_entity_keyboard(entity_type, entity_id, back_action):
+    """Returns an action keyboard for a single entity"""
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
     delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
         entity_id=entity_id, entity_type=entity_type.value))
