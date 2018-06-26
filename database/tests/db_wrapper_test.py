@@ -185,6 +185,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(result[3], self.p.price, msg="Price is not equal!")
 
     def test_rm_wishlist(self):
+        """Test for checking if removing a wishlist works as intended"""
         # Add wishlist and check if it's in the db
         self.assertFalse(self.db.is_wishlist_saved(self.wl.id))
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
@@ -195,6 +196,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertFalse(self.db.is_wishlist_saved(self.wl.id))
 
     def test_rm_product(self):
+        """Test for checking if removing a product works as intended"""
         # Add product and check if it's in the db
         self.assertFalse(self.db.is_product_saved(self.p.id))
         self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
@@ -205,6 +207,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertFalse(self.db.is_product_saved(self.p.id))
 
     def test_subscribe_wishlist(self):
+        """Test for checking if subscribing a wishlist works as intended"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -221,6 +224,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
     def test_subscribe_product(self):
+        """Test for checking if subscribing a product works as intended"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -237,6 +241,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
     def test_unsubscribe_wishlist(self):
+        """Test for checking if unsubscribing a wishlist works as intended"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -254,6 +259,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_unsubscribe_product(self):
+        """Test for checking if unsubscribing a product works as intended"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -270,6 +276,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_get_user(self):
+        """Test to check if getting user information works as intended"""
         # Check that None is returned if no user is saved
         user = {"id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"}
 
