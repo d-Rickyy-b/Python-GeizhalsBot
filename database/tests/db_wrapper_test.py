@@ -291,6 +291,71 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(user_db.username, user.get("username"))
         self.assertEqual(user_db.lang_code, user.get("lang_code"))
 
+    def test_is_user_wishlist_subscriber(self):
+        user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+
+        wl1 = Wishlist(123123, "Wishlist", "https://geizhals.de/?cat=WL-123123", 123.45)
+        wl2 = Wishlist(987123, "Wishlist2", "https://geizhals.de/?cat=WL-987123", 1.23)
+
+        # Add user1, add user2
+        self.db.add_user(user1.get("id"), user1.get("first_name"), user1.get("username"), user1.get("lang_code"))
+        self.db.add_user(user2.get("id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        # Add wishlist1, add wishlist2
+        self.db.add_wishlist(wl1.id, wl1.name, wl1.price, wl1.url)
+        self.db.add_wishlist(wl2.id, wl2.name, wl2.price, wl2.url)
+
+        # subscribe user1 to wishlist1
+        self.db.subscribe_wishlist(wl1.id, user1.get("id"))
+
+        # subscribe user2 to wishlist2
+        self.db.subscribe_wishlist(wl2.id, user2.get("id"))
+
+        # check if user1 is subscribed to wishlist1 -> True
+        self.assertTrue(self.db.is_user_wishlist_subscriber(user1.get("id"), wl1.id))
+
+        # check if user2 is subscribed to wishlist1 -> False
+        self.assertFalse(self.db.is_user_wishlist_subscriber(user2.get("id"), wl1.id))
+
+        # check if user1 is subscribed to wishlist2 -> False
+        self.assertFalse(self.db.is_user_wishlist_subscriber(user1.get("id"), wl2.id))
+
+        # check if user2 is subscribed to wishlist2 -> True
+        self.assertTrue(self.db.is_user_wishlist_subscriber(user2.get("id"), wl2.id))
+
+    def test_is_user_product_subscriber(self):
+        """Check if """
+        user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+
+        p1 = Product(123123, "Product", "https://geizhals.de/?cat=WL-123123", 123.45)
+        p2 = Product(987123, "Product2", "https://geizhals.de/?cat=WL-987123", 1.23)
+
+        # Add user1, add user2
+        self.db.add_user(user1.get("id"), user1.get("first_name"), user1.get("username"), user1.get("lang_code"))
+        self.db.add_user(user2.get("id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        # Add product1, add product2
+        self.db.add_product(p1.id, p1.name, p1.price, p1.url)
+        self.db.add_product(p2.id, p2.name, p2.price, p2.url)
+
+        # subscribe user1 to product1
+        self.db.subscribe_product(p1.id, user1.get("id"))
+
+        # subscribe user2 to product2
+        self.db.subscribe_product(p2.id, user2.get("id"))
+
+        # check if user1 is subscribed to product1 -> True
+        self.assertTrue(self.db.is_user_product_subscriber(user1.get("id"), p1.id))
+
+        # check if user2 is subscribed to product1 -> False
+        self.assertFalse(self.db.is_user_product_subscriber(user2.get("id"), p1.id))
+
+        # check if user1 is subscribed to product2 -> False
+        self.assertFalse(self.db.is_user_product_subscriber(user1.get("id"), p2.id))
+
+        # check if user2 is subscribed to product2 -> True
+        self.assertTrue(self.db.is_user_product_subscriber(user2.get("id"), p2.id))
+
     def test_update_wishlist_name(self):
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
