@@ -266,19 +266,20 @@ def check_for_price_update(bot, job):
                 logger.error("Entity ist nicht öffentlich!")
 
                 if entity.TYPE == EntityType.PRODUCT:
-                    product_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
+                    entity_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
                                      "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
-                    for user_id in get_entity_subscribers(entity):
-                        bot.send_message(user_id, product_hidden, parse_mode="HTML")
-                        db.unsubscribe_product(user_id, entity.id)
-                    db.rm_product(entity.id)
                 elif entity.TYPE == EntityType.WISHLIST:
-                    wishlist_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
+                    entity_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
                                       "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
-                    for user_id in get_entity_subscribers(entity):
-                        bot.send_message(user_id, wishlist_hidden, parse_mode="HTML")
-                        db.unsubscribe_wishlist(user_id, entity.id)
-                    db.rm_wishlist(entity.id)
+                else:
+                    raise ValueError("No such entity type '{}'!".format(entity.TYPE))
+
+                for user_id in get_entity_subscribers(entity):
+                    user = get_user_by_id(user_id)
+                    bot.send_message(user_id, entity_hidden, parse_mode="HTML")
+                    unsubscribe_entity(user, entity)
+
+                rm_entity(entity)
         except ValueError as e:
             logger.error(e)
         except Exception as e:
