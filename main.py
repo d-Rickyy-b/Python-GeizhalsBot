@@ -303,7 +303,7 @@ def get_inline_back_button(action):
     return back_button
 
 
-def get_delete_keyboard(entity_type, entity_id, back_action):
+def get_entity_keyboard(entity_type, entity_id, back_action):
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
     delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
         entity_id=entity_id, entity_type=entity_type.value))
@@ -420,7 +420,7 @@ def callback_handler_f(bot, update):
                                     text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                         link_name=link(wishlist.url, wishlist.name),
                                         price=bold(price(wishlist.price, signed=False))),
-                                    reply_markup=get_delete_keyboard(EntityType.WISHLIST, wishlist.id, "showWishlists"),
+                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.id, "showWishlists"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
@@ -462,7 +462,7 @@ def callback_handler_f(bot, update):
                                     text="Das Produkt {link_name} kostet aktuell {price}".format(
                                         link_name=link(product.url, product.name),
                                         price=bold(price(product.price, signed=False))),
-                                    reply_markup=get_delete_keyboard(EntityType.PRODUCT, product.id, "showProducts"),
+                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.id, "showProducts"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
