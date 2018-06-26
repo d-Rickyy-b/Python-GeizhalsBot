@@ -236,6 +236,39 @@ class DBWrapperTest(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
 
+    def test_unsubscribe_wishlist(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
+
+        self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
+        self.db.add_user(user_id, first_name, username)
+        self.db.subscribe_wishlist(self.wl.id, user_id)
+
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.id)]).fetchone()
+        self.assertEqual(len(result), 1)
+
+        self.db.unsubscribe_wishlist(user_id, self.wl.id)
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.id)]).fetchone()
+
+        self.assertIsNone(result)
+
+    def test_unsubscribe_product(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
+
+        self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
+        self.db.add_user(user_id, first_name, username)
+        self.db.subscribe_product(self.p.id, user_id)
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
+        self.assertEqual(len(result), 1)
+
+        self.db.unsubscribe_product(user_id, self.p.id)
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
+
+        self.assertIsNone(result)
+
     def test_get_user(self):
         # Check that None is returned if no user is saved
         user = {"id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"}
