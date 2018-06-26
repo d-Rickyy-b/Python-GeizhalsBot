@@ -229,7 +229,7 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_user(user_id, first_name, username)
 
         result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
-        self.assertEqual(result, None)
+        self.assertIsNone(result)
 
         self.db.subscribe_product(self.p.id, user_id)
         result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.id)]).fetchone()
