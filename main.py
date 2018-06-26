@@ -299,11 +299,6 @@ def check_for_price_update(bot, job):
                 update_entity_name(entity, new_name)
 
 
-def get_inline_back_button(action):
-    back_button = InlineKeyboardButton("↩️ Zurück", callback_data=action)
-    return back_button
-
-
 def get_entity_keyboard(entity_type, entity_id, back_action):
     """Returns an action keyboard for a single entity"""
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
