@@ -310,7 +310,7 @@ def get_delete_keyboard(entity_type, entity_id, back_action):
     return InlineKeyboardMarkup([[delete_button], [back_button]])
 
 
-def get_entity_keyboard(action, entities, prefix_text="", cancel=False, columns=2):
+def get_entities_keyboard(action, entities, prefix_text="", cancel=False, columns=2):
     """Returns a formatted inline keyboard for entity buttons"""
     buttons = []
 
@@ -497,8 +497,8 @@ def callback_handler_f(bot, update):
             bot.editMessageText(chat_id=user_id, message_id=message_id,
                                 text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
                                      "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                                reply_markup=get_entity_keyboard("delete", get_wishlists_for_user(user_id),
-                                                                 prefix_text="❌ ", cancel=True))
+                                reply_markup=get_entities_keyboard("delete", get_wishlists_for_user(user_id),
+                                                                   prefix_text="❌ ", cancel=True))
             return
 
         set_state(user_id, STATE_SEND_WL_LINK)
@@ -512,8 +512,8 @@ def callback_handler_f(bot, update):
             bot.editMessageText(chat_id=user_id, message_id=message_id,
                                 text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
                                      "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                                reply_markup=get_entity_keyboard("delete", get_products_for_user(user_id),
-                                                                 prefix_text="❌ ", cancel=True))
+                                reply_markup=get_entities_keyboard("delete", get_products_for_user(user_id),
+                                                                   prefix_text="❌ ", cancel=True))
 
             return
         set_state(user_id, STATE_SEND_P_LINK)
@@ -530,7 +530,7 @@ def callback_handler_f(bot, update):
                                 text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!")
             return
 
-        keyboard = get_entity_keyboard("show", wishlists)
+        keyboard = get_entities_keyboard("show", wishlists)
 
         bot.answerCallbackQuery(callback_query_id=callback_query_id)
         bot.editMessageText(chat_id=user_id, message_id=message_id,
@@ -544,7 +544,7 @@ def callback_handler_f(bot, update):
                                 text="Du hast noch keinen Preisagenten für ein Produkt angelegt!")
             return
 
-        keyboard = get_entity_keyboard("show", products)
+        keyboard = get_entities_keyboard("show", products)
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
                             text="Das sind deine Preisagenten für deine Produkte:",
