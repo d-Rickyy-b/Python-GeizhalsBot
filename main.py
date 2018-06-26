@@ -306,7 +306,7 @@ def get_inline_back_button(action):
 def get_delete_keyboard(entity_type, entity_id, back_action):
     back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
     delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
-        entity_type=entity_type.value, entity_id=entity_id))
+        entity_id=entity_id, entity_type=entity_type.value))
     return InlineKeyboardMarkup([[delete_button], [back_button]])
 
 
