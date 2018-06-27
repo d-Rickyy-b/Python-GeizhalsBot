@@ -291,6 +291,80 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(user_db.username, user.get("username"))
         self.assertEqual(user_db.lang_code, user.get("lang_code"))
 
+    def test_get_wishlists_for_user(self):
+        """Test to check if getting wishlists for a user works as intended"""
+        user = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+
+        wl1 = Wishlist(123123, "Wishlist", "https://geizhals.de/?cat=WL-123123", 123.45)
+        wl2 = Wishlist(987123, "Wishlist2", "https://geizhals.de/?cat=WL-987123", 1.23)
+        wl3 = Wishlist(4567418, "Wishlist3", "https://geizhals.de/?cat=WL-987123", 154.00)
+        local_wishlists = [wl1, wl2]
+
+        # Add user
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        # Add wishlist1 & wishlist2 & wishlist3
+        self.db.add_wishlist(wl1.id, wl1.name, wl1.price, wl1.url)
+        self.db.add_wishlist(wl2.id, wl2.name, wl2.price, wl2.url)
+        self.db.add_wishlist(wl3.id, wl3.name, wl3.price, wl3.url)
+
+        # Subscribe user to wishlist1 & wishlist2
+        self.db.subscribe_wishlist(wl1.id, user.get("id"))
+        self.db.subscribe_wishlist(wl2.id, user.get("id"))
+
+        # Check if wishlists are in the return value
+        wishlists = self.db.get_wishlists_for_user(user.get("id"))
+
+        # Make sure that both lists are the same length
+        self.assertEqual(len(wishlists), len(local_wishlists))
+
+        for local_wishlist in local_wishlists:
+            found = False
+            for wishlist in wishlists:
+                if wishlist.id == local_wishlist.id:
+                    found = True
+                    break
+
+            # Make sure that each subscribed wishlist is in the list
+            self.assertTrue(found)
+
+    def test_get_products_for_user(self):
+        """Test to check if getting products for a user works as intended"""
+        user = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+
+        p1 = Product(123123, "Product", "https://geizhals.de/?cat=WL-123123", 123.45)
+        p2 = Product(987123, "Product2", "https://geizhals.de/?cat=WL-987123", 1.23)
+        p3 = Product(4567418, "Product3", "https://geizhals.de/?cat=WL-987123", 154.00)
+        local_products = [p1, p2]
+
+        # Add user
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        
+        # Add product1 & product2 & product3
+        self.db.add_product(p1.id, p1.name, p1.price, p1.url)
+        self.db.add_product(p2.id, p2.name, p2.price, p2.url)
+        self.db.add_product(p3.id, p3.name, p3.price, p3.url)
+
+        # Subscribe user to product1 & product2
+        self.db.subscribe_product(p1.id, user.get("id"))
+        self.db.subscribe_product(p2.id, user.get("id"))
+
+        # Check if products are in the return value
+        products = self.db.get_products_for_user(user.get("id"))
+
+        # Make sure that both lists are the same length
+        self.assertEqual(len(products), len(local_products))
+
+        for local_product in local_products:
+            found = False
+            for product in products:
+                if product.id == local_product.id:
+                    found = True
+                    break
+
+            # Make sure that each subscribed product is in the list
+            self.assertTrue(found)
+
     def test_is_user_wishlist_subscriber(self):
         user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
         user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
