@@ -418,13 +418,18 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
-                # TODO catch AlreadySubscribedException
-                subscribe_entity(user, wishlist)
-                text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(
-                    link_name=link(wishlist.url, wishlist.name))
-                bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                    disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
+                try:
+                    subscribe_entity(user, wishlist)
+                    text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(
+                        link_name=link(wishlist.url, wishlist.name))
+                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
+                                        disable_web_page_preview=True)
+                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
+                except AlreadySubscribedException:
+                    text = "Wunschliste bereits abboniert!"
+                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
+                                        disable_web_page_preview=True)
+                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
         elif entity_type == EntityType.PRODUCT:
             product_id = entity_id
             try:
@@ -460,13 +465,18 @@ def callback_handler_f(bot, update):
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
-                # TODO catch AlreadySubscribedException
-                subscribe_entity(user, product)
-                text = "Du hast das Produkt {link_name} erneut abboniert!".format(
-                    link_name=link(product.url, product.name))
-                bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                    disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Produkt erneut abboniert")
+                try:
+                    subscribe_entity(user, product)
+                    text = "Du hast das Produkt {link_name} erneut abboniert!".format(
+                        link_name=link(product.url, product.name))
+                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
+                                        disable_web_page_preview=True)
+                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Produkt erneut abboniert")
+                except AlreadySubscribedException:
+                    text = "Produkt bereits abboniert!"
+                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
+                                        disable_web_page_preview=True)
+                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
     elif action == "newPriceAgent":
         keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
                      InlineKeyboardButton("Produkt", callback_data='addProduct')]]
