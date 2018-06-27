@@ -74,6 +74,18 @@ def unsubscribe_entity(user, entity):
         raise ValueError("Unknown EntityType")
 
 
+def get_all_entities():
+    """Returns all the entities in the database"""
+    # TODO only get wishlists which have subscribers
+    db = DBwrapper.get_instance()
+    wishlists = db.get_all_wishlists()
+    products = db.get_all_products()
+
+    entities = wishlists + products
+
+    return entities
+
+
 def get_wishlist(id):
     """Returns the wishlist object for an id"""
     db = DBwrapper.get_instance()

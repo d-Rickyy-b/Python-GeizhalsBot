@@ -247,12 +247,8 @@ def add_product(bot, update):
 def check_for_price_update(bot, job):
     """Check if the price of any subscribed wishlist or product was updated"""
     logger.debug("Checking for updates!")
-    db = DBwrapper.get_instance()
-    # TODO only get wishlists which have subscribers
-    wishlists = db.get_all_wishlists()
-    products = db.get_all_products()
 
-    entities = wishlists + products
+    entities = get_all_entities()
 
     # Check all entities for price updates
     for entity in entities:
