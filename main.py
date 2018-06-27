@@ -13,7 +13,6 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN
-from database.db_wrapper import DBwrapper
 from filters.own_filters import new_filter, show_filter
 from geizhals.entity import EntityType
 from geizhals.product import Product
@@ -371,8 +370,6 @@ def callback_handler_f(bot, update):
     if user is None:
         return
 
-    db = DBwrapper.get_instance()
-
     data = update.callback_query.data
     if "_" in data:
         # TODO Input validation!
@@ -396,7 +393,7 @@ def callback_handler_f(bot, update):
                 return
 
             if action == "delete":
-                db.unsubscribe_wishlist(user_id, wishlist_id)
+                unsubscribe_entity(user, wishlist)
 
                 callback_data = 'subscribe_{id}_{type}'.format(id=wishlist_id,
                                                                type=EntityType.WISHLIST.value)
