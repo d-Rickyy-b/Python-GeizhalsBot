@@ -113,20 +113,6 @@ class DBwrapper(object):
                                 "WHERE product_subscribers.user_id=?;", [str(user_id)])
             return self.cursor.fetchone()[0]
 
-        def get_wishlists(self, user_id):
-            self.cursor.execute("SELECT wishlists.wishlist_id, wishlists.url "
-                                "FROM wishlists "
-                                "INNER JOIN wishlist_subscribers on wishlist_subscribers.wishlist_id=wishlists.wishlist_id "
-                                "WHERE wishlist_subscribers.user_id=?;", [str(user_id)])
-            return self.cursor.fetchall()
-
-        def get_products(self, user_id):
-            self.cursor.execute("SELECT products.product_id, products.url "
-                                "FROM products "
-                                "INNER JOIN product_subscribers on product_subscribers.product_id=products.product_id "
-                                "WHERE product_subscribers.user_id=?;", [str(user_id)])
-            return self.cursor.fetchone()[0]
-
         def get_all_wishlists(self):
             self.cursor.execute("SELECT wishlist_id, name, price, url FROM wishlists;")
             wishlist_l = self.cursor.fetchall()
