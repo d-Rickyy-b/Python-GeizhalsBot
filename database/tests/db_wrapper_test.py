@@ -582,6 +582,8 @@ class DBWrapperTest(unittest.TestCase):
         lang_id = self.db.get_lang_id(user.get("id"))
         self.assertEqual(lang_id, user.get("lang_code"))
 
+        self.assertEqual(self.db.get_lang_id(19283746), "en")
+
     def test_add_user(self):
         """Test to check if adding users works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
