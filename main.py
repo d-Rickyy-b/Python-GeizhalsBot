@@ -98,7 +98,7 @@ def help_cmd(bot, update):
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
                 "/start	-	Startmenü\n" \
                 "/help	-	Zeigt diese Hilfe\n" \
-                "/show  -   Zeigt deine Listen an\n" \
+                "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
                 "/remove	-	Entfernt eine Wunschliste\n"
 
