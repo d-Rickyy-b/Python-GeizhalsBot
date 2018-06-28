@@ -100,7 +100,7 @@ def help_cmd(bot, update):
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                "/remove	-	Entfernt eine Wunschliste\n"
+                #"/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
 
@@ -126,6 +126,11 @@ def show_menu(bot, update):
         "Welche Preisagenten möchtest du einsehen?",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+
+
+def delete_menu(bot, update):
+    # TODO When calling /remove the bot should open up a menu as well
+    pass
 
 
 def handle_text(bot, update):
