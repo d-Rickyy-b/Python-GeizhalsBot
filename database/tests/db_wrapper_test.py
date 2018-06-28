@@ -72,6 +72,64 @@ class DBWrapperTest(unittest.TestCase):
             result = self.db.cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;", [table_name]).fetchone()[0]
             self.assertEqual(result, 1, msg="Table '{}' does not exist!".format(table_name))
 
+    def test_get_subscribed_wishlist_count(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
+        wl2 = Wishlist("9922113", "TestName", "https://geizhals.de/?cat=WL-123456", 12.12)
+
+        self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
+        self.db.add_wishlist(id=wl2.id, name=wl2.name, url=wl2.url, price=wl2.price)
+
+        # Make sure that count is 0 in the beginning
+        self.db.add_user(user_id, first_name, username)
+        count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(count, 0)
+
+        # Subscribe to first wishlist and check that count equals to 1
+        self.db.subscribe_wishlist(self.wl.id, user_id)
+        count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(count, 1)
+
+        # Subscribe to second wishlist and check that count equals to 2
+        self.db.subscribe_wishlist(wl2.id, user_id)
+        count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(count, 2)
+
+        # Check that after unsubscribing the count decreases
+        self.db.unsubscribe_wishlist(user_id, self.wl.id)
+        count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(count, 1)
+
+    def test_get_subscribed_product_count(self):
+        user_id = 11223344
+        first_name = "John"
+        username = "JohnDoe"
+        p2 = Product("9922113", "TestName", "https://geizhals.de/?cat=WL-123456", 12.12)
+
+        self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
+        self.db.add_product(id=p2.id, name=p2.name, url=p2.url, price=p2.price)
+
+        # Make sure that count is 0 in the beginning
+        self.db.add_user(user_id, first_name, username)
+        count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(count, 0)
+
+        # Subscribe to first product and check that count equals to 1
+        self.db.subscribe_product(self.p.id, user_id)
+        count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(count, 1)
+
+        # Subscribe to second product and check that count equals to 2
+        self.db.subscribe_product(p2.id, user_id)
+        count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(count, 2)
+
+        # Check that after unsubscribing the count decreases
+        self.db.unsubscribe_product(user_id, self.p.id)
+        count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(count, 1)
+
     def test_get_all_wishlists(self):
         """Test to check if all wishlists can be retreived from the db"""
         wishlists = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/?cat=WL-962572", "price": 62.80},
