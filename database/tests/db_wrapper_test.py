@@ -193,6 +193,8 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(wishlist.url, self.wl.url)
         self.assertEqual(wishlist.price, self.wl.price)
 
+        self.assertIsNone(self.db.get_wishlist_info("23123123"))
+
     def test_is_wishlist_saved(self):
         # Check if wishlist is already saved
         self.assertFalse(self.db.is_wishlist_saved(self.wl.id), "Wishlist is already saved!")
