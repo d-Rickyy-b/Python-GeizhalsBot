@@ -8,7 +8,7 @@ import geizhals.core
 class Entity(object):
     TYPE = None
 
-    def __init__(self, id, name, url, price):
+    def __init__(self, id: int, name: str, url: str, price: float):
         self.__html = None
         self.id = int(id)
         self.name = str(name)
