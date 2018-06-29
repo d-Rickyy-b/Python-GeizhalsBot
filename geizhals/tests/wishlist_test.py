@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from geizhals.wishlist import Wishlist
+
 from geizhals.exceptions import InvalidWishlistURLException
+from geizhals.wishlist import Wishlist
 
 
 class WishlistTest(unittest.TestCase):
