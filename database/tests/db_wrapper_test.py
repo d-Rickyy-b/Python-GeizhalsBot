@@ -599,6 +599,58 @@ class DBWrapperTest(unittest.TestCase):
         user_db = self.db.get_user(user.get("id"))
         self.assertEqual(user_db.id, user.get("id"))
 
+    def test_delete_user(self):
+        """Test to check if users (and their wishlists/products) are probably deleted"""
+        user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+        user_id = user.get("id")
+
+        # Add user to the database
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        # Add product and wishlist to the database
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+
+        # Subscribe to the product and to the wishlist
+        self.db.subscribe_wishlist(self.wl.id, user_id)
+        self.db.subscribe_product(self.p.id, user_id)
+
+        # Make sure subscriber count = 1
+        wl_count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(1, wl_count, "Subscribed wishlists should be 1 but is not!")
+
+        p_count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(1, p_count, "Subscribed products should be 1 but is not!")
+
+        wl_subs = self.db.cursor.execute("SELECT count(*) FROM wishlist_subscribers;").fetchone()[0]
+        self.assertEqual(1, wl_subs)
+
+        p_subs = self.db.cursor.execute("SELECT count(*) FROM product_subscribers;").fetchone()[0]
+        self.assertEqual(1, p_subs)
+
+        # Delete user
+        self.db.delete_user(user_id)
+
+        # Make sure the product and the wishlist still exist
+        wishlist = self.db.get_wishlist_info(self.wl.id)
+        self.assertIsNotNone(wishlist)
+
+        product = self.db.get_product_info(self.p.id)
+        self.assertIsNotNone(product)
+
+        db_user = self.db.get_user(user_id)
+        self.assertIsNone(db_user)
+
+        # Make sure the user is no longer subscribed
+        asdf = self.db.cursor.execute("SELECT * FROM wishlist_subscribers;").fetchone()
+        print(asdf)
+        wl_subs = self.db.cursor.execute("SELECT count(*) FROM wishlist_subscribers;").fetchone()[0]
+        self.assertEqual(0, wl_subs)
+
+        p_subs = self.db.cursor.execute("SELECT count(*) FROM product_subscribers;").fetchone()[0]
+        self.assertEqual(0, p_subs)
+
+
     def test_is_user_saved(self):
         """Test to check if the 'check if a user exists' works as expected"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}

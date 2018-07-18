@@ -326,6 +326,14 @@ class DBwrapper(object):
                 # print("User already exists")
                 pass
 
+        def delete_user(self, user_id):
+            """Delete a user and remove its subscriptions from the database"""
+            try:
+                self.cursor.execute("DELETE FROM users WHERE user_id=?;", [user_id])
+                self.connection.commit()
+            except Exception as e:
+                logging.error(e)
+
         def is_user_saved(self, user_id):
             self.cursor.execute("SELECT rowid, * FROM users WHERE user_id=?;", [str(user_id)])
             result = self.cursor.fetchall()
