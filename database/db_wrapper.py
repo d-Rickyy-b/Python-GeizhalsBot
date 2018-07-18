@@ -28,13 +28,13 @@ class DBwrapper(object):
 
         def delete_all_tables(self):
             self.logger.info("Dropping all tables!")
-            self.cursor.execute("DROP TABLE IF EXISTS users;")
-            self.cursor.execute("DROP TABLE IF EXISTS products;")
-            self.cursor.execute("DROP TABLE IF EXISTS wishlists;")
-            self.cursor.execute("DROP TABLE IF EXISTS product_prices;")
-            self.cursor.execute("DROP TABLE IF EXISTS wishlist_prices;")
-            self.cursor.execute("DROP TABLE IF EXISTS product_subscribers;")
             self.cursor.execute("DROP TABLE IF EXISTS wishlist_subscribers;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_subscribers;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlist_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlists;")
+            self.cursor.execute("DROP TABLE IF EXISTS products;")
+            self.cursor.execute("DROP TABLE IF EXISTS users;")
             self.connection.commit()
             self.logger.info("Dropping complete!")
 
