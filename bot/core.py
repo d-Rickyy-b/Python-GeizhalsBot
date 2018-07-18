@@ -191,3 +191,8 @@ def rm_entity(entity):
         db.rm_product(entity.id)
     else:
         raise ValueError("Unknown EntityType")
+
+
+def delete_user(user_id):
+    db = DBwrapper.get_instance()
+    db.delete_user(user_id)

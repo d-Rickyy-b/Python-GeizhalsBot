@@ -293,7 +293,12 @@ def check_for_price_update(bot, job):
 
                 for user_id in entity_subscribers:
                     # Notify each subscriber
-                    notify_user(bot, user_id, entity, old_price)
+                    try:
+                        notify_user(bot, user_id, entity, old_price)
+                    except Unauthorized as e:
+                        if e.message == "Forbidden: user is deactivated":
+                            logging.info("Removed user from db, because account was deleted.")
+                            delete_user(user_id)
 
             if old_name != new_name:
                 update_entity_name(entity, new_name)
