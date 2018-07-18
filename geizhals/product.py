@@ -3,7 +3,7 @@ import re
 
 import geizhals.core
 import geizhals.exceptions
-from geizhals.entity import Entity, EntityType
+from geizhals import Entity, EntityType
 
 
 class Product(Entity):
