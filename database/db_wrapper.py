@@ -139,7 +139,8 @@ class DBwrapper(object):
             wishlist = self.cursor.fetchone()
 
             if wishlist is not None:
-                return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+                wl_id, name, price, url = wishlist
+                return Wishlist(id=wl_id, name=name, price=price, url=url)
 
             return None
 
@@ -148,7 +149,8 @@ class DBwrapper(object):
             product = self.cursor.fetchone()
 
             if product is not None:
-                return Product(id=str(product[0]), name=product[1], price=product[2], url=product[3])
+                p_id, name, price, url = product
+                return Product(id=p_id, name=name, price=price, url=url)
 
             return None
 
