@@ -5,8 +5,7 @@ import sqlite3
 from datetime import datetime
 
 from bot.user import User
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
+from geizhals import Product, Wishlist
 
 __author__ = 'Rico'
 

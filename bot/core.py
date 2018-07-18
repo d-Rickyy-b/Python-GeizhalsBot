@@ -4,9 +4,7 @@
 import re
 
 from database.db_wrapper import DBwrapper
-from geizhals.entity import EntityType
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
+from geizhals import Product, Wishlist, EntityType
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 

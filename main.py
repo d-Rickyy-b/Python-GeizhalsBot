@@ -14,9 +14,8 @@ from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN
 from filters.own_filters import new_filter, show_filter
+from geizhals import Product, Wishlist
 from geizhals.entity import EntityType
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
