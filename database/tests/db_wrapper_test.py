@@ -232,21 +232,21 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if wishlists are being added correctly"""
         # Make sure that element is not already in database
         result = self.db.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()[0]
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
         result = self.db.cursor.execute("SELECT wishlist_id, name, url, price  FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()
 
-        self.assertEqual(result[0], self.wl.id, msg="ID is not equal!")
-        self.assertEqual(result[1], self.wl.name, msg="Name is not equal!")
-        self.assertEqual(result[2], self.wl.url, msg="Url is not equal!")
-        self.assertEqual(result[3], self.wl.price, msg="Price is not equal!")
+        self.assertEqual(self.wl.id, result[0], msg="ID is not equal!")
+        self.assertEqual(self.wl.name, result[1], msg="Name is not equal!")
+        self.assertEqual(self.wl.url, result[2], msg="Url is not equal!")
+        self.assertEqual(self.wl.price, result[3], msg="Price is not equal!")
 
     def test_add_product(self):
         """Test for checking if products are being added correctly"""
         # Make sure that element is not already in database
         result = self.db.cursor.execute("SELECT count(*) FROM products WHERE product_id=?", [self.p.id]).fetchone()[0]
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Check if product is saved afterwards
         self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
