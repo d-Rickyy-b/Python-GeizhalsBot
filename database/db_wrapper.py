@@ -96,6 +96,7 @@ class DBwrapper(object):
 
         def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
+            self.connection.execute("PRAGMA foreign_keys = ON;")
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
 
