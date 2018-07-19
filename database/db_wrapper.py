@@ -219,7 +219,7 @@ class DBwrapper(object):
         def get_users_for_product(self, product_id):
             self.cursor.execute("SELECT user_id FROM 'product_subscribers' AS ps "
                                 "INNER JOIN Products "
-                                "ON Products.product_id=ps.wishlist_id "
+                                "ON Products.product_id=ps.product_id "
                                 "WHERE ps.product_id=?;", [str(product_id)])
 
             user_list = self.cursor.fetchall()

@@ -56,4 +56,13 @@ def parse_entity_name(html_str, entity_type):
         raise ValueError("The given type is unknown!")
 
     name = parse_html(html_str, selector)
+
+    # Temporary fix for new Geizhals pages such as https://geizhals.de/sony-ht-rt3-schwarz-a1400003.html
+    if name == "" and entity_type == EntityType.PRODUCT:
+        name = parse_html(html_str, "#productpage__headline")
+
+    # If name is still empty, raise error
+    if name == "":
+        raise ValueError("Name cannot be parsed!")
+
     return name
