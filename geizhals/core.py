@@ -39,7 +39,7 @@ def parse_entity_price(html_str, entity_type):
     elif entity_type == EntityType.PRODUCT:
         selector = "div#offer__price-0 span.gh_price"
     else:
-        raise ValueError("The given type is unknown!")
+        raise ValueError("The given type {} is unknown!".format(entity_type))
 
     price = parse_html(html_str, selector)
     price = price[2:]  # Cut off the '€ ' before the real price
@@ -53,7 +53,7 @@ def parse_entity_name(html_str, entity_type):
     elif entity_type == EntityType.PRODUCT:
         selector = "div#gh_artbox span[itemprop='name']"
     else:
-        raise ValueError("The given type is unknown!")
+        raise ValueError("The given type {} is unknown!".format(entity_type))
 
     name = parse_html(html_str, selector)
 
