@@ -72,6 +72,7 @@ class DBWrapperTest(unittest.TestCase):
             self.assertEqual(result, 1, msg="Table '{}' does not exist!".format(table_name))
 
     def test_get_subscribed_wishlist_count(self):
+        """Test to check if the subscribed wishlist count is correct"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -101,6 +102,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(count, 1)
 
     def test_get_subscribed_product_count(self):
+        """Test to check if the subscribed product count is correct"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -195,6 +197,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(self.db.get_wishlist_info("23123123"))
 
     def test_get_product_info(self):
+        """Test to check if fetching information for a product works"""
         self.assertFalse(self.db.is_product_saved(self.p.id), "Product is already saved!")
 
         self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
@@ -208,6 +211,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(self.db.get_product_info("23123123"))
 
     def test_is_wishlist_saved(self):
+        """Test to check if is_wishlist_saved method works as intended"""
         # Check if wishlist is already saved
         self.assertFalse(self.db.is_wishlist_saved(self.wl.id), "Wishlist is already saved!")
 
@@ -218,6 +222,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_wishlist_saved(self.wl.id), "Wishlist is not saved in the db!")
 
     def test_is_product_saved(self):
+        """Test to check if is_product_saved method works as intended"""
         # Make sure product is not already saved
         self.assertFalse(self.db.is_product_saved(self.p.id), "Product should not be saved yet!")
 
@@ -438,6 +443,7 @@ class DBWrapperTest(unittest.TestCase):
             self.assertTrue(found)
 
     def test_is_user_wishlist_subscriber(self):
+        """Check if checking for wishlist subscribers works as intended"""
         user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
         user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
 
@@ -470,7 +476,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_user_wishlist_subscriber(user2.get("id"), wl2.id))
 
     def test_is_user_product_subscriber(self):
-        """Check if """
+        """Check if checking for product subscribers works as intended"""
         user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
         user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
 
@@ -503,6 +509,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_user_product_subscriber(user2.get("id"), p2.id))
 
     def test_update_wishlist_name(self):
+        """Test to check if updating wishlist names works as intended"""
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
 
@@ -510,6 +517,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, "New Wishlist")
 
     def test_update_product_name(self):
+        """Test to check if updating product names works as intended"""
         self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
         self.assertEqual(self.db.get_product_info(self.p.id).name, self.p.name)
 
@@ -648,7 +656,6 @@ class DBWrapperTest(unittest.TestCase):
 
         p_subs = self.db.cursor.execute("SELECT count(*) FROM product_subscribers;").fetchone()[0]
         self.assertEqual(0, p_subs)
-
 
     def test_is_user_saved(self):
         """Test to check if the 'check if a user exists' works as expected"""
