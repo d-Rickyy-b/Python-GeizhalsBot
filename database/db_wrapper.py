@@ -147,11 +147,11 @@ class DBwrapper(object):
             self.cursor.execute("SELECT product_id, name, price, url FROM products WHERE product_id=?;", [str(product_id)])
             product = self.cursor.fetchone()
 
-            if product is not None:
-                p_id, name, price, url = product
-                return Product(id=p_id, name=name, price=price, url=url)
+            if product is None:
+                return None
 
-            return None
+            p_id, name, price, url = product
+            return Product(id=p_id, name=name, price=price, url=url)
 
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
