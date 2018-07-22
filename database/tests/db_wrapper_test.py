@@ -711,8 +711,6 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(db_user)
 
         # Make sure the user is no longer subscribed
-        asdf = self.db.cursor.execute("SELECT * FROM wishlist_subscribers;").fetchone()
-        print(asdf)
         wl_subs = self.db.cursor.execute("SELECT count(*) FROM wishlist_subscribers;").fetchone()[0]
         self.assertEqual(0, wl_subs)
 
