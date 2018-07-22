@@ -668,6 +668,12 @@ class DBWrapperTest(unittest.TestCase):
         user_db = self.db.get_user(user.get("id"))
         self.assertEqual(user_db.id, user.get("id"))
 
+        # Test default value of lang_code
+        user2 = {"id": 4321, "first_name": "Peter", "username": "AsDf", "lang_code": "en_US"}
+        self.db.add_user(user_id=user2.get("id"), first_name=user2.get("first_name"), username=user2.get("username"))
+        user_db2 = self.db.get_user(user2.get("id"))
+        self.assertEqual("de-DE", user_db2.lang_code)
+
     def test_delete_user(self):
         """Test to check if users (and their wishlists/products) are probably deleted"""
         user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
