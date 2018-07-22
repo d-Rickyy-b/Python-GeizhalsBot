@@ -205,8 +205,8 @@ class DBwrapper(object):
 
         def get_users_for_wishlist(self, wishlist_id):
             self.cursor.execute("SELECT user_id FROM 'wishlist_subscribers' AS ws "
-                                "INNER JOIN Wishlists "
-                                "ON Wishlists.wishlist_id=ws.wishlist_id "
+                                "INNER JOIN wishlists "
+                                "ON wishlists.wishlist_id=ws.wishlist_id "
                                 "WHERE ws.wishlist_id=?;", [str(wishlist_id)])
             user_list = self.cursor.fetchall()
             user_ids = []
@@ -218,8 +218,8 @@ class DBwrapper(object):
 
         def get_users_for_product(self, product_id):
             self.cursor.execute("SELECT user_id FROM 'product_subscribers' AS ps "
-                                "INNER JOIN Products "
-                                "ON Products.product_id=ps.product_id "
+                                "INNER JOIN products "
+                                "ON products.product_id=ps.product_id "
                                 "WHERE ps.product_id=?;", [str(product_id)])
 
             user_list = self.cursor.fetchall()
@@ -235,7 +235,7 @@ class DBwrapper(object):
             self.cursor.execute(
                 "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url \
                  FROM 'wishlist_subscribers' AS ws \
-                 INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id \
+                 INNER JOIN wishlists on wishlists.wishlist_id=ws.wishlist_id \
                  WHERE ws.user_id=?;", [str(user_id)])
             wishlist_l = self.cursor.fetchall()
             wishlists = []
