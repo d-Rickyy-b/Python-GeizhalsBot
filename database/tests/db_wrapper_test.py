@@ -4,8 +4,7 @@ import os
 import unittest
 
 from database.db_wrapper import DBwrapper
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
+from geizhals import Product, Wishlist
 
 
 class DBWrapperTest(unittest.TestCase):
@@ -73,6 +72,7 @@ class DBWrapperTest(unittest.TestCase):
             self.assertEqual(result, 1, msg="Table '{}' does not exist!".format(table_name))
 
     def test_get_subscribed_wishlist_count(self):
+        """Test to check if the subscribed wishlist count is correct"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -102,6 +102,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(count, 1)
 
     def test_get_subscribed_product_count(self):
+        """Test to check if the subscribed product count is correct"""
         user_id = 11223344
         first_name = "John"
         username = "JohnDoe"
@@ -196,6 +197,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(self.db.get_wishlist_info("23123123"))
 
     def test_get_product_info(self):
+        """Test to check if fetching information for a product works"""
         self.assertFalse(self.db.is_product_saved(self.p.id), "Product is already saved!")
 
         self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
@@ -209,6 +211,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertIsNone(self.db.get_product_info("23123123"))
 
     def test_is_wishlist_saved(self):
+        """Test to check if is_wishlist_saved method works as intended"""
         # Check if wishlist is already saved
         self.assertFalse(self.db.is_wishlist_saved(self.wl.id), "Wishlist is already saved!")
 
@@ -219,6 +222,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_wishlist_saved(self.wl.id), "Wishlist is not saved in the db!")
 
     def test_is_product_saved(self):
+        """Test to check if is_product_saved method works as intended"""
         # Make sure product is not already saved
         self.assertFalse(self.db.is_product_saved(self.p.id), "Product should not be saved yet!")
 
@@ -232,21 +236,21 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if wishlists are being added correctly"""
         # Make sure that element is not already in database
         result = self.db.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()[0]
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         self.db.add_wishlist(id=self.wl.id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
         result = self.db.cursor.execute("SELECT wishlist_id, name, url, price  FROM wishlists WHERE wishlist_id=?", [self.wl.id]).fetchone()
 
-        self.assertEqual(result[0], self.wl.id, msg="ID is not equal!")
-        self.assertEqual(result[1], self.wl.name, msg="Name is not equal!")
-        self.assertEqual(result[2], self.wl.url, msg="Url is not equal!")
-        self.assertEqual(result[3], self.wl.price, msg="Price is not equal!")
+        self.assertEqual(self.wl.id, result[0], msg="ID is not equal!")
+        self.assertEqual(self.wl.name, result[1], msg="Name is not equal!")
+        self.assertEqual(self.wl.url, result[2], msg="Url is not equal!")
+        self.assertEqual(self.wl.price, result[3], msg="Price is not equal!")
 
     def test_add_product(self):
         """Test for checking if products are being added correctly"""
         # Make sure that element is not already in database
         result = self.db.cursor.execute("SELECT count(*) FROM products WHERE product_id=?", [self.p.id]).fetchone()[0]
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Check if product is saved afterwards
         self.db.add_product(id=self.p.id, name=self.p.name, url=self.p.url, price=self.p.price)
@@ -364,6 +368,68 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(user_db.username, user.get("username"))
         self.assertEqual(user_db.lang_code, user.get("lang_code"))
 
+    def test_get_userids_for_wishlist(self):
+        """Test to check if getting the (subscriber) userid from a wishlist works as intended"""
+        # Users should be 0 in the beginning
+        users = self.db.get_userids_for_wishlist(self.wl.id)
+        self.assertEqual(0, len(users))
+
+        # Add users and wishlist
+        user = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        self.db.add_user(user2.get("id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+
+        # Subscribe user to wishlist
+        self.db.subscribe_wishlist(wishlist_id=self.wl.id, user_id=user.get("id"))
+        users = self.db.get_userids_for_wishlist(self.wl.id)
+
+        # Check if wishlist got one subscriber and it's the correct one
+        self.assertEqual(1, len(users))
+        self.assertEqual(user.get("id"), users[0])
+
+        # Subscribe another user and check if both users are now subscribers
+        self.db.subscribe_wishlist(wishlist_id=self.wl.id, user_id=user2.get("id"))
+        users = self.db.get_userids_for_wishlist(self.wl.id)
+        self.assertEqual(2, len(users))
+
+        for user_id in users:
+            if user_id != user.get("id") and user_id != user2.get("id"):
+                self.fail("I don't know that userID")
+
+    def test_get_users_for_product(self):
+        """Test to check if getting the (subscriber) userid from a wishlist works as intended"""
+        # Users should be 0 in the beginning
+        users = self.db.get_userids_for_product(self.p.id)
+        self.assertEqual(0, len(users))
+
+        # Add users and wishlist
+        user = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        self.db.add_user(user2.get("id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+
+        # Subscribe user to wishlist
+        self.db.subscribe_product(product_id=self.p.id, user_id=user.get("id"))
+        users = self.db.get_userids_for_product(self.p.id)
+
+        # Check if wishlist got one subscriber and it's the correct one
+        self.assertEqual(1, len(users))
+        self.assertEqual(user.get("id"), users[0])
+
+        # Subscribe another user and check if both users are now subscribers
+        self.db.subscribe_product(product_id=self.p.id, user_id=user2.get("id"))
+        users = self.db.get_userids_for_product(self.p.id)
+        self.assertEqual(2, len(users))
+
+        for user_id in users:
+            if user_id != user.get("id") and user_id != user2.get("id"):
+                self.fail("I don't know that userID")
+
     def test_get_wishlists_for_user(self):
         """Test to check if getting wishlists for a user works as intended"""
         user = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
@@ -439,6 +505,7 @@ class DBWrapperTest(unittest.TestCase):
             self.assertTrue(found)
 
     def test_is_user_wishlist_subscriber(self):
+        """Check if checking for wishlist subscribers works as intended"""
         user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
         user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
 
@@ -471,7 +538,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_user_wishlist_subscriber(user2.get("id"), wl2.id))
 
     def test_is_user_product_subscriber(self):
-        """Check if """
+        """Check if checking for product subscribers works as intended"""
         user1 = {"id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
         user2 = {"id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
 
@@ -504,6 +571,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertTrue(self.db.is_user_product_subscriber(user2.get("id"), p2.id))
 
     def test_update_wishlist_name(self):
+        """Test to check if updating wishlist names works as intended"""
         self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, self.wl.name)
 
@@ -511,6 +579,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(self.db.get_wishlist_info(self.wl.id).name, "New Wishlist")
 
     def test_update_product_name(self):
+        """Test to check if updating product names works as intended"""
         self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
         self.assertEqual(self.db.get_product_info(self.p.id).name, self.p.name)
 
@@ -598,6 +667,61 @@ class DBWrapperTest(unittest.TestCase):
         # Check if user was added
         user_db = self.db.get_user(user.get("id"))
         self.assertEqual(user_db.id, user.get("id"))
+
+        # Test default value of lang_code
+        user2 = {"id": 4321, "first_name": "Peter", "username": "AsDf", "lang_code": "en_US"}
+        self.db.add_user(user_id=user2.get("id"), first_name=user2.get("first_name"), username=user2.get("username"))
+        user_db2 = self.db.get_user(user2.get("id"))
+        self.assertEqual("de-DE", user_db2.lang_code)
+
+    def test_delete_user(self):
+        """Test to check if users (and their wishlists/products) are probably deleted"""
+        user = {"id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+        user_id = user.get("id")
+
+        # Add user to the database
+        self.db.add_user(user.get("id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+
+        # Add product and wishlist to the database
+        self.db.add_product(self.p.id, self.p.name, self.p.price, self.p.url)
+        self.db.add_wishlist(self.wl.id, self.wl.name, self.wl.price, self.wl.url)
+
+        # Subscribe to the product and to the wishlist
+        self.db.subscribe_wishlist(self.wl.id, user_id)
+        self.db.subscribe_product(self.p.id, user_id)
+
+        # Make sure subscriber count = 1
+        wl_count = self.db.get_subscribed_wishlist_count(user_id)
+        self.assertEqual(1, wl_count, "Subscribed wishlists should be 1 but is not!")
+
+        p_count = self.db.get_subscribed_product_count(user_id)
+        self.assertEqual(1, p_count, "Subscribed products should be 1 but is not!")
+
+        wl_subs = self.db.cursor.execute("SELECT count(*) FROM wishlist_subscribers;").fetchone()[0]
+        self.assertEqual(1, wl_subs)
+
+        p_subs = self.db.cursor.execute("SELECT count(*) FROM product_subscribers;").fetchone()[0]
+        self.assertEqual(1, p_subs)
+
+        # Delete user
+        self.db.delete_user(user_id)
+
+        # Make sure the product and the wishlist still exist
+        wishlist = self.db.get_wishlist_info(self.wl.id)
+        self.assertIsNotNone(wishlist)
+
+        product = self.db.get_product_info(self.p.id)
+        self.assertIsNotNone(product)
+
+        db_user = self.db.get_user(user_id)
+        self.assertIsNone(db_user)
+
+        # Make sure the user is no longer subscribed
+        wl_subs = self.db.cursor.execute("SELECT count(*) FROM wishlist_subscribers;").fetchone()[0]
+        self.assertEqual(0, wl_subs)
+
+        p_subs = self.db.cursor.execute("SELECT count(*) FROM product_subscribers;").fetchone()[0]
+        self.assertEqual(0, p_subs)
 
     def test_is_user_saved(self):
         """Test to check if the 'check if a user exists' works as expected"""

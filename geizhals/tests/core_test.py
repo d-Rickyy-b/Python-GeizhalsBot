@@ -46,6 +46,9 @@ class GeizhalsCoreTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             geizhals.core.parse_entity_price("Test", "WrongEntityType")
 
+        with self.assertRaises(ValueError):
+            geizhals.core.parse_entity_price("Test", None)
+
     def test_parse_entity_name(self):
         """Test to check if parsing names of entities works"""
         name = geizhals.core.parse_entity_name(self.html_wl, EntityType.WISHLIST)
@@ -56,3 +59,6 @@ class GeizhalsCoreTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             geizhals.core.parse_entity_name("Test", "WrongEntityType")
+
+        with self.assertRaises(ValueError):
+            geizhals.core.parse_entity_name("Test", None)

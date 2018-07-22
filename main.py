@@ -14,9 +14,8 @@ from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN
 from filters.own_filters import new_filter, show_filter
+from geizhals import Product, Wishlist
 from geizhals.entity import EntityType
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -241,7 +240,7 @@ def add_product(bot, update):
                             parse_mode="HTML",
                             disable_web_page_preview=True)
             rm_state(user.id)
-        except AlreadySubscribedException as ase:
+        except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             bot.sendMessage(user.id,
                             "Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
@@ -293,7 +292,12 @@ def check_for_price_update(bot, job):
 
                 for user_id in entity_subscribers:
                     # Notify each subscriber
-                    notify_user(bot, user_id, entity, old_price)
+                    try:
+                        notify_user(bot, user_id, entity, old_price)
+                    except Unauthorized as e:
+                        if e.message == "Forbidden: user is deactivated":
+                            logging.info("Removed user from db, because account was deleted.")
+                            delete_user(user_id)
 
             if old_name != new_name:
                 update_entity_name(entity, new_name)

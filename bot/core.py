@@ -4,9 +4,8 @@
 import re
 
 from database.db_wrapper import DBwrapper
+from geizhals import Product, Wishlist
 from geizhals.entity import EntityType
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 
@@ -154,9 +153,9 @@ def get_entity_subscribers(entity):
     """Returns the subscribers of an entity"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        return db.get_users_for_wishlist(entity.id)
+        return db.get_userids_for_wishlist(entity.id)
     elif entity.TYPE == EntityType.PRODUCT:
-        return db.get_users_for_product(entity.id)
+        return db.get_userids_for_product(entity.id)
     else:
         raise ValueError("Unknown EntityType")
 
@@ -191,3 +190,8 @@ def rm_entity(entity):
         db.rm_product(entity.id)
     else:
         raise ValueError("Unknown EntityType")
+
+
+def delete_user(user_id):
+    db = DBwrapper.get_instance()
+    db.delete_user(user_id)

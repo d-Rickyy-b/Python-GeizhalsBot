@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from geizhals.wishlist import Wishlist
+
+from geizhals.exceptions import InvalidWishlistURLException
+from geizhals import Wishlist
 
 
 class WishlistTest(unittest.TestCase):
@@ -26,6 +28,10 @@ class WishlistTest(unittest.TestCase):
         # The price obviously can't be checked by a precise value
         self.assertEqual(type(my_wl.price), float)
         self.assertGreater(my_wl.price, 0.1)
+
+        # Make sure that wrong urls lead to exceptions
+        with self.assertRaises(InvalidWishlistURLException):
+            failed_wl = Wishlist.from_url("http://example.com")
 
     def test_get_wishlist_products(self):
         """Test to check if getting the products of a wishlist works as intended"""

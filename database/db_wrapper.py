@@ -5,8 +5,7 @@ import sqlite3
 from datetime import datetime
 
 from bot.user import User
-from geizhals.product import Product
-from geizhals.wishlist import Wishlist
+from geizhals import Product, Wishlist
 
 __author__ = 'Rico'
 
@@ -28,13 +27,13 @@ class DBwrapper(object):
 
         def delete_all_tables(self):
             self.logger.info("Dropping all tables!")
-            self.cursor.execute("DROP TABLE IF EXISTS users;")
-            self.cursor.execute("DROP TABLE IF EXISTS products;")
-            self.cursor.execute("DROP TABLE IF EXISTS wishlists;")
-            self.cursor.execute("DROP TABLE IF EXISTS product_prices;")
-            self.cursor.execute("DROP TABLE IF EXISTS wishlist_prices;")
-            self.cursor.execute("DROP TABLE IF EXISTS product_subscribers;")
             self.cursor.execute("DROP TABLE IF EXISTS wishlist_subscribers;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_subscribers;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlist_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS product_prices;")
+            self.cursor.execute("DROP TABLE IF EXISTS wishlists;")
+            self.cursor.execute("DROP TABLE IF EXISTS products;")
+            self.cursor.execute("DROP TABLE IF EXISTS users;")
             self.connection.commit()
             self.logger.info("Dropping complete!")
 
@@ -96,6 +95,7 @@ class DBwrapper(object):
 
         def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
+            self.connection.execute("PRAGMA foreign_keys = ON;")
             self.connection.text_factory = lambda x: str(x, 'utf-8', "ignore")
             self.cursor = self.connection.cursor()
 
@@ -138,7 +138,8 @@ class DBwrapper(object):
             wishlist = self.cursor.fetchone()
 
             if wishlist is not None:
-                return Wishlist(id=str(wishlist[0]), name=wishlist[1], price=wishlist[2], url=wishlist[3])
+                wl_id, name, price, url = wishlist
+                return Wishlist(id=wl_id, name=name, price=price, url=url)
 
             return None
 
@@ -146,10 +147,11 @@ class DBwrapper(object):
             self.cursor.execute("SELECT product_id, name, price, url FROM products WHERE product_id=?;", [str(product_id)])
             product = self.cursor.fetchone()
 
-            if product is not None:
-                return Product(id=str(product[0]), name=product[1], price=product[2], url=product[3])
+            if product is None:
+                return None
 
-            return None
+            p_id, name, price, url = product
+            return Product(id=p_id, name=name, price=price, url=url)
 
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
@@ -201,10 +203,10 @@ class DBwrapper(object):
                 return User(id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
             return None
 
-        def get_users_for_wishlist(self, wishlist_id):
+        def get_userids_for_wishlist(self, wishlist_id):
             self.cursor.execute("SELECT user_id FROM 'wishlist_subscribers' AS ws "
-                                "INNER JOIN Wishlists "
-                                "ON Wishlists.wishlist_id=ws.wishlist_id "
+                                "INNER JOIN wishlists "
+                                "ON wishlists.wishlist_id=ws.wishlist_id "
                                 "WHERE ws.wishlist_id=?;", [str(wishlist_id)])
             user_list = self.cursor.fetchall()
             user_ids = []
@@ -214,10 +216,10 @@ class DBwrapper(object):
 
             return user_ids
 
-        def get_users_for_product(self, product_id):
+        def get_userids_for_product(self, product_id):
             self.cursor.execute("SELECT user_id FROM 'product_subscribers' AS ps "
-                                "INNER JOIN Products "
-                                "ON Products.product_id=ps.product_id "
+                                "INNER JOIN products "
+                                "ON products.product_id=ps.product_id "
                                 "WHERE ps.product_id=?;", [str(product_id)])
 
             user_list = self.cursor.fetchall()
@@ -233,7 +235,7 @@ class DBwrapper(object):
             self.cursor.execute(
                 "SELECT wishlists.wishlist_id, wishlists.name, wishlists.price, wishlists.url \
                  FROM 'wishlist_subscribers' AS ws \
-                 INNER JOIN Wishlists on Wishlists.wishlist_id=ws.wishlist_id \
+                 INNER JOIN wishlists on wishlists.wishlist_id=ws.wishlist_id \
                  WHERE ws.user_id=?;", [str(user_id)])
             wishlist_l = self.cursor.fetchall()
             wishlists = []
@@ -315,13 +317,23 @@ class DBwrapper(object):
             else:
                 return "en"
 
-        def add_user(self, user_id, first_name, username, lang_code="en_US"):
+        def add_user(self, user_id, first_name, username, lang_code="de-DE"):
+            if lang_code is None:
+                lang_code = "de-DE"
             try:
                 self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
                 pass
+
+        def delete_user(self, user_id):
+            """Delete a user and remove its subscriptions from the database"""
+            try:
+                self.cursor.execute("DELETE FROM users WHERE user_id=?;", [user_id])
+                self.connection.commit()
+            except Exception as e:
+                logging.error(e)
 
         def is_user_saved(self, user_id):
             self.cursor.execute("SELECT rowid, * FROM users WHERE user_id=?;", [str(user_id)])
