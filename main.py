@@ -240,7 +240,7 @@ def add_product(bot, update):
                             parse_mode="HTML",
                             disable_web_page_preview=True)
             rm_state(user.id)
-        except AlreadySubscribedException as ase:
+        except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             bot.sendMessage(user.id,
                             "Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
