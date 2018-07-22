@@ -203,7 +203,7 @@ class DBwrapper(object):
                 return User(id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
             return None
 
-        def get_users_for_wishlist(self, wishlist_id):
+        def get_userids_for_wishlist(self, wishlist_id):
             self.cursor.execute("SELECT user_id FROM 'wishlist_subscribers' AS ws "
                                 "INNER JOIN wishlists "
                                 "ON wishlists.wishlist_id=ws.wishlist_id "
@@ -216,7 +216,7 @@ class DBwrapper(object):
 
             return user_ids
 
-        def get_users_for_product(self, product_id):
+        def get_userids_for_product(self, product_id):
             self.cursor.execute("SELECT user_id FROM 'product_subscribers' AS ps "
                                 "INNER JOIN products "
                                 "ON products.product_id=ps.product_id "

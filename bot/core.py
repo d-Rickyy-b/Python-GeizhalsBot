@@ -153,9 +153,9 @@ def get_entity_subscribers(entity):
     """Returns the subscribers of an entity"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        return db.get_users_for_wishlist(entity.id)
+        return db.get_userids_for_wishlist(entity.id)
     elif entity.TYPE == EntityType.PRODUCT:
-        return db.get_users_for_product(entity.id)
+        return db.get_userids_for_product(entity.id)
     else:
         raise ValueError("Unknown EntityType")
 
