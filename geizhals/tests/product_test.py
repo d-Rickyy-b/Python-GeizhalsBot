@@ -9,8 +9,8 @@ from geizhals.product import Product
 class ProductTest(unittest.TestCase):
 
     def setUp(self):
-        self.p = Product(id=1756905, name="Samsung SSD 860 EVO 1TB, SATA (MZ-76E1T0B/EU / MZ-76E1T0E)",
-                         url="https://geizhals.de/samsung-ssd-860-evo-1tb-mz-76e1t0b-eu-mz-76e1t0e-a1756905.html", price=195.85)
+        self.p = Product(id=1756905, name="Samsung SSD 860 EVO 1TB, SATA (MZ-76E1T0B)",
+                         url="https://geizhals.de/samsung-ssd-860-evo-1tb-mz-76e1t0b-a1756905.html", price=195.85)
 
     def tearDown(self):
         del self.p
