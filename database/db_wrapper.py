@@ -318,8 +318,7 @@ class DBwrapper(object):
                 return "en"
 
         def add_user(self, user_id, first_name, username, lang_code="de-DE"):
-            if lang_code is None:
-                lang_code = "de-DE"
+            lang_code = lang_code or "de-DE"
             try:
                 self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
                 self.connection.commit()
