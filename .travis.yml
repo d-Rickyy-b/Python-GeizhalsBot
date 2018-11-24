@@ -14,11 +14,7 @@ script:
 - coverage run -m unittest discover -s . -v -p "*_test.py"
 after_success:
 - coveralls
-- docker build -t geizhalsbot:$TRAVIS_TAG .
-- docker tag geizhalsbot:$TRAVIS_TAG $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
-- docker tag geizhalsbot:$TRAVIS_TAG $DOCKER_HUB_USERNAME/geizhalsbot:latest
-- docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
-- docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
+- docker build -t geizhalsbot:latest .
 notifications:
   email: false
 deploy:
@@ -26,6 +22,10 @@ deploy:
   script: 
   - curl https://rico-j.de/travis/deploy-gh.sh
   - docker login --email=$DOCKER_HUB_EMAIL --username=$DOCKER_HUB_USERNAME --password=$DOCKER_HUB_PASSWORD
+  - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
+  - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
+  - docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
+  - docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
   on:
     branch: master
     tags: true
