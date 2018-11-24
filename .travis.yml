@@ -29,6 +29,7 @@ deploy:
   on:
     branch: master
     tags: true
+    python: "3.6"
 env:
   global:
   - secure: K5EG/Oczl6ADLvYW1zzZMrsCmG42yKsUQBFOSWJoYIAJ5KklHmRtHRFrisEBH59R0t60CAAGBwBQS/tr65+H4Yh08S6DzNcbOpqb5CTYbw3+2ejN/P3t3LN050iYBmv+6YBVUlgGGCSC3B+3/qT3LLCl/QNWi/lAynrNpEHxiIEA6Ck2aO7/SXuKC1xhIf+oPkZ/J8pp3MqFMesoANkU8o7fQ3NH2ngAOKSZUT5rm3iXn/WOsm2crvzs8WFiJ1xmStqcjoEWPXMrq6/pCpCBjnU5L05S9Jjf6A+lqxBa0lyU5AimCSdS0ZT8vkI8x7lV60w4Kx7F6Q96DxqS2gkpeAsDoydkYFgIIVKtgxmluBG2164/Xf+Z+NTavfgfwfFgvzPe/KkCjVCHNF4+GvpljzFqNQzW04YzcmrDPC7zCHAlrPLf3zXZxlyzlK+641Jn5fZGp8JBWQrzpiOntdBQniAaHRnMjIrBeEvCn6TxZw7gYFzM0EoI9JKpfSoi8hrZFxlS522+RiVDJepdcm6ISHy9ACUeWBNz03O1k7FdqqF+t1odb9yfPQDAJc/r6wu2o71zmvy1j/nDYbepHai3ru75tD8N7ZmitxNM0jebEEQqlnHRLg1FcttWypETm7BSQGmScXZjZo5kt+2Ih0EmjTaWVJEp1ODUiA0+rj4ue5g=
