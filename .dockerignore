@@ -1,0 +1,12 @@
+.git
+.gitignore
+__pycache__
+logs
+config.py
+tests
+.venv
+.idea
+venv
+.coverage
+.coveragec
+.gitattributes
