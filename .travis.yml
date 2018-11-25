@@ -18,7 +18,7 @@ after_success:
 notifications:
   email: false
 before_deploy:
-- docker login --email=$DOCKER_HUB_EMAIL --username=$DOCKER_HUB_USERNAME --password=$DOCKER_HUB_PASSWORD
+- docker login --username=$DOCKER_HUB_USERNAME --password=$DOCKER_HUB_PASSWORD
 deploy:
   - provider: script
     script: 
@@ -27,6 +27,7 @@ deploy:
     - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
+    skip_cleanup: true
     on:
       branch: master
       tags: true
@@ -36,6 +37,7 @@ deploy:
     script:
     - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:dev
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:dev
+    skip_cleanup: true
     on:
       branch: dev
       python: "3.6"
