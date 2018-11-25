@@ -11,6 +11,7 @@ env:
     - secure: "Yp4pLV0/6Dz6uIAsGBMBLCQFDncD3heR5PnHbLBeBQikybvy/HiIW9rqHy8EQNgDQjQWLP09bYuTecjZiOb/Ut0NbCeGNzZtUz6NCiG64d0pIxdhczpant/Sn5jAgJ+7zbhHeZe/aH9UnDZ2njc85ii4wPvqQs84dcy4gRZwFGUBzDYDvOlMt+ZU5cyqvZrGaQazWXHJ+eyTgiSKTgl9kI5CUtVjegyDw/FhYg9kTKeow9RwWrzhjwD8dhutgFM/7BWH4rdfjIlelRNUdW+xKy0m5aMf8YoABavTpoFTuWhHLDMC5AGXVtSn5YZwlU6ADpugkc308SkQu6KOvtp7B3OikjANK5VUaDTgGfUzoHRqXzayTXYYpaQe0y+0wfKpAAXW3M8l3nTJ+DdNcwtfB0YIgPrAHdd/asVo+S8dN3j6+LG4hSvHBXAx0/sauC9RJ11P/TTbev6eLGI0KZJpqshEaMvFR7SpgSVZ/sRv54fG8H2x4HlBwncuqSzqdVYm8roVz5yxxgASd+L3LKDI2BkIGN/tbbUYb6hl75oyE5u1qVGpdnGnyeK5nBCJL+W8zJvQv97+k1MbDRop2LjztlPffU70QGYmyM8LfqJWH5ccuCo5AiFw/9srYPgM+UPlaRB3OIJf+t3+MGemk0NDk1+wXgmYFSIfSXryrfxxdK0="
 
 install:
+- echo "${DOCKER_HUB_USERNAME}"
 - pip install -r requirements.txt
 - pip install python-coveralls
 - docker build -t geizhalsbot:latest .
