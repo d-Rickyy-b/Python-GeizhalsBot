@@ -20,19 +20,19 @@ notifications:
 before_deploy:
 - docker login --email=$DOCKER_HUB_EMAIL --username=$DOCKER_HUB_USERNAME --password=$DOCKER_HUB_PASSWORD
 deploy:
-  provider: script
-  script: 
-  - curl https://rico-j.de/travis/deploy-gh.sh
-  - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
-  - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
-  - docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
-  - docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
-  on:
-    branch: master
-    tags: true
-    python: "3.6"
+  - provider: script
+    script: 
+    - curl https://rico-j.de/travis/deploy-gh.sh
+    - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
+    - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
+    - docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
+    - docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
+    on:
+      branch: master
+      tags: true
+      python: "3.6"
 
-  provider: script
+  - provider: script
     script:
     - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:dev
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:dev
