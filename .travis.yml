@@ -11,10 +11,9 @@ env:
     - secure: "Dmx3ttv5mIuMogOYcTScAhFgTYL7Q7hwz2YIIRlxEQKNutOuXIIO8nMNOKesMQ1UWJwtSaolVTKQVrcSxOhOkwRmeTk0pHL9kJrlve5wMm/3CsziLWnXKD+5c3peNXfQqHIyOPDmJt9XWkdwf0VzSrVByuC00JQMdSRVUZdsV/MXV/Rhc8Q8xmHYRlCYPCA2q5f89iUvivNNKxvBwOPzWKAYFi3YYT8i7ezAKPHsH/eUMi/QDfHk49gmu4TKtEcGf27u4OdMuk3uW+Ae2PTsTW1bmX6rANdhtXThlF54UsljFjvLREaYLhKhbXg2wRMaHNzgFXCsw/COv8EctvVWUexsT/LRCcvjacArsrUXNsk5yr5xFTPeXPvQ+SKeJE6MMyasfSIynXuASKiFpvktONpMzHnDBQiryJBru+aPW0U8GDilPlYQNTm/NoqnS0CYw6CSXG7gr9Jqo6c27FMhC83tFrprkGi7ktxv5ansu40QXtCxzAQoz5Yq/8bvLVx5pB5SIVgqbAUpRA+IdDSQKBFjZ5/+3Z8AscLmJAqzaEcXjFXodCCFhlDEJ804l4+nK5sYEI6Tbi/CWS4uTmVsGJKTdblQ/OP1by3AsNeAQjmC4u0ux7NwR1bzEozaAk25OuMQLoUE1B9hTqEflbiOA7sGxppyhJgbfRtEsvkE4e0="
 
 install:
-- echo "${DOCKER_HUB_USERNAME}"
 - pip install -r requirements.txt
 - pip install python-coveralls
-- docker build -t geizhalsbot:latest .
+- docker build -t geizhalsbot .
 script:
 - python -m compileall ./
 - coverage run -m unittest discover -s . -v -p "*_test.py"
@@ -29,8 +28,8 @@ deploy:
     script: 
     - curl https://rico-j.de/travis/deploy-gh.sh
     - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
-    - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:latest
+    - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:latest
     - docker push $DOCKER_HUB_USERNAME/geizhalsbot:$TRAVIS_TAG
     skip_cleanup: true
     on:
@@ -39,9 +38,7 @@ deploy:
       python: "3.6"
 
   - provider: script
-    script:
-    - docker tag geizhalsbot:latest $DOCKER_HUB_USERNAME/geizhalsbot:dev
-    - docker push $DOCKER_HUB_USERNAME/geizhalsbot:dev
+    script: docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev && docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev
     skip_cleanup: true
     on:
       branch: dev
