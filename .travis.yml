@@ -22,7 +22,7 @@ after_success:
 notifications:
   email: false
 before_deploy:
-- docker login --username=$DOCKER_HUB_USERNAME --password=$DOCKER_HUB_PASSWORD
+- docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
 deploy:
   - provider: script
     script: 
