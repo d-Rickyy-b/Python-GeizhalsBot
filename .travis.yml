@@ -25,11 +25,19 @@ before_deploy:
 - docker login --username "${DOCKER_HUB_USERNAME}" --password "${DOCKER_HUB_PASSWORD}"
 deploy:
   - provider: script
-    script: >
+    script: >-
            curl https://rico-j.de/travis/deploy-gh.sh &&
-           docker tag geizhalsbot:latest "${DOCKER_HUB_USERNAME}"/geizhalsbot:$TRAVIS_TAG &&
-           docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest &&
-           docker tag geizhalsbot:latest "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest &&
+           docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest &&
+           docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: false
+      python: "3.6"
+
+  - provider: script
+    script: >-
+           docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:$TRAVIS_TAG &&
            docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:$TRAVIS_TAG
     skip_cleanup: true
     on:
@@ -38,7 +46,9 @@ deploy:
       python: "3.6"
 
   - provider: script
-    script: docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev && docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev
+    script: >-
+            docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev && 
+            docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev
     skip_cleanup: true
     on:
       branch: dev
