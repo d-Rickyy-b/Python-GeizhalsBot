@@ -8,7 +8,7 @@ from geizhals.entity import Entity, EntityType
 
 class Wishlist(Entity):
     """Representation of a Geizhals wishlist"""
-    url_pattern = "https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
+    url_pattern = r"https:\/\/geizhals\.(de|at|eu)\/\?cat=WL-([0-9]+)"
     ENTITY_NAME = "Wunschliste"
     TYPE = EntityType.WISHLIST
 

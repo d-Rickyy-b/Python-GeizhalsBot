@@ -8,7 +8,7 @@ from geizhals.entity import Entity, EntityType
 
 class Product(Entity):
     """Representation of a Geizhals product"""
-    url_pattern = "https:\/\/geizhals\.(de|at|eu)\/[0-9a-zA-Z\-]*a([0-9]+).html"
+    url_pattern = r"https:\/\/geizhals\.(de|at|eu)\/[0-9a-zA-Z\-]*a([0-9]+).html"
     ENTITY_NAME = "Produkt"
     TYPE = EntityType.PRODUCT
 

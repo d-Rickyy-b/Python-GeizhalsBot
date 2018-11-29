@@ -35,8 +35,8 @@ class Entity(object):
         price = geizhals.core.parse_entity_price(self.__html, self.TYPE)
 
         # Parse price so that it's a proper comma value (no `,--`)
-        pattern = "([0-9]+)\.([0-9]+|[-]+)"
-        pattern_dash = "([0-9]+)\.([-]+)"
+        pattern = r"([0-9]+)\.([0-9]+|[-]+)"
+        pattern_dash = r"([0-9]+)\.([-]+)"
 
         if re.match(pattern, price):
             if re.match(pattern_dash, price):
