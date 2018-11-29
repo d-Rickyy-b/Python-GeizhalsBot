@@ -17,8 +17,8 @@ class WishlistTest(unittest.TestCase):
     def tearDown(self):
         del self.wl
 
-    # Depending on the environment this test might fail and that's okay
-    @unittest.expectedFailure
+    # Depending on the environment this test might fail and that's okay - skipping for the moment
+    @unittest.skip("This test might fail depending on the environment")
     def test_from_url(self):
         """Test to check if creating a wishlist by url works as intended"""
         # Create a wishlist by url - needs a network connection
