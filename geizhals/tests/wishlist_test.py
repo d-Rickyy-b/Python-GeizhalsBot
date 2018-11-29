@@ -9,7 +9,10 @@ from geizhals import Wishlist
 class WishlistTest(unittest.TestCase):
 
     def setUp(self):
-        self.wl = Wishlist(id=676328, name="NAS", url="https://geizhals.de/?cat=WL-676328", price=617.90)
+        self.wl = Wishlist(id=676328, 
+                           name="NAS", 
+                           url="https://geizhals.de/?cat=WL-676328", 
+                           price=617.90)
 
     def tearDown(self):
         del self.wl
