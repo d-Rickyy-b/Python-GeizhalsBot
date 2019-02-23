@@ -107,3 +107,4 @@ __pycache__
 *.db
 .vs
 config.py
+.vscode/settings.json
