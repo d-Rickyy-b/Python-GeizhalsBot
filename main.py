@@ -44,7 +44,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-if not re.match("[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
+if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
     exit(1)
 
