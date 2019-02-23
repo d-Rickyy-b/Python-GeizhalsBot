@@ -35,7 +35,7 @@ def parse_html(html_str, selector):
 
 def parse_entity_price(html_str, entity_type):
     if entity_type == EntityType.WISHLIST:
-        selector = "div.productlist__footer-cell span.gh_price"
+        selector = "div.wishlist__summary > span.gh_price"
     elif entity_type == EntityType.PRODUCT:
         selector = "div#offer__price-0 span.gh_price"
     else:
