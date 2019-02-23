@@ -42,7 +42,7 @@ class Entity(object):
             if re.match(pattern_dash, price):
                 price = float(re.search(pattern_dash, price).group(1))
         else:
-            raise ValueError("Couldn't parse price!")
+            raise ValueError("Couldn't parse price '{}' for entity '{}'!".format(price, self.url))
 
         return float(price)
 
