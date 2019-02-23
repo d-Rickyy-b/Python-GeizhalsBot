@@ -14,10 +14,10 @@ class GeizhalsCoreTest(unittest.TestCase):
     test_p_file_path = os.path.join(dir_path, "test_product.html")
 
     def setUp(self):
-        with open(self.test_wl_file_path, "r") as f:
+        with open(self.test_wl_file_path, "r", encoding='utf8') as f:
             self.html_wl = f.read()
 
-        with open(self.test_p_file_path) as f:
+        with open(self.test_p_file_path, "r", encoding='utf8') as f:
             self.html_p = f.read()
 
     def tearDown(self):
