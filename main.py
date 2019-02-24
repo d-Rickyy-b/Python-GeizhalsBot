@@ -207,7 +207,7 @@ def add_product(bot, update):
     try:
         url = get_p_url(text)
     except InvalidURLException:
-        logger.debug("Invalid url '{}'!".format(text))
+        logger.warning("Invalid url '{}' sent by user {}!".format(text, user))
         bot.sendMessage(chat_id=user.id,
                         text="Die URL ist ungültig!",
                         reply_markup=reply_markup)
