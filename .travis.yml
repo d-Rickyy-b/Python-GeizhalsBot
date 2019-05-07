@@ -3,8 +3,6 @@ sudo: require
 python:
 - '3.4'
 - '3.6'
-services:
-- docker
 env:
   global:
     - secure: "O2c+teJLsO/f68JSCsX5SiCvQ11h5Oih11b2OwcbFvry8tORjGGgtNaJBiX0wOqFjsgmJIX+HEHeLS0HCDV8yUIsv/SEswIklSk59c75MJjcwWIl+K6GnPqhIBNRM2NpPLbBiuNVVUmHJsXho98kva4QTg5R3HbniaOLkOer9hvklhpXDOxxM9ZhOn2JN+mI0Pxz2YEzoQNJlr6ujGsng2EMBWlQLiCwzMht15MrQLhJAXWoFrVmsYAuCtxRi8VjPxXjYaI9DjHMNuCWR7sxgdZ2VuW1E8J5vyUpQkvwRmhkLjf8Ybj3zoQZzB3JLNKFFrth5QbqYcJHUsQTPatAcLCk0Tt9yi9bnOPVPUyXTK8FthlPU9NRX8VYO7mWy9Tqn6CVfcvSMlHafJS8a7TZZKmPefJlRVNJijXFgdMm85KUhmYNEM32evtTur2Z73yOimz4Bq78QPBT3s3eWIMCWHuL41BgQ23Tuh/WjplfFTiyo3/1mC/w6n/6zjmlod1BskZ9jlgMgMrHYrtmjKI9/aoQAc7tvk5AChj5d3+3WiMwR8IeIc7jRuOR5CsXTvVsslFWF84igYnnk2XEi2PKV/o8BgWIxdxqqMpTNyHxpLBD8BagiskQijOODaZ6bQX0Kby9coiIvrDYjltMDI+9MWHBOUnWMFGJc9pyk/3Q+eo="
@@ -13,7 +11,6 @@ env:
 install:
 - pip install -r requirements.txt
 - pip install python-coveralls
-- docker build -t geizhalsbot .
 script:
 - python -m compileall ./
 - coverage run -m unittest discover -s . -v -p "*_test.py"
@@ -21,35 +18,12 @@ after_success:
 - coveralls
 notifications:
   email: false
-before_deploy:
-- docker login --username "${DOCKER_HUB_USERNAME}" --password "${DOCKER_HUB_PASSWORD}"
 deploy:
   - provider: script
     script: >-
-           curl https://rico-j.de/travis/deploy-gh.sh &&
-           docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest &&
-           docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:latest
+           curl https://rico-j.de/travis/deploy-gh.sh
     skip_cleanup: true
     on:
       branch: master
       tags: false
-      python: "3.6"
-
-  - provider: script
-    script: >-
-           docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:$TRAVIS_TAG &&
-           docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:$TRAVIS_TAG
-    skip_cleanup: true
-    on:
-      branch: master
-      tags: true
-      python: "3.6"
-
-  - provider: script
-    script: >-
-            docker tag geizhalsbot "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev && 
-            docker push "${DOCKER_HUB_USERNAME}"/geizhalsbot:dev
-    skip_cleanup: true
-    on:
-      branch: dev
       python: "3.6"
