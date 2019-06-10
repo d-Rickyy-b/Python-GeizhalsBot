@@ -24,6 +24,7 @@ def send_request(url):
 
     f = urllib.request.urlopen(req)
     html_str = f.read().decode('utf-8')
+    logger.info("HTML content length: {}".format(len(html_str)))
     html_str = html.unescape(html_str)
     return html_str
 

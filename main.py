@@ -200,12 +200,15 @@ def add_product(bot, update):
     text = update.message.text
     user = update.message.from_user
 
+    logger.info("Adding new product for user '{}'".format(user.id))
+
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
 
     add_user_if_new(user)
 
     try:
         url = get_p_url(text)
+        logger.info("Valid URL for new product is '{}'".format(url))
     except InvalidURLException:
         logger.warning("Invalid url '{}' sent by user {}!".format(text, user))
         bot.sendMessage(chat_id=user.id,
