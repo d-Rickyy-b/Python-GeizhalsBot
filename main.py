@@ -12,7 +12,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import *
 from bot.user import User
-from config import BOT_TOKEN
+from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH
 from filters.own_filters import new_filter, show_filter
 from geizhals import Product, Wishlist
 from geizhals.entity import EntityType
@@ -200,14 +200,17 @@ def add_product(bot, update):
     text = update.message.text
     user = update.message.from_user
 
+    logger.info("Adding new product for user '{}'".format(user.id))
+
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
 
     add_user_if_new(user)
 
     try:
         url = get_p_url(text)
+        logger.info("Valid URL for new product is '{}'".format(url))
     except InvalidURLException:
-        logger.debug("Invalid url '{}'!".format(text))
+        logger.warning("Invalid url '{}' sent by user {}!".format(text, user))
         bot.sendMessage(chat_id=user.id,
                         text="Die URL ist ungültig!",
                         reply_markup=reply_markup)
@@ -613,6 +616,12 @@ delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
 
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
+
+if USE_WEBHOOK:
+    updater.start_webhook(listen="127.0.0.1", port=WEBHOOK_PORT, url_path=BOT_TOKEN, cert=CERTPATH, webhook_url=WEBHOOK_URL)
+    updater.bot.set_webhook(WEBHOOK_URL)
+else:
+    updater.start_polling()
 
 updater.start_polling()
 logger.info("Bot started as @{}".format(updater.bot.username))
