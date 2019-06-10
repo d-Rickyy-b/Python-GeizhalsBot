@@ -12,7 +12,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import *
 from bot.user import User
-from config import BOT_TOKEN
+from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH
 from filters.own_filters import new_filter, show_filter
 from geizhals import Product, Wishlist
 from geizhals.entity import EntityType
@@ -616,6 +616,12 @@ delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
 
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
+
+if USE_WEBHOOK:
+    updater.start_webhook(listen="127.0.0.1", port=WEBHOOK_PORT, url_path=BOT_TOKEN, cert=CERTPATH, webhook_url=WEBHOOK_URL)
+    updater.bot.set_webhook(WEBHOOK_URL)
+else:
+    updater.start_polling()
 
 updater.start_polling()
 logger.info("Bot started as @{}".format(updater.bot.username))
