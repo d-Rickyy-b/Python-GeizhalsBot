@@ -266,7 +266,7 @@ def check_for_price_update(bot, job):
             new_name = entity.get_current_name()
         except HTTPError as e:
             if e.code == 403:
-                logger.error("Entity ist nicht öffentlich!")
+                logger.error("Entity is not public!")
 
                 if entity.TYPE == EntityType.PRODUCT:
                     entity_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \

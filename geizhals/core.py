@@ -23,8 +23,13 @@ def send_request(url):
     )
 
     f = urllib.request.urlopen(req)
+    status_code = f.getcode()
+
+    if status_code == 429:
+        logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+
     html_str = f.read().decode('utf-8')
-    logger.info("HTML content length: {}".format(len(html_str)))
+    logger.info("HTML content length: {} - status code: {}".format(len(html_str), status_code))
     html_str = html.unescape(html_str)
     return html_str
 
@@ -36,7 +41,7 @@ def parse_html(html_str, selector):
 
 def parse_entity_price(html_str, entity_type):
     if entity_type == EntityType.WISHLIST:
-        selector = "div.wishlist__summary > span.gh_price"
+        selector = "div.wishlist_sum_area span.gh_price span.gh_price > span.gh_price"
     elif entity_type == EntityType.PRODUCT:
         selector = "div#offer__price-0 span.gh_price"
     else:
