@@ -23,8 +23,13 @@ def send_request(url):
     )
 
     f = urllib.request.urlopen(req)
+    status_code = f.getcode()
+
+    if status_code == 429:
+        logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+
     html_str = f.read().decode('utf-8')
-    logger.info("HTML content length: {}".format(len(html_str)))
+    logger.info("HTML content length: {} - status code: {}".format(len(html_str), status_code))
     html_str = html.unescape(html_str)
     return html_str
 
