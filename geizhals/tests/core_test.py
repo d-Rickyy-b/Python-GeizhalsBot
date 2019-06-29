@@ -52,10 +52,10 @@ class GeizhalsCoreTest(unittest.TestCase):
     def test_parse_entity_name(self):
         """Test to check if parsing names of entities works"""
         name = geizhals.core.parse_entity_name(self.html_wl, EntityType.WISHLIST)
-        self.assertEqual(name, "NAS")
+        self.assertEqual("NAS", name)
 
         name = geizhals.core.parse_entity_name(self.html_p, EntityType.PRODUCT)
-        self.assertEqual(name, "Samsung SSD 860 EVO 1TB, SATA (MZ-76E1T0B/EU / MZ-76E1T0E)")
+        self.assertEqual("Samsung SSD 860 EVO 1TB, SATA (MZ-76E1T0B)", name)
 
         with self.assertRaises(ValueError):
             geizhals.core.parse_entity_name("Test", "WrongEntityType")
