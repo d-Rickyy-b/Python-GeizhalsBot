@@ -254,7 +254,7 @@ def check_for_price_update(bot, job):
     """Check if the price of any subscribed wishlist or product was updated"""
     logger.debug("Checking for updates!")
 
-    entities = get_all_entities()
+    entities = get_all_entities_with_subscribers()
 
     # Check all entities for price updates
     for entity in entities:
