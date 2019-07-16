@@ -165,8 +165,11 @@ def add_wishlist(bot, update):
     try:
         wishlist = Wishlist.from_url(url)
     except HTTPError as e:
+        logger.error(e)
         if e.code == 403:
             bot.sendMessage(chat_id=user.id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
+        elif e.code == 429:
+            bot.sendMessage(chat_id=user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
@@ -219,8 +222,11 @@ def add_product(bot, update):
     try:
         product = Product.from_url(url)
     except HTTPError as e:
+        logger.error(e)
         if e.code == 403:
             bot.sendMessage(chat_id=user.id, text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
+        elif e.code == 429:
+            bot.sendMessage(chat_id=user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
