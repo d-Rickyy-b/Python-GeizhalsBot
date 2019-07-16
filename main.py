@@ -629,6 +629,5 @@ if USE_WEBHOOK:
 else:
     updater.start_polling()
 
-updater.start_polling()
 logger.info("Bot started as @{}".format(updater.bot.username))
 updater.idle()
