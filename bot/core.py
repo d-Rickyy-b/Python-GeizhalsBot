@@ -88,8 +88,8 @@ def get_all_entities():
 def get_all_entities_with_subscribers():
     """Returns all the entities with subscribers in the database"""
     db = DBwrapper.get_instance()
-    wishlists = db.get_all_wishlists_with_subscribers()
-    products = db.get_all_products_with_subscribers()
+    wishlists = db.get_all_subscribed_wishlists()
+    products = db.get_all_subscribed_products()
 
     entities = wishlists + products
 
