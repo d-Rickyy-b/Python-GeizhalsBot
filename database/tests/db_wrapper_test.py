@@ -157,6 +157,41 @@ class DBWrapperTest(unittest.TestCase):
 
             self.assertTrue(found, msg="Inserted wishlist {} was not found!".format(wl.get("id")))
 
+    def test_get_all_subscribed_wishlists(self):
+        """Test to check if retrieving subscribed wishlists works"""
+        wishlists = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/?cat=WL-962572", "price": 62.80},
+                     {"id": 924729, "name": "3W5NQ1QIHT", "url": "https://geizhals.de/?cat=WL-924729", "price": 46.00},
+                     {"id": 614044, "name": "CTYCTW798V", "url": "https://geizhals.de/?cat=WL-614044", "price": 96.95},
+                     {"id": 245759, "name": "VDY66U0AWM", "url": "https://geizhals.de/?cat=WL-245759", "price": 53.94},
+                     {"id": 490792, "name": "N6MCC1Z38O", "url": "https://geizhals.de/?cat=WL-490792", "price": 144.85},
+                     {"id": 533484, "name": "NOJJ8KVE9T", "url": "https://geizhals.de/?cat=WL-533484", "price": 122.77},
+                     {"id": 577007, "name": "ELV51DSL2A", "url": "https://geizhals.de/?cat=WL-577007", "price": 62.68},
+                     {"id": 448441, "name": "6RM9F6IWIO", "url": "https://geizhals.de/?cat=WL-448441", "price": 45.97},
+                     {"id": 567418, "name": "C2W75RPRFS", "url": "https://geizhals.de/?cat=WL-567418", "price": 137.53},
+                     {"id": 590717, "name": "JEXP2E5Y06", "url": "https://geizhals.de/?cat=WL-590717", "price": 117.84}]
+
+        for wl in wishlists:
+            self.db.add_wishlist(id=wl.get("id"), name=wl.get("name"), url=wl.get("url"), price=wl.get("price"))
+
+        # Add two users - otherwise we cannot subscribe
+        self.db.add_user(1234, "Test user 1", "Testie")
+        self.db.add_user(1337, "Test user 2", "Tester")
+
+        # No subscriptions to start with
+        self.assertEqual(0, len(self.db.get_all_subscribed_wishlists()), "There are already subscriptions!")
+
+        # Subscribe by the first user - must be 1
+        self.db.subscribe_wishlist(924729, 1234)
+        self.assertEqual(1, len(self.db.get_all_subscribed_wishlists()), "Subscribed user is not counted!")
+
+        # Subscribe by another user and check if it's still 1
+        self.db.subscribe_wishlist(924729, 1337)
+        self.assertEqual(1, len(self.db.get_all_subscribed_wishlists()), "Wishlist with two subscribers is counted twice!")
+
+        # Subscribe another product by a user and check if it's 2
+        self.db.subscribe_wishlist(245759, 1337)
+        self.assertEqual(2, len(self.db.get_all_subscribed_wishlists()), "Two subscribed wishlists are not counted correctly")
+
     def test_get_all_products(self):
         """Test to check if retreiving all products works"""
         products = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/a962572", "price": 62.80},
@@ -181,6 +216,40 @@ class DBWrapperTest(unittest.TestCase):
                     found = True
 
             self.assertTrue(found, msg="Inserted product was not found!")
+
+    def test_get_all_subscribed_products(self):
+        """Test to check if retrieving subscribed products works"""
+        products = [{"id": 962572, "name": "NIU2E0RRWX", "url": "https://geizhals.de/a962572", "price": 62.80},
+                    {"id": 924729, "name": "3W5NQ1QIHT", "url": "https://geizhals.de/a924729", "price": 46.00},
+                    {"id": 614044, "name": "CTYCTW798V", "url": "https://geizhals.de/a614044", "price": 96.95},
+                    {"id": 245759, "name": "VDY66U0AWM", "url": "https://geizhals.de/a245759", "price": 53.94},
+                    {"id": 490792, "name": "N6MCC1Z38O", "url": "https://geizhals.de/a490792", "price": 144.85},
+                    {"id": 533484, "name": "NOJJ8KVE9T", "url": "https://geizhals.de/a533484", "price": 122.77},
+                    {"id": 577007, "name": "ELV51DSL2A", "url": "https://geizhals.de/a577007", "price": 62.68},
+                    {"id": 448441, "name": "6RM9F6IWIO", "url": "https://geizhals.de/a448441", "price": 45.97},
+                    {"id": 567418, "name": "C2W75RPRFS", "url": "https://geizhals.de/a567418", "price": 137.53},
+                    {"id": 590717, "name": "JEXP2E5Y06", "url": "https://geizhals.de/a590717", "price": 117.84}]
+        for p in products:
+            self.db.add_product(id=p.get("id"), name=p.get("name"), url=p.get("url"), price=p.get("price"))
+
+        # Add two users - otherwise we cannot subscribe
+        self.db.add_user(1234, "Test user 1", "Testie")
+        self.db.add_user(1337, "Test user 2", "Tester")
+
+        # No subscriptions to start with
+        self.assertEqual(0, len(self.db.get_all_subscribed_products()), "There are already subscriptions!")
+
+        # Subscribe by the first user - must be 1
+        self.db.subscribe_product(924729, 1234)
+        self.assertEqual(1, len(self.db.get_all_subscribed_products()), "Subscribed user is not counted!")
+
+        # Subscribe by another user and check if it's still 1
+        self.db.subscribe_product(924729, 1337)
+        self.assertEqual(1, len(self.db.get_all_subscribed_products()), "Product with two subscribers is counted twice!")
+
+        # Subscribe another product by a user and check if it's 2
+        self.db.subscribe_product(245759, 1337)
+        self.assertEqual(2, len(self.db.get_all_subscribed_products()), "Two subscribed products are not counted correctly")
 
     def test_get_wishlist_info(self):
         """Test to check if fetching information for a wishlist works"""

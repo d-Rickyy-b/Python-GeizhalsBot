@@ -85,6 +85,17 @@ def get_all_entities():
     return entities
 
 
+def get_all_entities_with_subscribers():
+    """Returns all the entities with subscribers in the database"""
+    db = DBwrapper.get_instance()
+    wishlists = db.get_all_wishlists_with_subscribers()
+    products = db.get_all_products_with_subscribers()
+
+    entities = wishlists + products
+
+    return entities
+
+
 def get_wishlist(id):
     """Returns the wishlist object for an id"""
     db = DBwrapper.get_instance()

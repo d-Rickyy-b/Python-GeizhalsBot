@@ -123,8 +123,28 @@ class DBwrapper(object):
 
             return wishlists
 
+        def get_all_subscribed_wishlists(self):
+            self.cursor.execute("SELECT w.wishlist_id, name, price, url FROM wishlists w INNER JOIN wishlist_subscribers ws ON ws.wishlist_id=w.wishlist_id GROUP BY w.wishlist_id;")
+            wishlist_l = self.cursor.fetchall()
+            wishlists = []
+
+            for line in wishlist_l:
+                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+
+            return wishlists
+
         def get_all_products(self):
             self.cursor.execute("SELECT product_id, name, price, url FROM products;")
+            product_l = self.cursor.fetchall()
+            products = []
+
+            for line in product_l:
+                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
+
+            return products
+
+        def get_all_subscribed_products(self):
+            self.cursor.execute("SELECT p.product_id, name, price, url FROM products p INNER JOIN product_subscribers ps ON ps.product_id=p.product_id GROUP BY p.product_id;")
             product_l = self.cursor.fetchall()
             products = []
 
