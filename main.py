@@ -41,8 +41,9 @@ if not os.path.exists(os.path.join(logdir_path, "logs")):
 logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO, handlers=[logfile_handler])
+logging.getLogger("telegram").setLevel(logging.WARNING)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("geizhals.main")
 
 if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
@@ -290,9 +291,9 @@ def check_for_price_update(bot, job):
 
                 rm_entity(entity)
         except ValueError as e:
-            logger.error(e)
+            logger.error("ValueError while checking for price updates! {}".format(e))
         except Exception as e:
-            logger.error(e)
+            logger.error("Exception while checking for price updates! {}".format(e))
         else:
             if old_price != new_price:
                 entity.price = new_price
