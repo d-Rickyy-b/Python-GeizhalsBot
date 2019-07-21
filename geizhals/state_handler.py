@@ -17,7 +17,6 @@ class GeizhalsStateHandler(object):
         # Make sure that the object does not get overwritten each time the constructor get's called
         if GeizhalsStateHandler._initialized:
             return
-        print(use_proxies)
         self.use_proxies = use_proxies
         self.proxies = proxies
         self.selected_proxy = self._get_next_proxy()

@@ -100,7 +100,7 @@ def help_cmd(bot, update):
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                #"/remove	-	Entfernt eine Wunschliste\n"
+                # "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
 
@@ -636,10 +636,7 @@ if USE_PROXIES:
         proxies = f.read().split("\n")
         # Removing comments from the proxy list starting with a hash symbol and empty lines
         # Source: https://stackoverflow.com/questions/7058679/remove-all-list-elements-starting-with-a-hash
-        print(len(proxies))
         proxies[:] = [x for x in proxies if not x.startswith('#') and not x == '']
-        # proxies[:] = [x for x in proxies if not x == '']
-        print(len(proxies))
     if proxies is not None and isinstance(proxies, list):
         logger.info("Using proxies!")
         gh = GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=proxies)
