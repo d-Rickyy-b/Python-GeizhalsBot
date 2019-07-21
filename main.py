@@ -12,9 +12,9 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import *
 from bot.user import User
-from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH
+from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST
 from filters.own_filters import new_filter, show_filter
-from geizhals import Product, Wishlist
+from geizhals import Product, Wishlist, GeizhalsStateHandler
 from geizhals.entity import EntityType
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
@@ -629,6 +629,24 @@ if USE_WEBHOOK:
     updater.bot.set_webhook(WEBHOOK_URL)
 else:
     updater.start_polling()
+
+if USE_PROXIES:
+    proxy_path = os.path.join(project_path, PROXY_LIST)
+    with open(proxy_path, "r", encoding="utf-8") as f:
+        proxies = f.read().split("\n")
+        # Removing comments from the proxy list starting with a hash symbol and empty lines
+        # Source: https://stackoverflow.com/questions/7058679/remove-all-list-elements-starting-with-a-hash
+        print(len(proxies))
+        proxies[:] = [x for x in proxies if not x.startswith('#') and not x == '']
+        # proxies[:] = [x for x in proxies if not x == '']
+        print(len(proxies))
+    if proxies is not None and isinstance(proxies, list):
+        logger.info("Using proxies!")
+        gh = GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=proxies)
+    else:
+        logger.error("Proxies list is either empty or has mismatching type!")
+else:
+    GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=None)
 
 logger.info("Bot started as @{}".format(updater.bot.username))
 updater.idle()

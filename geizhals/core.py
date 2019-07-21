@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import html
 import logging
-import urllib.request
 
+import requests
 from pyquery import PyQuery
+from requests.exceptions import ProxyError
 
 from geizhals.entity import EntityType
+from geizhals.exceptions import HTTPLimitedException
+from geizhals.state_handler import GeizhalsStateHandler
 
 logger = logging.getLogger(__name__)
 useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
@@ -15,21 +18,40 @@ useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) " \
 
 def send_request(url):
     logger.debug("Requesting url '{}'!".format(url))
+    statehandler = GeizhalsStateHandler()
 
-    req = urllib.request.Request(
-        url,
-        data=None,
-        headers={'User-Agent': useragent}
-    )
+    successful_connection = False
+    r = None
 
-    f = urllib.request.urlopen(req)
-    status_code = f.getcode()
+    for i in range(3):
+        if statehandler.use_proxies:
+            proxy = statehandler.selected_proxy
+            logger.debug("Using proxy: '{}'".format(proxy))
+            proxies = dict(http=proxy, https=proxy)
+        else:
+            proxy = None
+            proxies = None
 
-    if status_code == 429:
-        logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+        try:
+            r = requests.get(url, headers={'User-Agent': useragent}, proxies=proxies, timeout=4)
+        except ProxyError as e:
+            logger.warning("An error using the proxy '{}' occurred: {}. Trying another proxy if possible!".format(proxy, e))
+            continue
 
-    html_str = f.read().decode('utf-8')
-    logger.info("HTML content length: {} - status code: {}".format(len(html_str), status_code))
+        if r.status_code == 429:
+            logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+            if statehandler.use_proxies:
+                proxy = statehandler.get_next_proxy()
+            continue
+        elif r.status_code == 200:
+            successful_connection = True
+            break
+
+    if not successful_connection:
+        raise HTTPLimitedException("Geizhals blocked us temporarily!")
+
+    html_str = r.content.decode()
+    logger.debug("HTML content length: {} - status code: {}".format(len(html_str), r.status_code))
     html_str = html.unescape(html_str)
     return html_str
 
