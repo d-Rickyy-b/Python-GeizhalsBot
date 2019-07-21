@@ -12,9 +12,9 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import *
 from bot.user import User
-from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH
+from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST
 from filters.own_filters import new_filter, show_filter
-from geizhals import Product, Wishlist
+from geizhals import Product, Wishlist, GeizhalsStateHandler
 from geizhals.entity import EntityType
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
@@ -32,17 +32,18 @@ MAX_WISHLISTS = 5
 MAX_PRODUCTS = 5
 
 global logger
-logdir_path = os.path.dirname(os.path.abspath(__file__))
-logfile_path = os.path.join(logdir_path, "logs", "bot.log")
+project_path = os.path.dirname(os.path.abspath(__file__))
+logfile_path = os.path.join(project_path, "logs", "bot.log")
 
-if not os.path.exists(os.path.join(logdir_path, "logs")):
-    os.makedirs(os.path.join(logdir_path, "logs"))
+if not os.path.exists(os.path.join(project_path, "logs")):
+    os.makedirs(os.path.join(project_path, "logs"))
 
 logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO, handlers=[logfile_handler])
+logging.getLogger("telegram").setLevel(logging.WARNING)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("geizhals.main")
 
 if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
@@ -99,7 +100,7 @@ def help_cmd(bot, update):
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                #"/remove	-	Entfernt eine Wunschliste\n"
+                # "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
 
@@ -290,9 +291,9 @@ def check_for_price_update(bot, job):
 
                 rm_entity(entity)
         except ValueError as e:
-            logger.error(e)
+            logger.error("ValueError while checking for price updates! {}".format(e))
         except Exception as e:
-            logger.error(e)
+            logger.error("Exception while checking for price updates! {}".format(e))
         else:
             if old_price != new_price:
                 entity.price = new_price
@@ -629,6 +630,20 @@ if USE_WEBHOOK:
 else:
     updater.start_polling()
 
-updater.start_polling()
+if USE_PROXIES:
+    proxy_path = os.path.join(project_path, PROXY_LIST)
+    with open(proxy_path, "r", encoding="utf-8") as f:
+        proxies = f.read().split("\n")
+        # Removing comments from the proxy list starting with a hash symbol and empty lines
+        # Source: https://stackoverflow.com/questions/7058679/remove-all-list-elements-starting-with-a-hash
+        proxies[:] = [x for x in proxies if not x.startswith('#') and not x == '']
+    if proxies is not None and isinstance(proxies, list):
+        logger.info("Using proxies!")
+        gh = GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=proxies)
+    else:
+        logger.error("Proxies list is either empty or has mismatching type!")
+else:
+    GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=None)
+
 logger.info("Bot started as @{}".format(updater.bot.username))
 updater.idle()

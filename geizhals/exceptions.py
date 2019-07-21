@@ -10,3 +10,7 @@ class InvalidWishlistURLException(Exception):
 
 class InvalidProductURLException(Exception):
     pass
+
+
+class HTTPLimitedException(Exception):
+    pass

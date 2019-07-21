@@ -108,3 +108,4 @@ __pycache__
 .vs
 config.py
 .vscode/settings.json
+proxies.txt
