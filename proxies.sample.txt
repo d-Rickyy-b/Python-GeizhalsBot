@@ -1,0 +1,6 @@
+# This file must contain unix newline (\n) separated proxies, one proxy per line
+# It can contain comments such as this one starting with a hash symbol
+# The general syntax for proxies is: `proto://[username:password@]host:port`
+# A more specific example of this is: `https://user:pass@example.com:8080`
+https://104.152.45.46:80
+https://111.63.135.104:8080
