@@ -32,11 +32,11 @@ MAX_WISHLISTS = 5
 MAX_PRODUCTS = 5
 
 global logger
-logdir_path = os.path.dirname(os.path.abspath(__file__))
-logfile_path = os.path.join(logdir_path, "logs", "bot.log")
+project_path = os.path.dirname(os.path.abspath(__file__))
+logfile_path = os.path.join(project_path, "logs", "bot.log")
 
-if not os.path.exists(os.path.join(logdir_path, "logs")):
-    os.makedirs(os.path.join(logdir_path, "logs"))
+if not os.path.exists(os.path.join(project_path, "logs")):
+    os.makedirs(os.path.join(project_path, "logs"))
 
 logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
