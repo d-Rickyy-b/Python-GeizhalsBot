@@ -1,5 +1,6 @@
-import random
+# -*- coding: utf-8 -*-
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
