@@ -2,6 +2,8 @@
 import logging
 import random
 
+from .util import Ringbuffer
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,30 +20,27 @@ class GeizhalsStateHandler(object):
         # Make sure that the object does not get overwritten each time the constructor get's called
         if GeizhalsStateHandler._initialized:
             return
+
         self.use_proxies = use_proxies
-        self.proxies = proxies
-        self.selected_proxy = self._get_next_proxy()
+
+        if use_proxies:
+            # Randomize order of proxies in the list
+            random.shuffle(proxies)
+            self.proxies = Ringbuffer(proxies)
+
+            self.selected_proxy = self.get_next_proxy()
+
         GeizhalsStateHandler._initialized = True
 
-    def _get_next_proxy(self):
+    def get_next_proxy(self):
+        logger.debug("Choosing new proxy.")
+
         if self.use_proxies and self.proxies is not None:
-            proxy = random.choice(self.proxies)
-            self.selected_proxy = proxy
+            if len(self.proxies) <= 1:
+                logger.warning("Less than two proxies configured, using the same proxy again!")
+            proxy = self.proxies.next()
+            logger.debug("Selected '{}' as new proxy".format(proxy))
             return proxy
         else:
             logger.warning("No proxies configured!")
             return None
-
-    def get_next_proxy(self):
-        logger.debug("Choosing new proxy.")
-        current_proxy = self.selected_proxy
-
-        while True:
-            proxy = self._get_next_proxy()
-            if current_proxy != proxy:
-                break
-            if len(self.proxies) <= 1:
-                logger.warning("Less than two proxies configured, using the same proxy again!")
-
-        logger.debug("Selected '{}' as new proxy".format(proxy))
-        return proxy
