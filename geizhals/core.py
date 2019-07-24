@@ -26,7 +26,7 @@ def send_request(url):
     for i in range(3):
         logger.debug("Trying to download site {}/3".format(i + 1))
         if statehandler.use_proxies:
-            proxy = statehandler.selected_proxy
+            proxy = statehandler.get_next_proxy()
             logger.debug("Using proxy: '{}'".format(proxy))
             proxies = dict(http=proxy, https=proxy)
         else:
@@ -36,12 +36,11 @@ def send_request(url):
         try:
             r = requests.get(url, headers={'User-Agent': useragent}, proxies=proxies, timeout=4)
         except ProxyError as e:
-            new_proxy = statehandler.get_next_proxy()
-            logger.warning("An error using the proxy '{}' occurred: {}. Trying another proxy ({}) if possible!".format(proxy, e, new_proxy))
+            logger.warning("An error using the proxy '{}' occurred: {}. Trying another proxy if possible!".format(proxy, e))
             continue
 
         if r.status_code == 429:
-            logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+            logger.error("Geizhals blocked us from sending that many requests (HTTP 429)!")
             if statehandler.use_proxies:
                 proxy = statehandler.get_next_proxy()
                 logger.info("Switching proxy to '{}".format(proxy))
