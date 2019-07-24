@@ -26,7 +26,7 @@ def send_request(url):
     for i in range(3):
         logger.debug("Trying to download site {}/3".format(i + 1))
         if statehandler.use_proxies:
-            proxy = statehandler.selected_proxy
+            proxy = statehandler.get_next_proxy()
             logger.debug("Using proxy: '{}'".format(proxy))
             proxies = dict(http=proxy, https=proxy)
         else:
