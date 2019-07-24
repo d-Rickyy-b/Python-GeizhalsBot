@@ -40,7 +40,7 @@ def send_request(url):
             continue
 
         if r.status_code == 429:
-            logger.error("Geizhals blocked us from sending that many requests! Please consider adding request limits!")
+            logger.error("Geizhals blocked us from sending that many requests (HTTP 429)!")
             if statehandler.use_proxies:
                 proxy = statehandler.get_next_proxy()
                 logger.info("Switching proxy to '{}".format(proxy))
