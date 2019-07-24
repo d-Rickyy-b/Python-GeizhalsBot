@@ -36,8 +36,7 @@ def send_request(url):
         try:
             r = requests.get(url, headers={'User-Agent': useragent}, proxies=proxies, timeout=4)
         except ProxyError as e:
-            new_proxy = statehandler.get_next_proxy()
-            logger.warning("An error using the proxy '{}' occurred: {}. Trying another proxy ({}) if possible!".format(proxy, e, new_proxy))
+            logger.warning("An error using the proxy '{}' occurred: {}. Trying another proxy if possible!".format(proxy, e))
             continue
 
         if r.status_code == 429:
