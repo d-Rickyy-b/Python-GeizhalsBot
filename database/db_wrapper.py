@@ -329,6 +329,17 @@ class DBwrapper(object):
 
             return users
 
+        def get_all_subscribers(self):
+            self.cursor.execute("SELECT user_id from wishlist_subscribers UNION SELECT user_id from product_subscribers GROUP BY user_id;")
+            result = self.cursor.fetchall()
+            users = []
+
+            if result:
+                for user in result:
+                    users.append(user[0])
+
+            return users
+
         def get_lang_id(self, user_id):
             self.cursor.execute("SELECT lang_code FROM users WHERE user_id=?;", [str(user_id)])
             result = self.cursor.fetchone()
