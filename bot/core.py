@@ -206,3 +206,8 @@ def rm_entity(entity):
 def delete_user(user_id):
     db = DBwrapper.get_instance()
     db.delete_user(user_id)
+
+
+def get_all_subscribers():
+    db = DBwrapper.get_instance()
+    return db.get_all_subscribers()
