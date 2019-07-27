@@ -6,7 +6,7 @@ import requests
 from pyquery import PyQuery
 from requests.exceptions import ProxyError
 
-from geizhals.entity import EntityType
+from geizhals.entities import EntityType
 from geizhals.exceptions import HTTPLimitedException
 from geizhals.state_handler import GeizhalsStateHandler
 

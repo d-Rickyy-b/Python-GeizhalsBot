@@ -3,7 +3,7 @@
 import unittest
 
 from geizhals.exceptions import InvalidWishlistURLException
-from geizhals import Wishlist
+from geizhals.entities import Wishlist
 
 
 class WishlistTest(unittest.TestCase):

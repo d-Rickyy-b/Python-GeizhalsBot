@@ -14,8 +14,8 @@ from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
 from filters.own_filters import new_filter, show_filter
-from geizhals import Product, Wishlist, GeizhalsStateHandler
-from geizhals.entity import EntityType
+from geizhals import GeizhalsStateHandler
+from geizhals.entities import EntityType, Product, Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException

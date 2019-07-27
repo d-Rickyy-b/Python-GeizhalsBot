@@ -3,7 +3,7 @@ import re
 
 import geizhals.core
 import geizhals.exceptions
-from geizhals.entity import Entity, EntityType
+from geizhals.entities import Entity, EntityType
 
 
 class Wishlist(Entity):

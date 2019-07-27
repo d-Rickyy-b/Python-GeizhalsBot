@@ -4,7 +4,7 @@ import os
 import unittest
 
 from database.db_wrapper import DBwrapper
-from geizhals import Product, Wishlist
+from geizhals.entities import Product, Wishlist
 
 
 class DBWrapperTest(unittest.TestCase):
