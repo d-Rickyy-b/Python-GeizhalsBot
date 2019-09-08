@@ -52,7 +52,7 @@ def send_request(url):
     if not successful_connection:
         raise HTTPLimitedException("Geizhals blocked us temporarily!")
 
-    html_str = r.content.decode()
+    html_str = r.text
     logger.debug("HTML content length: {} - status code: {}".format(len(html_str), r.status_code))
     html_str = html.unescape(html_str)
     return html_str
