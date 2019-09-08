@@ -45,8 +45,3 @@ class Entity(object):
             raise ValueError("Couldn't parse price '{}' for entity '{}'!".format(price, self.url))
 
         return float(price)
-
-
-class EntityType(Enum):
-    WISHLIST = 1
-    PRODUCT = 2
