@@ -5,7 +5,7 @@ import re
 import unittest
 
 import geizhals.core
-from geizhals.entity import EntityType
+from geizhals.entities import EntityType
 
 
 class GeizhalsCoreTest(unittest.TestCase):

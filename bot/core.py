@@ -4,8 +4,7 @@
 import re
 
 from database.db_wrapper import DBwrapper
-from geizhals import Product, Wishlist
-from geizhals.entity import EntityType
+from geizhals.entities import EntityType, Product, Wishlist
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 
@@ -206,3 +205,8 @@ def rm_entity(entity):
 def delete_user(user_id):
     db = DBwrapper.get_instance()
     db.delete_user(user_id)
+
+
+def get_all_subscribers():
+    db = DBwrapper.get_instance()
+    return db.get_all_subscribers()

@@ -4,7 +4,7 @@ import logging
 
 import geizhals.core
 import geizhals.exceptions
-from geizhals.entity import Entity, EntityType
+from geizhals.entities import Entity, EntityType
 
 logger = logging.getLogger(__name__)
 

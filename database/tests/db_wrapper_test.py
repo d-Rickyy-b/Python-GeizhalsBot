@@ -4,7 +4,7 @@ import os
 import unittest
 
 from database.db_wrapper import DBwrapper
-from geizhals import Product, Wishlist
+from geizhals.entities import Product, Wishlist
 
 
 class DBWrapperTest(unittest.TestCase):
@@ -705,6 +705,26 @@ class DBWrapperTest(unittest.TestCase):
                     break
 
             self.assertTrue(found)
+
+    def test_get_all_subscribers(self):
+        self.assertEqual([], self.db.get_all_subscribers(), msg="Initial user list not empty!")
+
+        self.db.add_user(12345, "Test", "User")
+        self.db.add_user(54321, "Test2", "User2")
+        self.assertEqual([], self.db.get_all_subscribers(), msg="User list not empty although no subscribers!")
+
+        self.db.add_product(1, "Testproduct", 30, "https://example.com")
+        self.db.subscribe_product(1, 12345)
+        self.assertEqual([12345], self.db.get_all_subscribers(), msg="User list still empty although product subscription!")
+
+        self.db.add_wishlist(333, "Wishlist", 15, "https://example.com/wishlist")
+        self.db.subscribe_wishlist(333, 54321)
+        self.assertEqual(2, len(self.db.get_all_subscribers()), msg="User list missing user although wishlist subscription!")
+        self.assertEqual([12345, 54321], self.db.get_all_subscribers(), msg="User list missing user although wishlist subscription!")
+
+        self.db.subscribe_product(1, 54321)
+        self.assertEqual(2, len(self.db.get_all_subscribers()), msg="User counting multiple times after product subscription!")
+        self.assertEqual([12345, 54321], self.db.get_all_subscribers(), msg="User counting multiple times after product subscription!")
 
     def test_get_lang_id(self):
         """Test to check if receiving the lang_code works"""

@@ -4,6 +4,9 @@
 A bot to get notified about changes of the price of a Geizhals.de wishlist on Telegram. It uses the [Python-Telegram-Bot](https://github.com/python-telegram-bot/python-telegram-bot) Framework for talking to Telegram servers.
 To get the price of the site it uses pyquery as html parser, since there is no official API for grabbing prices.
 
+### Requirements
+The GeizhalsBot requires **Python > 3.4** to run. Python 3.4 has reached end-of-life. Make sure to use Python 3.5 or later, otherwise you will run into issues.
+
 ### Setup with Docker
 The easiest way to get the bot up and running is via docker. 
 Setup a directory with a `config.py` file (you can find an example of it [here](https://github.com/d-Rickyy-b/Python-GeizhalsBot/blob/master/config.sample.py)). If you want to make your logs accessible from the outside, add another volume as follows.

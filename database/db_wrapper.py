@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime
 
 from bot.user import User
-from geizhals import Product, Wishlist
+from geizhals.entities import Product, Wishlist
 
 __author__ = 'Rico'
 
@@ -326,6 +326,17 @@ class DBwrapper(object):
             if result:
                 for user in result:
                     users.append({"id": user[0], "first_name": user[1], "username": user[2], "lang_code": user[3]})
+
+            return users
+
+        def get_all_subscribers(self):
+            self.cursor.execute("SELECT user_id from wishlist_subscribers UNION SELECT user_id from product_subscribers GROUP BY user_id;")
+            result = self.cursor.fetchall()
+            users = []
+
+            if result:
+                for user in result:
+                    users.append(user[0])
 
             return users
 

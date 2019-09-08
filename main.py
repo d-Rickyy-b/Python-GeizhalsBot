@@ -12,10 +12,10 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 from bot.core import *
 from bot.user import User
-from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST
+from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
 from filters.own_filters import new_filter, show_filter
-from geizhals import Product, Wishlist, GeizhalsStateHandler
-from geizhals.entity import EntityType
+from geizhals import GeizhalsStateHandler
+from geizhals.entities import EntityType, Product, Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -103,6 +103,24 @@ def help_cmd(bot, update):
                 # "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
+
+
+def broadcast(bot, update):
+    """Method to send a broadcast to all of the users of the bot"""
+    user_id = update.message.from_user.id
+    if user_id not in ADMIN_IDs:
+        logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
+        return
+
+    logging.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
+    message_with_prefix = update.message.text
+    final_message = message_with_prefix.replace("/broadcast ", "")
+    users = get_all_subscribers()
+    for user in users:
+        bot.send_message(chat_id=user, text=final_message)
+
+    for admin in ADMIN_IDs:
+        bot.send_message(chat_id=admin, text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
 
 
 # Inline menus
@@ -607,6 +625,8 @@ dp.add_handler(CommandHandler("show", show_menu))
 
 dp.add_handler(MessageHandler(new_filter, add_menu))
 dp.add_handler(MessageHandler(show_filter, show_menu))
+
+dp.add_handler(CommandHandler('broadcast', callback=broadcast))
 
 # Callback, Text and fallback handlers
 dp.add_handler(CallbackQueryHandler(callback_handler_f))
