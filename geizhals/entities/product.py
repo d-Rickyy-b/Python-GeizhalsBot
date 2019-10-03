@@ -20,13 +20,13 @@ class Product(Entity):
         if not re.match(Product.url_pattern, url):
             raise geizhals.exceptions.InvalidWishlistURLException
 
-        p = Product(id=0, name="", url=url, price=0)
+        p = Product(entity_id=0, name="", url=url, price=0)
         p.price = p.get_current_price()
         p.name = p.get_current_name()
-        p.id = int(re.search(Product.url_pattern, url).group(2))
+        p.entity_id = int(re.search(Product.url_pattern, url).group(2))
 
         logger.info("Name: {}".format(p.name))
         logger.info("Price: {}".format(p.price))
-        logger.info("Id: {}".format(p.id))
+        logger.info("Id: {}".format(p.entity_id))
 
         return p

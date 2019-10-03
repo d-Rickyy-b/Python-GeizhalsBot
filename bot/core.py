@@ -95,10 +95,10 @@ def get_all_entities_with_subscribers():
     return entities
 
 
-def get_wishlist(id):
-    """Returns the wishlist object for an id"""
+def get_wishlist(wishlist_id):
+    """Returns the wishlist object for an product_id"""
     db = DBwrapper.get_instance()
-    wishlist = db.get_wishlist_info(id)
+    wishlist = db.get_wishlist_info(wishlist_id)
 
     if wishlist is None:
         raise WishlistNotFoundException
@@ -106,10 +106,10 @@ def get_wishlist(id):
     return wishlist
 
 
-def get_product(id):
-    """Returns the product object for an id"""
+def get_product(product_id):
+    """Returns the product object for an product_id"""
     db = DBwrapper.get_instance()
-    product = db.get_product_info(id)
+    product = db.get_product_info(product_id)
 
     if product is None:
         raise ProductNotFoundException

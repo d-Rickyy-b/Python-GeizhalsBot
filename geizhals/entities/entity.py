@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from enum import Enum
 
 import geizhals.core
 
@@ -8,9 +7,9 @@ import geizhals.core
 class Entity(object):
     TYPE = None
 
-    def __init__(self, id: int, name: str, url: str, price: float):
+    def __init__(self, entity_id: int, name: str, url: str, price: float):
         self.__html = None
-        self.id = int(id)
+        self.entity_id = int(entity_id)
         self.name = str(name)
         self.url = str(url)
         self.price = float(price)
