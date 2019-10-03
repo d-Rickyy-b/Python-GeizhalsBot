@@ -9,7 +9,7 @@ from geizhals.entities import Wishlist
 class WishlistTest(unittest.TestCase):
 
     def setUp(self):
-        self.wl = Wishlist(id=676328, 
+        self.wl = Wishlist(entity_id=676328,
                            name="NAS", 
                            url="https://geizhals.de/?cat=WL-676328", 
                            price=617.90)
@@ -26,7 +26,7 @@ class WishlistTest(unittest.TestCase):
 
         self.assertEqual(type(my_wl), Wishlist)
 
-        self.assertEqual(my_wl.id, self.wl.id)
+        self.assertEqual(my_wl.id, self.wl.entity_id)
         self.assertEqual(my_wl.name, self.wl.name)
         self.assertEqual(my_wl.url, self.wl.url)
 

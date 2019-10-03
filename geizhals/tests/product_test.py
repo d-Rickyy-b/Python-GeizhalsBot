@@ -9,9 +9,9 @@ from geizhals.entities import Product
 class ProductTest(unittest.TestCase):
 
     def setUp(self):
-        self.p = Product(id=1756905, 
+        self.p = Product(entity_id=1756905,
                          name="Samsung SSD 860 EVO 1TB, SATA (MZ-76E1T0B)",
-                         url="https://geizhals.de/samsung-ssd-860-evo-1tb-mz-76e1t0b-a1756905.html", 
+                         url="https://geizhals.de/samsung-ssd-860-evo-1tb-mz-76e1t0b-a1756905.html",
                          price=195.85)
 
     def tearDown(self):
@@ -26,7 +26,7 @@ class ProductTest(unittest.TestCase):
 
         self.assertEqual(type(my_p), Product)
 
-        self.assertEqual(my_p.id, self.p.id)
+        self.assertEqual(my_p.id, self.p.entity_id)
         self.assertEqual(my_p.name, self.p.name)
         self.assertEqual(my_p.url, self.p.url)
 
