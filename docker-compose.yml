@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  geizhalsbot:
+    container_name: ghbot
+    restart: always
+    volumes:
+      - "/path/to/logs/:/usr/src/bot/logs"
+      - "/path/to/config.py:/usr/src/bot/config.py"
+    build: .
