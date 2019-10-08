@@ -119,7 +119,7 @@ class DBwrapper(object):
             wishlists = []
 
             for line in wishlist_l:
-                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+                wishlists.append(Wishlist(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
 
@@ -129,7 +129,7 @@ class DBwrapper(object):
             wishlists = []
 
             for line in wishlist_l:
-                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+                wishlists.append(Wishlist(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
 
@@ -139,7 +139,7 @@ class DBwrapper(object):
             products = []
 
             for line in product_l:
-                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
+                products.append(Product(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return products
 
@@ -149,7 +149,7 @@ class DBwrapper(object):
             products = []
 
             for line in product_l:
-                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
+                products.append(Product(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return products
 
@@ -159,7 +159,7 @@ class DBwrapper(object):
 
             if wishlist is not None:
                 wl_id, name, price, url = wishlist
-                return Wishlist(id=wl_id, name=name, price=price, url=url)
+                return Wishlist(entity_id=wl_id, name=name, price=price, url=url)
 
             return None
 
@@ -171,7 +171,7 @@ class DBwrapper(object):
                 return None
 
             p_id, name, price, url = product
-            return Product(id=p_id, name=name, price=price, url=url)
+            return Product(entity_id=p_id, name=name, price=price, url=url)
 
         def is_wishlist_saved(self, wishlist_id):
             self.cursor.execute("SELECT count(*) FROM wishlists WHERE wishlist_id=?;", [str(wishlist_id)])
@@ -184,12 +184,12 @@ class DBwrapper(object):
             result = self.cursor.fetchone()[0]
             return result > 0
 
-        def add_wishlist(self, id, name, price, url):
-            self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
+        def add_wishlist(self, wishlist_id, name, price, url):
+            self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(wishlist_id), str(name), str(price), str(url)])
             self.connection.commit()
 
-        def add_product(self, id, name, price, url):
-            self.cursor.execute("INSERT INTO products (product_id, name, price, url) VALUES (?, ?, ?, ?);", [str(id), str(name), str(price), str(url)])
+        def add_product(self, product_id, name, price, url):
+            self.cursor.execute("INSERT INTO products (product_id, name, price, url) VALUES (?, ?, ?, ?);", [str(product_id), str(name), str(price), str(url)])
             self.connection.commit()
 
         def rm_wishlist(self, wishlist_id):
@@ -220,7 +220,7 @@ class DBwrapper(object):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
             user_data = self.cursor.fetchone()
             if user_data:
-                return User(id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
+                return User(user_id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
             return None
 
         def get_userids_for_wishlist(self, wishlist_id):
@@ -261,7 +261,7 @@ class DBwrapper(object):
             wishlists = []
 
             for line in wishlist_l:
-                wishlists.append(Wishlist(id=line[0], name=line[1], price=line[2], url=line[3]))
+                wishlists.append(Wishlist(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return wishlists
 
@@ -276,7 +276,7 @@ class DBwrapper(object):
             products = []
 
             for line in product_l:
-                products.append(Product(id=line[0], name=line[1], price=line[2], url=line[3]))
+                products.append(Product(entity_id=line[0], name=line[1], price=line[2], url=line[3]))
 
             return products
 
@@ -325,7 +325,7 @@ class DBwrapper(object):
 
             if result:
                 for user in result:
-                    users.append({"id": user[0], "first_name": user[1], "username": user[2], "lang_code": user[3]})
+                    users.append({"user_id": user[0], "first_name": user[1], "username": user[2], "lang_code": user[3]})
 
             return users
 
