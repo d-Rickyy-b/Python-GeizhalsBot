@@ -12,8 +12,8 @@ from util.exceptions import AlreadySubscribedException, WishlistNotFoundExceptio
 def add_user_if_new(user):
     """Save a user to the database, if the user is not already stored"""
     db = DBwrapper.get_instance()
-    if not db.is_user_saved(user.id):
-        db.add_user(user.id, user.first_name, user.username, user.lang_code)
+    if not db.is_user_saved(user.user_id):
+        db.add_user(user.user_id, user.first_name, user.username, user.lang_code)
 
 
 def add_wishlist_if_new(wishlist):
@@ -42,20 +42,20 @@ def is_user_wishlist_subscriber(user, wishlist):
     """Returns if a user is a wishlist subscriber"""
     db = DBwrapper.get_instance()
 
-    return db.is_user_wishlist_subscriber(user.id, wishlist.id)
+    return db.is_user_wishlist_subscriber(user.user_id, wishlist.id)
 
 
 def subscribe_entity(user, entity):
     """Subscribe to an entity as a user"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        if not db.is_user_wishlist_subscriber(user.id, entity.id):
-            db.subscribe_wishlist(entity.id, user.id)
+        if not db.is_user_wishlist_subscriber(user.user_id, entity.entity_id):
+            db.subscribe_wishlist(entity.entity_id, user.user_id)
         else:
             raise AlreadySubscribedException
     elif entity.TYPE == EntityType.PRODUCT:
-        if not db.is_user_product_subscriber(user.id, entity.id):
-            db.subscribe_product(entity.id, user.id)
+        if not db.is_user_product_subscriber(user.user_id, entity.entity_id):
+            db.subscribe_product(entity.entity_id, user.user_id)
         else:
             raise AlreadySubscribedException
     else:
@@ -65,9 +65,9 @@ def subscribe_entity(user, entity):
 def unsubscribe_entity(user, entity):
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        db.unsubscribe_wishlist(user.id, entity.id)
+        db.unsubscribe_wishlist(user.user_id, entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
-        db.unsubscribe_product(user.id, entity.id)
+        db.unsubscribe_product(user.user_id, entity.entity_id)
     else:
         raise ValueError("Unknown EntityType")
 
@@ -163,9 +163,9 @@ def get_entity_subscribers(entity):
     """Returns the subscribers of an entity"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        return db.get_userids_for_wishlist(entity.id)
+        return db.get_userids_for_wishlist(entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
-        return db.get_userids_for_product(entity.id)
+        return db.get_userids_for_product(entity.entity_id)
     else:
         raise ValueError("Unknown EntityType")
 
@@ -174,9 +174,9 @@ def update_entity_price(entity, price):
     """Update the price of an entity"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        db.update_wishlist_price(entity.id, price)
+        db.update_wishlist_price(entity.entity_id, price)
     elif entity.TYPE == EntityType.PRODUCT:
-        db.update_product_price(entity.id, price)
+        db.update_product_price(entity.entity_id, price)
     else:
         raise ValueError("Unknown EntityType")
 
@@ -185,9 +185,9 @@ def update_entity_name(entity, name):
     """Update the name of an entity"""
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        db.update_wishlist_name(entity.id, name)
+        db.update_wishlist_name(entity.entity_id, name)
     elif entity.TYPE == EntityType.PRODUCT:
-        db.update_product_name(entity.id, name)
+        db.update_product_name(entity.entity_id, name)
     else:
         raise ValueError("Unknown EntityType")
 
@@ -195,9 +195,9 @@ def update_entity_name(entity, name):
 def rm_entity(entity):
     db = DBwrapper.get_instance()
     if entity.TYPE == EntityType.WISHLIST:
-        db.rm_wishlist(entity.id)
+        db.rm_wishlist(entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
-        db.rm_product(entity.id)
+        db.rm_product(entity.entity_id)
     else:
         raise ValueError("Unknown EntityType")
 
