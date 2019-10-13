@@ -30,7 +30,6 @@ STATE_SEND_P_LINK = 2
 MAX_WISHLISTS = 5
 MAX_PRODUCTS = 5
 
-global logger
 project_path = os.path.dirname(os.path.abspath(__file__))
 logfile_path = os.path.join(project_path, "logs", "bot.log")
 
