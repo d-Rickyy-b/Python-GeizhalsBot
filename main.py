@@ -450,7 +450,7 @@ def callback_handler_f(bot, update):
                                     text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                         link_name=link(wishlist.url, wishlist.name),
                                         price=bold(price(wishlist.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.id, "showWishlists"),
+                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.entity_id, "showWishlists"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
@@ -497,7 +497,7 @@ def callback_handler_f(bot, update):
                                     text="Das Produkt {link_name} kostet aktuell {price}".format(
                                         link_name=link(product.url, product.name),
                                         price=bold(price(product.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.id, "showProducts"),
+                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.entity_id, "showProducts"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
