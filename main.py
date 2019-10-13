@@ -15,7 +15,6 @@ from bot.user import User
 from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
 from filters.own_filters import new_filter, show_filter
 from geizhals import GeizhalsStateHandler
-from geizhals.entities import EntityType, Product, Wishlist
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -31,7 +30,6 @@ STATE_SEND_P_LINK = 2
 MAX_WISHLISTS = 5
 MAX_PRODUCTS = 5
 
-global logger
 project_path = os.path.dirname(os.path.abspath(__file__))
 logfile_path = os.path.join(project_path, "logs", "bot.log")
 
@@ -348,7 +346,7 @@ def get_entities_keyboard(action, entities, prefix_text="", cancel=False, column
     buttons = []
 
     for entity in entities:
-        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.id, type=entity.TYPE.value)
+        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.entity_id, type=entity.TYPE.value)
         button = InlineKeyboardButton(prefix_text + entity.name, callback_data=callback_data)
         buttons.append(button)
 
@@ -451,7 +449,7 @@ def callback_handler_f(bot, update):
                                     text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                         link_name=link(wishlist.url, wishlist.name),
                                         price=bold(price(wishlist.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.id, "showWishlists"),
+                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.entity_id, "showWishlists"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":
@@ -498,7 +496,7 @@ def callback_handler_f(bot, update):
                                     text="Das Produkt {link_name} kostet aktuell {price}".format(
                                         link_name=link(product.url, product.name),
                                         price=bold(price(product.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.id, "showProducts"),
+                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.entity_id, "showProducts"),
                                     parse_mode="HTML", disable_web_page_preview=True)
                 bot.answerCallbackQuery(callback_query_id=callback_query_id)
             elif action == "subscribe":

@@ -20,9 +20,9 @@ def add_wishlist_if_new(wishlist):
     """Save a wishlist to the database, if it is not already stored"""
     db = DBwrapper.get_instance()
 
-    if not db.is_wishlist_saved(wishlist.id):
+    if not db.is_wishlist_saved(wishlist.entity_id):
         # logger.debug("URL not in database!")
-        db.add_wishlist(wishlist.id, wishlist.name, wishlist.price, wishlist.url)
+        db.add_wishlist(wishlist.entity_id, wishlist.name, wishlist.price, wishlist.url)
     else:
         pass
         # logger.debug("URL in database!")
@@ -32,8 +32,8 @@ def add_product_if_new(product):
     """Save a product to the database, if it is not already stored"""
     db = DBwrapper.get_instance()
 
-    if not db.is_product_saved(product.id):
-        db.add_product(product.id, product.name, product.price, product.url)
+    if not db.is_product_saved(product.entity_id):
+        db.add_product(product.entity_id, product.name, product.price, product.url)
     else:
         pass
 
@@ -42,7 +42,7 @@ def is_user_wishlist_subscriber(user, wishlist):
     """Returns if a user is a wishlist subscriber"""
     db = DBwrapper.get_instance()
 
-    return db.is_user_wishlist_subscriber(user.user_id, wishlist.id)
+    return db.is_user_wishlist_subscriber(user.user_id, wishlist.entity_id)
 
 
 def subscribe_entity(user, entity):

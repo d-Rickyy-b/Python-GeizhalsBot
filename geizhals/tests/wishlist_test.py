@@ -26,7 +26,7 @@ class WishlistTest(unittest.TestCase):
 
         self.assertEqual(type(my_wl), Wishlist)
 
-        self.assertEqual(my_wl.id, self.wl.entity_id)
+        self.assertEqual(my_wl.entity_id, self.wl.entity_id)
         self.assertEqual(my_wl.name, self.wl.name)
         self.assertEqual(my_wl.url, self.wl.url)
 

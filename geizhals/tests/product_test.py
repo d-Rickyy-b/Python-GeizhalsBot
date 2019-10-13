@@ -26,7 +26,7 @@ class ProductTest(unittest.TestCase):
 
         self.assertEqual(type(my_p), Product)
 
-        self.assertEqual(my_p.id, self.p.entity_id)
+        self.assertEqual(my_p.entity_id, self.p.entity_id)
         self.assertEqual(my_p.name, self.p.name)
         self.assertEqual(my_p.url, self.p.url)
 
