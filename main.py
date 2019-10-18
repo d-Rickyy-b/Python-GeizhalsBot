@@ -167,7 +167,7 @@ def add_wishlist(bot, update):
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
 
-    add_user_if_new(user)
+    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
 
     try:
         url = get_wl_url(text)
@@ -224,7 +224,7 @@ def add_product(bot, update):
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
 
-    add_user_if_new(user)
+    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
 
     try:
         url = get_p_url(text)
