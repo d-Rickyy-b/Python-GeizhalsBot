@@ -163,17 +163,17 @@ def handle_text(bot, update):
 
 def add_wishlist(bot, update):
     text = update.message.text
-    user = update.message.from_user
+    t_user = update.message.from_user
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
-
-    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
+    user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
+    add_user_if_new(user)
 
     try:
         url = get_wl_url(text)
     except InvalidURLException:
         logger.debug("Invalid url '{}'!".format(text))
-        bot.sendMessage(chat_id=user.id,
+        bot.sendMessage(chat_id=t_user.id,
                         text="Die URL ist ungültig!",
                         reply_markup=reply_markup)
         return
@@ -184,17 +184,17 @@ def add_wishlist(bot, update):
     except HTTPError as e:
         logger.error(e)
         if e.code == 403:
-            bot.sendMessage(chat_id=user.id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
+            bot.sendMessage(chat_id=t_user.id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
         elif e.code == 429:
-            bot.sendMessage(chat_id=user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
+            bot.sendMessage(chat_id=t_user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
-        bot.sendMessage(chat_id=user.id,
+        bot.sendMessage(chat_id=t_user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
     except Exception as e:
         logger.error(e)
-        bot.sendMessage(chat_id=user.id,
+        bot.sendMessage(chat_id=t_user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
     else:
         add_wishlist_if_new(wishlist)
@@ -202,36 +202,36 @@ def add_wishlist(bot, update):
         try:
             logger.debug("Subscribing to wishlist.")
             subscribe_entity(user, wishlist)
-            bot.sendMessage(user.id,
+            bot.sendMessage(t_user.id,
                             "Preisagent für die Wunschliste {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(wishlist.url, wishlist.name),
                                 price=bold(price(wishlist.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(user.id)
+            rm_state(t_user.id)
         except AlreadySubscribedException as ase:
             logger.debug("User already subscribed!")
-            bot.sendMessage(user.id,
+            bot.sendMessage(t_user.id,
                             "Du hast bereits einen Preisagenten für diese Wunschliste! Bitte sende mir eine andere URL.",
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
 def add_product(bot, update):
     text = update.message.text
-    user = update.message.from_user
+    t_user = update.message.from_user
 
-    logger.info("Adding new product for user '{}'".format(user.id))
+    logger.info("Adding new product for user '{}'".format(t_user.id))
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
-
-    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
+    user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
+    add_user_if_new(user)
 
     try:
         url = get_p_url(text)
         logger.info("Valid URL for new product is '{}'".format(url))
     except InvalidURLException:
-        logger.warning("Invalid url '{}' sent by user {}!".format(text, user))
-        bot.sendMessage(chat_id=user.id,
+        logger.warning("Invalid url '{}' sent by user {}!".format(text, t_user))
+        bot.sendMessage(chat_id=t_user.id,
                         text="Die URL ist ungültig!",
                         reply_markup=reply_markup)
         return
@@ -241,17 +241,17 @@ def add_product(bot, update):
     except HTTPError as e:
         logger.error(e)
         if e.code == 403:
-            bot.sendMessage(chat_id=user.id, text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
+            bot.sendMessage(chat_id=t_user.id, text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
         elif e.code == 429:
-            bot.sendMessage(chat_id=user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
+            bot.sendMessage(chat_id=t_user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
-        bot.sendMessage(chat_id=user.id,
+        bot.sendMessage(chat_id=t_user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
     except Exception as e:
         logger.error(e)
-        bot.sendMessage(chat_id=user.id,
+        bot.sendMessage(chat_id=t_user.id,
                         text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
     else:
         add_product_if_new(product)
@@ -259,16 +259,16 @@ def add_product(bot, update):
         try:
             logger.debug("Subscribing to product.")
             subscribe_entity(user, product)
-            bot.sendMessage(user.id,
+            bot.sendMessage(t_user.id,
                             "Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(product.url, product.name),
                                 price=bold(price(product.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(user.id)
+            rm_state(t_user.id)
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
-            bot.sendMessage(user.id,
+            bot.sendMessage(t_user.id,
                             "Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
