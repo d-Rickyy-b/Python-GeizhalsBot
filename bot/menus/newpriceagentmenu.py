@@ -7,5 +7,5 @@ class NewPriceAgentMenu(object):
     text = "Wofür möchtest du einen Preisagenten einrichten?"
     __keyboard_list = [[InlineKeyboardButton("Wunschliste", callback_data='m01_addwishlist'),
                         InlineKeyboardButton("Produkt", callback_data='m01_addproduct')],
-                       [InlineKeyboardButton("↩️ Zurück", callback_data='m01_back')]]
+                       [InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data='m01_back')]]
     keyboard = InlineKeyboardMarkup(__keyboard_list)
