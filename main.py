@@ -11,6 +11,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 from bot.core import *
+from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
 from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
 from filters.own_filters import new_filter, show_filter
@@ -49,8 +50,6 @@ if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
 
 updater = Updater(token=BOT_TOKEN)
 dp = updater.dispatcher
-
-cancel_button = InlineKeyboardButton("🚫 Abbrechen", callback_data='cancel')
 
 
 def set_state(user_id, state):
@@ -327,50 +326,6 @@ def check_for_price_update(bot, job):
 
             if old_name != new_name:
                 update_entity_name(entity, new_name)
-
-
-def get_entity_keyboard(entity_type, entity_id, back_action):
-    """Returns an action keyboard for a single entity"""
-    back_button = InlineKeyboardButton("↩️ Zurück", callback_data=back_action)
-    delete_button = InlineKeyboardButton("❌ Löschen", callback_data="delete_{entity_id}_{entity_type}".format(
-        entity_id=entity_id, entity_type=entity_type.value))
-    history_button = InlineKeyboardButton("📊 Preisverlauf", callback_data="history_{entity_id}_{entity_type}".format(
-        entity_id=entity_id, entity_type=entity_type))
-    # TODO implement history button and functionality
-
-    return InlineKeyboardMarkup([[delete_button], [back_button]])
-
-
-def get_entities_keyboard(action, entities, prefix_text="", cancel=False, columns=2):
-    """Returns a formatted inline keyboard for entity buttons"""
-    buttons = []
-
-    for entity in entities:
-        callback_data = '{action}_{id}_{type}'.format(action=action, id=entity.entity_id, type=entity.TYPE.value)
-        button = InlineKeyboardButton(prefix_text + entity.name, callback_data=callback_data)
-        buttons.append(button)
-
-    return generate_keyboard(buttons, columns, cancel)
-
-
-def generate_keyboard(buttons, columns, cancel=False):
-    """Generate an inline keyboard with the specified amount of columns"""
-    keyboard = []
-
-    row = []
-    for button in buttons:
-        row.append(button)
-        if len(row) >= columns:
-            keyboard.append(row)
-            row = []
-
-    if len(row) > 0:
-        keyboard.append(row)
-
-    if cancel:
-        keyboard.append([cancel_button])
-
-    return InlineKeyboardMarkup(keyboard)
 
 
 def notify_user(bot, user_id, entity, old_price):
