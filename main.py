@@ -81,11 +81,7 @@ def start_cmd(bot, update):
 
     # If user is here for the first time > Save him to the DB
     add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
-
-    keyboard = [[InlineKeyboardButton("Neuer Preisagent", callback_data="newPriceAgent"),
-                 InlineKeyboardButton("Meine Preisagenten", callback_data="myPriceAgents")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.sendMessage(user.id, "Was möchtest du tun?", reply_markup=reply_markup)
+    bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     rm_state(user.id)
 
 
@@ -123,24 +119,12 @@ def broadcast(bot, update):
 # Inline menus
 def add_menu(bot, update):
     """Send inline menu to add a new price agent"""
-    keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
-                 InlineKeyboardButton("Produkt", callback_data='addProduct')]]
-
-    update.message.reply_text(
-        "Wofür möchtest du einen Preisagenten einrichten?",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    update.message.reply_text(NewPriceAgentMenu.text, reply_markup=NewPriceAgentMenu.keyboard)
 
 
 def show_menu(bot, update):
     """Send inline menu to display all price agents"""
-    keyboard = [[InlineKeyboardButton("Wunschlisten", callback_data='showWishlists'),
-                 InlineKeyboardButton("Produkte", callback_data='showProducts')]]
-
-    update.message.reply_text(
-        "Welche Preisagenten möchtest du einsehen?",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    update.message.reply_text(ShowPriceAgentsMenu.text, reply_markup=ShowPriceAgentsMenu.keyboard)
 
 
 def delete_menu(bot, update):
