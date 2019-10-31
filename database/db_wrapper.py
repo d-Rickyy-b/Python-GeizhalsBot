@@ -318,6 +318,32 @@ class DBwrapper(object):
                 self.logger.error("Insert into product_prices not possible: {}, {}".format(product_id, price))
             self.connection.commit()
 
+        def get_product_price_history(self, product_id, weeks):
+            """Returns a sorted list of prices and timestamps when those prices got seen"""
+            utc_timestamp_now = int(datetime.utcnow().timestamp())
+            week_in_seconds = (60 * 60 * 24 * 7 * weeks)
+            utc_timestamp_last_week = utc_timestamp_now - week_in_seconds
+            self.cursor.execute("SELECT product_prices.price, product_prices.timestamp, products.name from product_prices \
+                                 INNER JOIN products \
+                                 ON product_prices.product_id=products.product_id \
+                                 WHERE product_prices.product_id=? AND product_prices.timestamp>? \
+                                 ORDER BY product_prices.timestamp DESC", [str(product_id), str(utc_timestamp_last_week)])
+            results = self.cursor.fetchall()
+            return results
+
+        def get_wishlist_price_history(self, wishlist_id, weeks):
+            """Returns a sorted list of prices and timestamps when those prices got seen"""
+            utc_timestamp_now = int(datetime.utcnow().timestamp())
+            week_in_seconds = (60 * 60 * 24 * 7 * weeks)
+            utc_timestamp_last_week = utc_timestamp_now - week_in_seconds
+            self.cursor.execute("SELECT wishlist_prices.price, wishlist_prices.timestamp, wishlists.name from wishlist_prices \
+                                 INNER JOIN wishlists \
+                                 ON wishlist_prices.wishlist_id=wishlists.wishlist_id \
+                                 WHERE wishlist_prices.wishlist_id=? AND wishlist_prices.timestamp>? \
+                                 ORDER BY wishlist_prices.timestamp DESC", [str(wishlist_id), str(utc_timestamp_last_week)])
+            results = self.cursor.fetchall()
+            return results
+
         def get_all_users(self):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users;")
             result = self.cursor.fetchall()

@@ -201,6 +201,14 @@ def rm_entity(entity):
         raise ValueError("Unknown EntityType")
 
 
+def get_price_history(entity, weeks=4):
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        return db.get_wishlist_price_history(entity.entity_id, weeks)
+    elif entity.TYPE == EntityType.PRODUCT:
+        return db.get_product_price_history(entity.entity_id, weeks)
+
+
 def delete_user(user_id):
     db = DBwrapper.get_instance()
     db.delete_user(user_id)
