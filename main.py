@@ -53,14 +53,11 @@ dp = updater.dispatcher
 
 
 def set_state(user_id, state):
-    state_set = False
-
     for userstate in state_list:
         if userstate.user_id() == user_id:
-            state_set = True
             break
-
-    if not state_set:
+    else:
+        # No userstate found
         state_list.append(UserState(user_id, state))
 
 
