@@ -351,7 +351,7 @@ def main_menu_handler(bot, update):
 
 
 def show_pa_menu_handler(bot, update):
-    """Handles all the callbackquerys for the second menu (m2)"""
+    """Handles all the callbackquerys for the second menu (m2) - show price agents"""
     cbq = update.callback_query
     user_id = cbq.from_user.id
     message_id = cbq.message.message_id
@@ -394,7 +394,7 @@ def show_pa_menu_handler(bot, update):
 
 
 def add_pa_menu_handler(bot, update):
-    """Handles all the callbackquerys for the third menu (m1)"""
+    """Handles all the callbackquerys for the third menu (m1) - add new price agent"""
     cbq = update.callback_query
     user_id = cbq.from_user.id
     message_id = cbq.message.message_id
@@ -607,6 +607,7 @@ dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 dp.add_handler(CommandHandler(['add', 'hinzufügen'], callback=add_menu))
 dp.add_handler(CommandHandler("show", show_menu))
 
+# Text based long commands - not really used anymore
 dp.add_handler(MessageHandler(new_filter, add_menu))
 dp.add_handler(MessageHandler(show_filter, show_menu))
 
