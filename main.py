@@ -173,6 +173,7 @@ def add_wishlist(update, context):
 
 
 def add_product(update, context):
+    msg = update.message
     text = update.message.text
     t_user = update.effective_user
     bot = context.bot
@@ -188,9 +189,7 @@ def add_product(update, context):
         logger.info("Valid URL for new product is '{}'".format(url))
     except InvalidURLException:
         logger.warning("Invalid url '{}' sent by user {}!".format(text, t_user))
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Die URL ist ungültig!",
-                        reply_markup=reply_markup)
+        msg.reply_text(text="Die URL ist ungültig!", reply_markup=reply_markup)
         return
 
     try:
@@ -198,36 +197,32 @@ def add_product(update, context):
     except HTTPError as e:
         logger.error(e)
         if e.code == 403:
-            bot.sendMessage(chat_id=t_user.id, text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
+            msg.reply_text(text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
         elif e.code == 429:
-            bot.sendMessage(chat_id=t_user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
+            msg.reply_text(text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
     except ValueError as valueError:
         # Raised when price could not be parsed
         logger.error(valueError)
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
+        msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
     except Exception as e:
         logger.error(e)
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
+        msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
     else:
         add_product_if_new(product)
 
         try:
             logger.debug("Subscribing to product.")
             subscribe_entity(user, product)
-            bot.sendMessage(t_user.id,
-                            "Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
+            msg.reply_text("Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
                                 link_name=link(product.url, product.name),
                                 price=bold(price(product.price, signed=False))),
-                            parse_mode="HTML",
-                            disable_web_page_preview=True)
+                           parse_mode="HTML",
+                           disable_web_page_preview=True)
             context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
-            bot.sendMessage(t_user.id,
-                            "Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
-                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+            msg.reply_text("Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
+                           reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
 def check_for_price_update(context):
@@ -330,91 +325,73 @@ def main_menu_handler(bot, update):
 
 def show_pa_menu_handler(update, context):
     """Handles all the callbackquerys for the second menu (m2) - show price agents"""
-    bot = context.bot
     cbq = update.callback_query
     user_id = cbq.from_user.id
-    message_id = cbq.message.message_id
     menu, action = cbq.data.split("_")
 
     if action == "back":
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text=MainMenu.text,
-                            reply_markup=MainMenu.keyboard)
+        cbq.edit_message_text(text=MainMenu.text, reply_markup=MainMenu.keyboard)
     elif action == "showwishlists":
         wishlists = get_wishlists_for_user(user_id)
 
         if len(wishlists) == 0:
-            bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!",
-                                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
+            cbq.edit_message_text(text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!",
+                                  reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
             return
 
         keyboard = get_entities_keyboard("show", wishlists)
-
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text=ShowWLPriceAgentsMenu.text,
-                            reply_markup=keyboard)
+        cbq.edit_message_text(text=ShowWLPriceAgentsMenu.text, reply_markup=keyboard)
     elif action == "showproducts":
         products = get_products_for_user(user_id)
 
         if len(products) == 0:
-            bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                text="Du hast noch keinen Preisagenten für ein Produkt angelegt!",
-                                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
+            cbq.edit_message_text(text="Du hast noch keinen Preisagenten für ein Produkt angelegt!",
+                                  reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
             return
 
         keyboard = get_entities_keyboard("show", products)
-
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Das sind deine Preisagenten für deine Produkte:",
-                            reply_markup=keyboard)
+        cbq.edit_message_text(text=ShowPPriceAgentsMenu.text, reply_markup=keyboard)
     else:
-        bot.answerCallbackQuery(callback_query_id=cbq.id, text="Die gewählte Funktion ist noch nicht implementiert!")
+        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
-def add_pa_menu_handler(bot, update):
+def add_pa_menu_handler(update, context):
     """Handles all the callbackquerys for the third menu (m1) - add new price agent"""
     cbq = update.callback_query
     user_id = cbq.from_user.id
-    message_id = cbq.message.message_id
     menu, action = cbq.data.split("_")
 
     if action == "back":
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text=MainMenu.text,
-                            reply_markup=MainMenu.keyboard)
+        cbq.edit_message_text(text=MainMenu.text, reply_markup=MainMenu.keyboard)
     elif action == "addwishlist":
-        if get_wishlist_count(user_id) >= MAX_WISHLISTS:
-            bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
-                                     "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                                reply_markup=get_entities_keyboard("delete", get_wishlists_for_user(user_id),
-                                                                   prefix_text="❌ ", cancel=True))
+        if get_wishlist_count(user_id) >= config.MAX_WISHLISTS:
+            keyboard = get_entities_keyboard("delete", get_wishlists_for_user(user_id), prefix_text="❌ ", cancel=True)
+            cbq.edit_message_text(text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
+                                       "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
+                                  reply_markup=keyboard)
             return
+        context.user_data["state"] = STATE_SEND_WL_LINK
 
-        set_state(user_id, STATE_SEND_WL_LINK)
-
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Bitte sende mir eine URL einer Wunschliste!",
-                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
-        bot.answerCallbackQuery(callback_query_id=cbq.id)
+        cbq.edit_message_text(text="Bitte sende mir eine URL einer Wunschliste!",
+                              reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+        cbq.answer()
     elif action == "addproduct":
-        if get_product_count(user_id) >= MAX_PRODUCTS:
-            bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
-                                     "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                                reply_markup=get_entities_keyboard("delete", get_products_for_user(user_id),
-                                                                   prefix_text="❌ ", cancel=True))
+        if get_product_count(user_id) >= config.MAX_PRODUCTS:
+            cbq.edit_message_text(text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
+                                       "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
+                                  reply_markup=get_entities_keyboard("delete", get_products_for_user(user_id),
+                                                                     prefix_text="❌ ", cancel=True))
 
             return
-        set_state(user_id, STATE_SEND_P_LINK)
+        context.user_data["state"] = STATE_SEND_P_LINK
 
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Bitte sende mir eine URL eines Produkts!",
-                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
-        bot.answerCallbackQuery(callback_query_id=cbq.id)
+        cbq.edit_message_text(text="Bitte sende mir eine URL eines Produkts!",
+                              reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+        cbq.answer()
     else:
-        bot.answerCallbackQuery(callback_query_id=cbq.id, text="Die gewählte Funktion ist noch nicht implementiert!")
+        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
 # Handles the callbacks of inline keyboards
