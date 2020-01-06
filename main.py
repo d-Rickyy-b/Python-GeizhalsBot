@@ -14,7 +14,6 @@ import config
 from bot.core import *
 from bot.user import User
 from geizhals import GeizhalsStateHandler
-from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 from util.formatter import bold, link, price
