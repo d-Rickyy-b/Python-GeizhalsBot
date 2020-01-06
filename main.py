@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import logging.handlers
 import os
-from datetime import datetime
 from urllib.error import HTTPError
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
@@ -10,10 +10,10 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
+import config
 from bot.core import *
 from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
-from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
 from geizhals import GeizhalsStateHandler
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -25,9 +25,6 @@ STATE_SEND_LINK = 0
 STATE_SEND_WL_LINK = 1
 STATE_SEND_P_LINK = 2
 STATE_IDLE = 3
-
-MAX_WISHLISTS = 5
-MAX_PRODUCTS = 5
 
 project_path = os.path.dirname(os.path.abspath(__file__))
 logdir_path = os.path.join(project_path, "logs")
@@ -47,7 +44,7 @@ if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
     exit(1)
 
-updater = Updater(token=BOT_TOKEN)
+updater = Updater(token=config.BOT_TOKEN, use_context=True)
 dp = updater.dispatcher
 
 
@@ -96,8 +93,9 @@ def help_cmd(bot, update):
 
 def broadcast(bot, update):
     """Method to send a broadcast to all of the users of the bot"""
-    user_id = update.message.from_user.id
-    if user_id not in ADMIN_IDs:
+    user_id = update.effective_user.id
+    bot = context.bot
+    if user_id not in config.ADMIN_IDs:
         logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
         return
 
@@ -108,7 +106,7 @@ def broadcast(bot, update):
     for user in users:
         bot.send_message(chat_id=user, text=final_message)
 
-    for admin in ADMIN_IDs:
+    for admin in config.ADMIN_IDs:
         bot.send_message(chat_id=admin, text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
 
 
@@ -601,7 +599,7 @@ dp.add_handler(CommandHandler('start', callback=start_cmd))
 dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 
 # Bot specific commands
-dp.add_handler(CommandHandler(['add', 'hinzufügen'], callback=add_menu))
+dp.add_handler(CommandHandler("add", callback=add_menu))
 dp.add_handler(CommandHandler("show", show_menu))
 
 dp.add_handler(CommandHandler('broadcast', callback=broadcast))
@@ -617,7 +615,7 @@ dp.add_handler(MessageHandler(Filters.command, unknown))
 dp.add_error_handler(error_callback)
 
 # Scheduling the check for updates
-dt = datetime.today()
+dt = datetime.datetime.today()
 seconds = int(dt.timestamp())
 repeat_in_minutes = 30
 repeat_in_seconds = 60 * repeat_in_minutes
@@ -626,14 +624,14 @@ delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
 
-if USE_WEBHOOK:
-    updater.start_webhook(listen="127.0.0.1", port=WEBHOOK_PORT, url_path=BOT_TOKEN, cert=CERTPATH, webhook_url=WEBHOOK_URL)
-    updater.bot.set_webhook(WEBHOOK_URL)
+if config.USE_WEBHOOK:
+    updater.start_webhook(listen="127.0.0.1", port=config.WEBHOOK_PORT, url_path=config.BOT_TOKEN, cert=config.CERTPATH, webhook_url=config.WEBHOOK_URL)
+    updater.bot.set_webhook(config.WEBHOOK_URL)
 else:
     updater.start_polling()
 
-if USE_PROXIES:
-    proxy_path = os.path.join(project_path, PROXY_LIST)
+if config.USE_PROXIES:
+    proxy_path = os.path.join(project_path, config.PROXY_LIST)
     with open(proxy_path, "r", encoding="utf-8") as f:
         proxies = f.read().split("\n")
         # Removing comments from the proxy list starting with a hash symbol and empty lines
@@ -641,11 +639,11 @@ if USE_PROXIES:
         proxies[:] = [x for x in proxies if not x.startswith('#') and not x == '']
     if proxies is not None and isinstance(proxies, list):
         logger.info("Using proxies!")
-        gh = GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=proxies)
+        gh = GeizhalsStateHandler(use_proxies=config.USE_PROXIES, proxies=proxies)
     else:
         logger.error("Proxies list is either empty or has mismatching type!")
 else:
-    GeizhalsStateHandler(use_proxies=USE_PROXIES, proxies=None)
+    GeizhalsStateHandler(use_proxies=config.USE_PROXIES, proxies=None)
 
 logger.info("Bot started as @{}".format(updater.bot.username))
 updater.idle()
