@@ -14,19 +14,17 @@ from bot.core import *
 from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
 from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
-from filters.own_filters import new_filter, show_filter
 from geizhals import GeizhalsStateHandler
-from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
 from util.formatter import bold, link, price
 
 __author__ = 'Rico'
 
-state_list = []
 STATE_SEND_LINK = 0
 STATE_SEND_WL_LINK = 1
 STATE_SEND_P_LINK = 2
+STATE_IDLE = 3
 
 MAX_WISHLISTS = 5
 MAX_PRODUCTS = 5
@@ -80,7 +78,7 @@ def start_cmd(bot, update):
     # If user is here for the first time > Save him to the DB
     add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
     bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
-    rm_state(user.id)
+    context.user_data["state"] = STATE_IDLE
 
 
 def help_cmd(bot, update):
@@ -130,16 +128,14 @@ def delete_menu(bot, update):
     pass
 
 
-def handle_text(bot, update):
+def handle_text(update, context):
     """Handles plain text sent to the bot"""
-    user_id = update.message.from_user.id
+    if context.user_data["state"]:
+        if context.user_data["state"] == STATE_SEND_P_LINK:
+            add_product(update, context)
+        elif context.user_data["state"] == STATE_SEND_WL_LINK:
+            add_wishlist(update, context)
 
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            if userstate.state() == STATE_SEND_P_LINK:
-                add_product(bot, update)
-            elif userstate.state() == STATE_SEND_WL_LINK:
-                add_wishlist(bot, update)
 
 
 def add_wishlist(bot, update):
@@ -607,10 +603,6 @@ dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
 # Bot specific commands
 dp.add_handler(CommandHandler(['add', 'hinzufügen'], callback=add_menu))
 dp.add_handler(CommandHandler("show", show_menu))
-
-# Text based long commands - not really used anymore
-dp.add_handler(MessageHandler(new_filter, add_menu))
-dp.add_handler(MessageHandler(show_filter, show_menu))
 
 dp.add_handler(CommandHandler('broadcast', callback=broadcast))
 
