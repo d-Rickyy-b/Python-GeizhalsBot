@@ -40,7 +40,7 @@ logging.getLogger("telegram").setLevel(logging.WARNING)
 
 logger = logging.getLogger("geizhals.main")
 
-if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", BOT_TOKEN):
+if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", config.BOT_TOKEN):
     logging.error("Bot token not correct - please check.")
     exit(1)
 
