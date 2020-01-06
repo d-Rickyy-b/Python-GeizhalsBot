@@ -116,6 +116,15 @@ def get_product(product_id):
     return product
 
 
+def get_entity(entity_id, entity_type):
+    if entity_type == EntityType.PRODUCT:
+        return get_product(product_id=entity_id)
+    elif entity_type == EntityType.WISHLIST:
+        return get_wishlist(wishlist_id=entity_id)
+    else:
+        raise ValueError("Unknown EntityType")
+
+
 def get_wishlist_count(user_id):
     """Returns the count of subscribed wishlists for a user"""
     db = DBwrapper.get_instance()
