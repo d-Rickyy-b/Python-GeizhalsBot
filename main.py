@@ -259,22 +259,24 @@ def check_for_price_update(context):
         except Exception as e:
             logger.error("Exception while checking for price updates! {}".format(e))
         else:
-            if old_price != new_price:
-                entity.price = new_price
-                update_entity_price(entity, new_price)
-                entity_subscribers = get_entity_subscribers(entity)
-
-                for user_id in entity_subscribers:
-                    # Notify each subscriber
-                    try:
-                        notify_user(bot, user_id, entity, old_price)
-                    except Unauthorized as e:
-                        if e.message == "Forbidden: user is deactivated":
-                            logging.info("Removed user from db, because account was deleted.")
-                            delete_user(user_id)
-
             if old_name != new_name:
                 update_entity_name(entity, new_name)
+
+            if old_price == new_price:
+                return
+
+            entity.price = new_price
+            update_entity_price(entity, new_price)
+            entity_subscribers = get_entity_subscribers(entity)
+
+            for user_id in entity_subscribers:
+                # Notify each subscriber
+                try:
+                    notify_user(bot, user_id, entity, old_price)
+                except Unauthorized as e:
+                    if e.message == "Forbidden: user is deactivated":
+                        logger.info("Removed user from db, because account was deleted.")
+                        delete_user(user_id)
 
 
 def notify_user(bot, user_id, entity, old_price):
@@ -571,9 +573,10 @@ if config.USE_PROXIES:
         proxies[:] = [x for x in proxies if not x.startswith('#') and not x == '']
     if proxies is not None and isinstance(proxies, list):
         logger.info("Using proxies!")
-        gh = GeizhalsStateHandler(use_proxies=config.USE_PROXIES, proxies=proxies)
+        GeizhalsStateHandler(use_proxies=config.USE_PROXIES, proxies=proxies)
     else:
         logger.error("Proxies list is either empty or has mismatching type!")
+        exit(1)
 else:
     GeizhalsStateHandler(use_proxies=config.USE_PROXIES, proxies=None)
 
