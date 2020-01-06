@@ -42,7 +42,7 @@ logging.getLogger("telegram").setLevel(logging.WARNING)
 logger = logging.getLogger("geizhals.main")
 
 if not re.match(r"[0-9]+:[a-zA-Z0-9\-_]+", config.BOT_TOKEN):
-    logging.error("Bot token not correct - please check.")
+    logger.error("Bot token not correct - please check.")
     exit(1)
 
 updater = Updater(token=config.BOT_TOKEN, use_context=True)
@@ -81,7 +81,7 @@ def broadcast(update, context):
         logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
         return
 
-    logging.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
+    logger.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
     message_with_prefix = update.message.text
     final_message = message_with_prefix.replace("/broadcast ", "")
     users = get_all_subscribers()
@@ -356,7 +356,7 @@ def main_menu_handler(update, context):
         cbq.edit_message_text(text=ShowPriceAgentsMenu.text,
                               reply_markup=ShowPriceAgentsMenu.keyboard)
     else:
-        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        logger.warning("A user tried to use an unimplemented method: '{}'".format(action))
         cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
@@ -389,7 +389,7 @@ def show_pa_menu_handler(update, context):
         keyboard = get_entities_keyboard("show", products)
         cbq.edit_message_text(text=ShowPPriceAgentsMenu.text, reply_markup=keyboard)
     else:
-        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        logger.warning("A user tried to use an unimplemented method: '{}'".format(action))
         cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
@@ -427,7 +427,7 @@ def add_pa_menu_handler(update, context):
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
         cbq.answer()
     else:
-        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        logger.warning("A user tried to use an unimplemented method: '{}'".format(action))
         cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
@@ -478,7 +478,7 @@ def pa_detail_handler(update, context):
     elif action == "history":
         entity_price_history(update, context)
     else:
-        logging.warning("A user tried to use an unimplemented method: '{}'".format(action))
+        logger.warning("A user tried to use an unimplemented method: '{}'".format(action))
         cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
@@ -510,17 +510,17 @@ def error_callback(update, context):
     try:
         raise error
     except Unauthorized as e:
-        logging.error(e.message)  # remove update.message.chat_id from conversation list
+        logger.error(e.message)  # remove update.message.chat_id from conversation list
     except BadRequest as e:
-        logging.error(e.message)  # handle malformed requests
+        logger.error(e.message)  # handle malformed requests
     except TimedOut:
         pass  # connection issues are ignored for now
     except NetworkError as e:
-        logging.error(e.message)  # handle other connection problems
+        logger.error(e.message)  # handle other connection problems
     except ChatMigrated as e:
-        logging.error(e.message)  # the chat_id of a group has changed, use e.new_chat_id instead
+        logger.error(e.message)  # the chat_id of a group has changed, use e.new_chat_id instead
     except TelegramError as e:
-        logging.error(e.message)  # handle all other telegram related errors
+        logger.error(e.message)  # handle all other telegram related errors
 
 
 # Basic handlers for standard commands
