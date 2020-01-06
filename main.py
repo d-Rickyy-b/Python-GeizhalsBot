@@ -12,6 +12,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 
 import config
 from bot.core import *
+from bot.menus import MainMenu, NewPriceAgentMenu, ShowPriceAgentsMenu, ShowWLPriceAgentsMenu, ShowPPriceAgentsMenu
 from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
 from geizhals import GeizhalsStateHandler
@@ -100,11 +101,6 @@ def add_menu(update, _):
 def show_menu(update, context):
     """Send inline menu to display all price agents"""
     update.message.reply_text(ShowPriceAgentsMenu.text, reply_markup=ShowPriceAgentsMenu.keyboard)
-
-
-def delete_menu(update, context):
-    # TODO When calling /remove the bot should open up a menu as well
-    pass
 
 
 def handle_text(update, context):
@@ -501,6 +497,7 @@ def unknown(update, context):
 
 
 def error_callback(update, context):
+    error = context.error
     try:
         raise error
     except Unauthorized as e:
