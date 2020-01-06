@@ -12,3 +12,5 @@ class EntityType(Enum):
             return dict(article="die", name="Wunschliste")
         elif entity_type == EntityType.PRODUCT:
             return dict(article="das", name="Produkt")
+        else:
+            raise ValueError("No such entity type '{}'!".format(entity_type))

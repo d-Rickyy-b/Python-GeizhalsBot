@@ -16,8 +16,7 @@ from bot.menus import MainMenu, NewPriceAgentMenu, ShowPriceAgentsMenu, ShowWLPr
 from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
 from geizhals import GeizhalsStateHandler
-from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
-    InvalidURLException
+from util.exceptions import AlreadySubscribedException, InvalidURLException
 from util.formatter import bold, link, price
 
 __author__ = 'Rico'
@@ -238,15 +237,10 @@ def check_for_price_update(context):
         except HTTPError as e:
             if e.code == 403:
                 logger.error("Entity is not public!")
-
-                if entity.TYPE == EntityType.PRODUCT:
-                    entity_hidden = "Das Produkt {link_name} ist leider nicht mehr einsehbar. " \
-                                    "Ich entferne diesen Preisagenten!".format(link_name=link(entity.url, entity.name))
-                elif entity.TYPE == EntityType.WISHLIST:
-                    entity_hidden = "Die Wunschliste {link_name} ist leider nicht mehr einsehbar. " \
-                                    "Ich entferne diesen Preisagent.".format(link_name=link(entity.url, entity.name))
-                else:
-                    raise ValueError("No such entity type '{}'!".format(entity.TYPE))
+                entity_type_data = EntityType.get_type_article_name(entity.TYPE)
+                entity_hidden = "{article} {type} {link_name} ist leider nicht mehr einsehbar. " \
+                                "Ich entferne diesen Preisagenten!".format(article=entity_type_data.get("article").capitalize(),
+                                                                           type=entity_type_data.get("name"), link_name=link(entity.url, entity.name))
 
                 for user_id in get_entity_subscribers(entity):
                     user = get_user_by_id(user_id)
@@ -254,9 +248,7 @@ def check_for_price_update(context):
                     unsubscribe_entity(user, entity)
 
                 rm_entity(entity)
-        except ValueError as e:
-            logger.error("ValueError while checking for price updates! {}".format(e))
-        except Exception as e:
+        except (ValueError, Exception) as e:
             logger.error("Exception while checking for price updates! {}".format(e))
         else:
             if old_name != new_name:
