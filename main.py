@@ -556,13 +556,13 @@ def callback_handler_f(update, context):
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
 
 
-def unknown(bot, update):
+def unknown(update, context):
     """Bot method which gets called when no command could be recognized"""
-    bot.send_message(chat_id=update.message.chat_id,
-                     text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
 
-def error_callback(bot, update, error):
+def error_callback(update, context):
     try:
         raise error
     except Unauthorized as e:
