@@ -314,25 +314,34 @@ def entity_price_history(update, context):
         cbq.answer(text=text)
         return
 
-    from geizhals.charts.dataset import Dataset
     entity = get_entity(entity_id, entity_type)
     items = get_price_history(entity)
+
+    from geizhals.charts.dataset import Dataset
     ds = Dataset(entity.name)
     for p, timestamp, name in items:
         ds.add_price(price=p, timestamp=timestamp)
+
+    if len(items) <= 3 or len(ds.days) <= 3:
+        cbq.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup([]))
+        cbq.message.reply_text("Entschuldige, leider habe ich nicht genügend Daten für diesen Preisagenten, um einen Preisverlauf anzeigen zu können! Schau einfach in ein paar Tagen nochmal vorbei!")
+        return
+
     chart = ds.get_chart()
     file_name = "{}.png".format(entity.entity_id)
-    logger.info("filename: " + file_name)
+    logger.info("Generated new chart '{}' for user '{}'".format(file_name, cbq.from_user.id))
 
-    with open(file_name, "wb") as f:
-        f.write(chart)
+    with open(file_name, "wb") as file:
+        file.write(chart)
 
-    with open(file_name, "rb") as f:
-        cbq.message.reply_photo(photo=f)
+    with open(file_name, "rb") as file:
+        cbq.message.reply_photo(photo=file)
 
-    logger.info("CallBackQueryId: " + cbq.id)
+    os.remove(file_name)
+
+    cbq.message.edit_text("Hier ist der Preisverlauf für {}".format(link(entity.url, entity.name)), reply_markup=InlineKeyboardMarkup([]),
+                          parse_mode="HTML", disable_web_page_preview=True)
     cbq.answer()
-    #TODO it would be nice if the original message would show something like "This is the chart for xxx"
 
 
 def main_menu_handler(update, context):
