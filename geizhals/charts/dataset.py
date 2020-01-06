@@ -66,6 +66,5 @@ class Dataset(object):
                         )
                         )
         chart_query = json.dumps(req_data)
-        print(chart_query)
-        response = requests.post(url="https://quickchart.io/chart", data=dict(c=chart_query, backgroundColor="white"))
+        response = requests.post(url="https://quickchart.io/chart", json=dict(c=chart_query, backgroundColor="white"))
         return response.content
