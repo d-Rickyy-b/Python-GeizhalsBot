@@ -72,9 +72,10 @@ def rm_state(user_id):
 
 
 # Text commands
-def start_cmd(bot, update):
+def start_cmd(update, context):
     """Bot start command"""
     user = update.message.from_user
+    bot = context.bot
 
     # If user is here for the first time > Save him to the DB
     add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
@@ -86,21 +87,23 @@ def start_cmd(bot, update):
     rm_state(user.id)
 
 
-def help_cmd(bot, update):
+def help_cmd(update, context):
     """Bot help command"""
+    bot = context.bot
     user_id = update.message.from_user.id
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
                 "/start	-	Startmenü\n" \
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                # "/remove	-	Entfernt eine Wunschliste\n"
+        # "/remove	-	Entfernt eine Wunschliste\n"
 
     bot.sendMessage(user_id, help_text)
 
 
-def broadcast(bot, update):
+def broadcast(update, context):
     """Method to send a broadcast to all of the users of the bot"""
+    bot = context.bot
     user_id = update.message.from_user.id
     if user_id not in config.ADMIN_IDs:
         logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
@@ -118,7 +121,7 @@ def broadcast(bot, update):
 
 
 # Inline menus
-def add_menu(bot, update):
+def add_menu(update, ccontext):
     """Send inline menu to add a new price agent"""
     keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
                  InlineKeyboardButton("Produkt", callback_data='addProduct')]]
@@ -129,7 +132,7 @@ def add_menu(bot, update):
     )
 
 
-def show_menu(bot, update):
+def show_menu(update, context):
     """Send inline menu to display all price agents"""
     keyboard = [[InlineKeyboardButton("Wunschlisten", callback_data='showWishlists'),
                  InlineKeyboardButton("Produkte", callback_data='showProducts')]]
@@ -140,14 +143,15 @@ def show_menu(bot, update):
     )
 
 
-def delete_menu(bot, update):
+def delete_menu(update, context):
     # TODO When calling /remove the bot should open up a menu as well
     pass
 
 
-def handle_text(bot, update):
+def handle_text(update, context):
     """Handles plain text sent to the bot"""
     user_id = update.message.from_user.id
+    bot = context.bot
 
     for userstate in state_list:
         if userstate.user_id() == user_id:
@@ -157,7 +161,8 @@ def handle_text(bot, update):
                 add_wishlist(bot, update)
 
 
-def add_wishlist(bot, update):
+def add_wishlist(update, context):
+    bot = context.bot
     text = update.message.text
     t_user = update.message.from_user
 
@@ -212,7 +217,8 @@ def add_wishlist(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
-def add_product(bot, update):
+def add_product(update, context):
+    bot = context.bot
     text = update.message.text
     t_user = update.message.from_user
 
@@ -269,8 +275,9 @@ def add_product(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
-def check_for_price_update(bot, job):
+def check_for_price_update(context):
     """Check if the price of any subscribed wishlist or product was updated"""
+    bot = context.bot
     logger.debug("Checking for updates!")
 
     entities = get_all_entities_with_subscribers()
@@ -392,7 +399,8 @@ def notify_user(bot, user_id, entity, old_price):
 
 
 # Handles the callbacks of inline keyboards
-def callback_handler_f(bot, update):
+def callback_handler_f(update, context):
+    bot = context.bot
     user_id = update.callback_query.from_user.id
     message_id = update.callback_query.message.message_id
     callback_query_id = update.callback_query.id
@@ -586,8 +594,9 @@ def callback_handler_f(bot, update):
                             reply_markup=keyboard)
 
 
-def unknown(bot, update):
+def unknown(update, context):
     """Bot method which gets called when no command could be recognized"""
+    bot = context.bot
     bot.send_message(chat_id=update.message.chat_id,
                      text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
