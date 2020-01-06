@@ -13,7 +13,6 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 from bot.core import *
 from bot.user import User
 from config import BOT_TOKEN, USE_WEBHOOK, WEBHOOK_PORT, WEBHOOK_URL, CERTPATH, USE_PROXIES, PROXY_LIST, ADMIN_IDs
-from filters.own_filters import new_filter, show_filter
 from geizhals import GeizhalsStateHandler
 from userstate import UserState
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
@@ -620,9 +619,6 @@ dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
 # Bot specific commands
 dp.add_handler(CommandHandler("add", add_menu))
 dp.add_handler(CommandHandler("show", show_menu))
-
-dp.add_handler(MessageHandler(new_filter, add_menu))
-dp.add_handler(MessageHandler(show_filter, show_menu))
 
 dp.add_handler(CommandHandler("broadcast", callback=broadcast))
 
