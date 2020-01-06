@@ -25,6 +25,7 @@ state_list = []
 STATE_SEND_LINK = 0
 STATE_SEND_WL_LINK = 1
 STATE_SEND_P_LINK = 2
+STATE_IDLE = 3
 
 project_path = os.path.dirname(os.path.abspath(__file__))
 logfile_path = os.path.join(project_path, "logs", "bot.log")
@@ -49,28 +50,6 @@ dp = updater.dispatcher
 cancel_button = InlineKeyboardButton("🚫 Abbrechen", callback_data='cancel')
 
 
-def set_state(user_id, state):
-    state_set = False
-
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            state_set = True
-            break
-
-    if not state_set:
-        state_list.append(UserState(user_id, state))
-
-
-def rm_state(user_id):
-    index = 0
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            del state_list[index]
-            break
-
-        index += 1
-
-
 # Text commands
 def start_cmd(update, context):
     """Bot start command"""
@@ -84,7 +63,7 @@ def start_cmd(update, context):
                  InlineKeyboardButton("Meine Preisagenten", callback_data="myPriceAgents")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.sendMessage(user.id, "Was möchtest du tun?", reply_markup=reply_markup)
-    rm_state(user.id)
+    context.user_data["state"] = STATE_IDLE
 
 
 def help_cmd(update, context):
@@ -150,15 +129,13 @@ def delete_menu(update, context):
 
 def handle_text(update, context):
     """Handles plain text sent to the bot"""
-    user_id = update.message.from_user.id
-    bot = context.bot
+    if not context.user_data["state"]:
+        return
 
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            if userstate.state() == STATE_SEND_P_LINK:
-                add_product(bot, update)
-            elif userstate.state() == STATE_SEND_WL_LINK:
-                add_wishlist(bot, update)
+    if context.user_data["state"] == STATE_SEND_P_LINK:
+        add_product(update, context)
+    if context.user_data["state"] == STATE_SEND_WL_LINK:
+        add_wishlist(update, context)
 
 
 def add_wishlist(update, context):
@@ -209,7 +186,7 @@ def add_wishlist(update, context):
                                 price=bold(price(wishlist.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(t_user.id)
+            context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException as ase:
             logger.debug("User already subscribed!")
             bot.sendMessage(t_user.id,
@@ -267,7 +244,7 @@ def add_product(update, context):
                                 price=bold(price(product.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(t_user.id)
+            context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             bot.sendMessage(t_user.id,
@@ -531,7 +508,7 @@ def callback_handler_f(update, context):
                             reply_markup=InlineKeyboardMarkup(keyboard))
     elif action == "cancel":
         """Reset the user's state"""
-        rm_state(user_id)
+        context.user_data["state"] = STATE_IDLE
         text = "Okay, Ich habe die Aktion abgebrochen!"
         bot.editMessageText(chat_id=user_id, message_id=message_id, text=text)
         bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
@@ -544,7 +521,7 @@ def callback_handler_f(update, context):
                                                                    prefix_text="❌ ", cancel=True))
             return
 
-        set_state(user_id, STATE_SEND_WL_LINK)
+        context.user_data["state"] = STATE_SEND_WL_LINK
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
                             text="Bitte sende mir eine URL einer Wunschliste!",
@@ -559,7 +536,7 @@ def callback_handler_f(update, context):
                                                                    prefix_text="❌ ", cancel=True))
 
             return
-        set_state(user_id, STATE_SEND_P_LINK)
+        context.user_data["state"] = STATE_SEND_P_LINK
 
         bot.editMessageText(chat_id=user_id, message_id=message_id,
                             text="Bitte sende mir eine URL eines Produkts!",
