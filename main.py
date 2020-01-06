@@ -614,17 +614,17 @@ def error_callback(bot, update, error):
 
 
 # Basic handlers for standard commands
-dp.add_handler(CommandHandler('start', callback=start_cmd))
-dp.add_handler(CommandHandler(['help', 'hilfe'], callback=help_cmd))
+dp.add_handler(CommandHandler("start", callback=start_cmd))
+dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
 
 # Bot specific commands
-dp.add_handler(CommandHandler(['add', 'hinzufügen'], callback=add_menu))
+dp.add_handler(CommandHandler("add", add_menu))
 dp.add_handler(CommandHandler("show", show_menu))
 
 dp.add_handler(MessageHandler(new_filter, add_menu))
 dp.add_handler(MessageHandler(show_filter, show_menu))
 
-dp.add_handler(CommandHandler('broadcast', callback=broadcast))
+dp.add_handler(CommandHandler("broadcast", callback=broadcast))
 
 # Callback, Text and fallback handlers
 dp.add_handler(CallbackQueryHandler(callback_handler_f))
