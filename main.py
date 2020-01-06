@@ -98,7 +98,7 @@ def add_menu(update, _):
     update.message.reply_text(NewPriceAgentMenu.text, reply_markup=NewPriceAgentMenu.keyboard)
 
 
-def show_menu(update, context):
+def show_menu(update, _):
     """Send inline menu to display all price agents"""
     update.message.reply_text(ShowPriceAgentsMenu.text, reply_markup=ShowPriceAgentsMenu.keyboard)
 
@@ -299,7 +299,7 @@ def notify_user(bot, user_id, entity, old_price):
     bot.sendMessage(user_id, message, parse_mode="HTML", disable_web_page_preview=True)
 
 
-def entity_price_history(update, context):
+def entity_price_history(update, _):
     """Handles button clicks on the price history button"""
     cbq = update.callback_query
     data = cbq.data
@@ -344,7 +344,7 @@ def entity_price_history(update, context):
     cbq.answer()
 
 
-def main_menu_handler(update, context):
+def main_menu_handler(update, _):
     """Handles all the callbackquerys for the main/first menu (m0)"""
     cbq = update.callback_query
     menu, action = cbq.data.split("_")
@@ -360,7 +360,7 @@ def main_menu_handler(update, context):
         cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
-def show_pa_menu_handler(update, context):
+def show_pa_menu_handler(update, _):
     """Handles all the callbackquerys for the second menu (m2) - show price agents"""
     cbq = update.callback_query
     user_id = cbq.from_user.id
@@ -491,7 +491,7 @@ def cancel_handler(update, context):
     cbq.answer(text=text)
 
 
-def callback_handler_f(update, context):
+def callback_handler_f(update, _):
     """Handler for all the uncatched methods"""
     cbq = update.callback_query
     user_id = cbq.from_user.id
@@ -505,7 +505,7 @@ def unknown(update, context):
                              text="Sorry, den Befehl kenne ich nicht. Schau doch mal in der /hilfe")
 
 
-def error_callback(update, context):
+def error_callback(_, context):
     error = context.error
     try:
         raise error
@@ -530,7 +530,6 @@ dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
 # Bot specific commands
 dp.add_handler(CommandHandler("add", callback=add_menu))
 dp.add_handler(CommandHandler("show", callback=show_menu))
-
 dp.add_handler(CommandHandler("broadcast", callback=broadcast))
 
 # Callback, Text and fallback handlers
