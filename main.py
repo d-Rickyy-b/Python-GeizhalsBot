@@ -48,39 +48,20 @@ updater = Updater(token=config.BOT_TOKEN, use_context=True)
 dp = updater.dispatcher
 
 
-def set_state(user_id, state):
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            break
-    else:
-        # No userstate found
-        state_list.append(UserState(user_id, state))
-
-
-def rm_state(user_id):
-    index = 0
-    for userstate in state_list:
-        if userstate.user_id() == user_id:
-            del state_list[index]
-            break
-
-        index += 1
-
-
 # Text commands
-def start_cmd(bot, update):
+def start_cmd(update, context):
     """Bot start command"""
-    user = update.message.from_user
+    user = update.effective_user
 
     # If user is here for the first time > Save him to the DB
     add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
-    bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
+    context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
 
 
-def help_cmd(bot, update):
+def help_cmd(update, context):
     """Bot help command"""
-    user_id = update.message.from_user.id
+    user_id = update.effective_user.id
     help_text = "Du brauchst Hilfe? Probiere folgende Befehle:\n\n" \
                 "/start	-	Startmenü\n" \
                 "/help	-	Zeigt diese Hilfe\n" \
@@ -88,10 +69,10 @@ def help_cmd(bot, update):
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
                 # "/remove	-	Entfernt eine Wunschliste\n"
 
-    bot.sendMessage(user_id, help_text)
+    context.bot.sendMessage(user_id, help_text)
 
 
-def broadcast(bot, update):
+def broadcast(update, context):
     """Method to send a broadcast to all of the users of the bot"""
     user_id = update.effective_user.id
     bot = context.bot
@@ -111,17 +92,17 @@ def broadcast(bot, update):
 
 
 # Inline menus
-def add_menu(bot, update):
+def add_menu(update, _):
     """Send inline menu to add a new price agent"""
     update.message.reply_text(NewPriceAgentMenu.text, reply_markup=NewPriceAgentMenu.keyboard)
 
 
-def show_menu(bot, update):
+def show_menu(update, context):
     """Send inline menu to display all price agents"""
     update.message.reply_text(ShowPriceAgentsMenu.text, reply_markup=ShowPriceAgentsMenu.keyboard)
 
 
-def delete_menu(bot, update):
+def delete_menu(update, context):
     # TODO When calling /remove the bot should open up a menu as well
     pass
 
@@ -135,10 +116,10 @@ def handle_text(update, context):
             add_wishlist(update, context)
 
 
-
-def add_wishlist(bot, update):
+def add_wishlist(update, context):
     text = update.message.text
-    t_user = update.message.from_user
+    t_user = update.effective_user
+    bot = context.bot
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
     user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
@@ -183,7 +164,7 @@ def add_wishlist(bot, update):
                                 price=bold(price(wishlist.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(t_user.id)
+            context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException as ase:
             logger.debug("User already subscribed!")
             bot.sendMessage(t_user.id,
@@ -191,9 +172,10 @@ def add_wishlist(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
-def add_product(bot, update):
+def add_product(update, context):
     text = update.message.text
-    t_user = update.message.from_user
+    t_user = update.effective_user
+    bot = context.bot
 
     logger.info("Adding new product for user '{}'".format(t_user.id))
 
@@ -240,7 +222,7 @@ def add_product(bot, update):
                                 price=bold(price(product.price, signed=False))),
                             parse_mode="HTML",
                             disable_web_page_preview=True)
-            rm_state(t_user.id)
+            context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             bot.sendMessage(t_user.id,
@@ -248,9 +230,10 @@ def add_product(bot, update):
                             reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
-def check_for_price_update(bot, job):
+def check_for_price_update(context):
     """Check if the price of any subscribed wishlist or product was updated"""
     logger.debug("Checking for updates!")
+    bot = context.bot
 
     entities = get_all_entities_with_subscribers()
 
@@ -345,8 +328,9 @@ def main_menu_handler(bot, update):
         bot.answerCallbackQuery(callback_query_id=cbq.id, text="Die gewählte Funktion ist noch nicht implementiert!")
 
 
-def show_pa_menu_handler(bot, update):
+def show_pa_menu_handler(update, context):
     """Handles all the callbackquerys for the second menu (m2) - show price agents"""
+    bot = context.bot
     cbq = update.callback_query
     user_id = cbq.from_user.id
     message_id = cbq.message.message_id
@@ -434,7 +418,8 @@ def add_pa_menu_handler(bot, update):
 
 
 # Handles the callbacks of inline keyboards
-def callback_handler_f(bot, update):
+def callback_handler_f(update, context):
+    bot = context.bot
     user_id = update.callback_query.from_user.id
     message_id = update.callback_query.message.message_id
     callback_query_id = update.callback_query.id
