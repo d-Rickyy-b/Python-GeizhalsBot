@@ -419,10 +419,8 @@ def add_pa_menu_handler(bot, update):
 
 # Handles the callbacks of inline keyboards
 def callback_handler_f(update, context):
-    bot = context.bot
-    user_id = update.callback_query.from_user.id
-    message_id = update.callback_query.message.message_id
-    callback_query_id = update.callback_query.id
+    cbq = update.callback_query
+    user_id = cbq.from_user.id
     user = get_user_by_id(user_id)
 
     if user is None:
@@ -446,8 +444,8 @@ def callback_handler_f(update, context):
                 wishlist = get_wishlist(wishlist_id)
             except WishlistNotFoundException:
                 invalid_wl_text = "Die Wunschliste existiert nicht!"
-                bot.answerCallbackQuery(callback_query_id=callback_query_id, text=invalid_wl_text)
-                bot.editMessageText(chat_id=user_id, message_id=message_id, text=invalid_wl_text)
+                cbq.answer(text=invalid_wl_text)
+                cbq.edit_message_text(text=invalid_wl_text)
                 return
 
             if action == "delete":
@@ -460,45 +458,43 @@ def callback_handler_f(update, context):
                     [InlineKeyboardButton("Rückgängig", callback_data=callback_data)]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
 
-                bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                    text="Preisagent für die Wunschliste {link_name} wurde gelöscht!".format(
-                                        link_name=link(wishlist.url, wishlist.name)),
-                                    reply_markup=reply_markup,
-                                    parse_mode="HTML", disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id,
-                                        text="Preisagent für die Wunschliste wurde gelöscht!")
+                text = "Preisagent für die Wunschliste {0} wurde gelöscht!".format(link(wishlist.url, wishlist.name))
+                cbq.edit_message_text(text=text,
+                                      reply_markup=reply_markup,
+                                      parse_mode="HTML", disable_web_page_preview=True)
+                cbq.answer(text="Preisagent für die Wunschliste wurde gelöscht!")
             elif action == "show":
-                bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                    text="Die Wunschliste {link_name} kostet aktuell {price}".format(
+                cbq.edit_message_text(text="Die Wunschliste {link_name} kostet aktuell {price}".format(
                                         link_name=link(wishlist.url, wishlist.name),
                                         price=bold(price(wishlist.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.entity_id, "m02_showwishlists"),
-                                    parse_mode="HTML", disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id)
+                                      reply_markup=get_entity_keyboard(EntityType.WISHLIST, wishlist.entity_id),
+                                      parse_mode="HTML", disable_web_page_preview=True)
+                cbq.answer()
             elif action == "subscribe":
                 try:
                     subscribe_entity(user, wishlist)
                     text = "Du hast die Wunschliste {link_name} erneut abboniert!".format(
                         link_name=link(wishlist.url, wishlist.name))
-                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                        disable_web_page_preview=True)
-                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Wunschliste erneut abboniert")
+                    cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+                    cbq.answer(text="Wunschliste erneut abboniert")
                 except AlreadySubscribedException:
                     text = "Wunschliste bereits abboniert!"
-                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                        disable_web_page_preview=True)
-                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
+                    cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+                    cbq.answer(text=text)
+            else:
+                cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
         elif entity_type == EntityType.PRODUCT:
             product_id = entity_id
             try:
                 product = get_product(product_id)
             except ProductNotFoundException:
                 invalid_p_text = "Das Produkt existiert nicht!"
-                bot.answerCallbackQuery(callback_query_id=callback_query_id, text=invalid_p_text)
-                bot.editMessageText(chat_id=user_id, message_id=message_id, text=invalid_p_text)
+                cbq.answer(text=invalid_p_text)
+                cbq.edit_message_text(text=invalid_p_text)
                 return
 
             if action == "delete":
+                print("Action delete executed")
                 unsubscribe_entity(user, product)
 
                 callback_data = 'subscribe_{id}_{type}'.format(id=product_id,
@@ -507,53 +503,51 @@ def callback_handler_f(update, context):
                 keyboard = [[InlineKeyboardButton("Rückgängig", callback_data=callback_data)]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
 
-                bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                    text="Preisagent für das Produkt {link_name} wurde gelöscht!".format(
+                cbq.edit_message_text(text="Preisagent für das Produkt {link_name} wurde gelöscht!".format(
                                         link_name=link(product.url, product.name)),
                                     reply_markup=reply_markup,
                                     parse_mode="HTML", disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id,
-                                        text="Preisagent für das Produkt wurde gelöscht!")
+                cbq.answer(text="Preisagent für das Produkt wurde gelöscht!")
             elif action == "show":
-                bot.editMessageText(chat_id=user_id, message_id=message_id,
-                                    text="Das Produkt {link_name} kostet aktuell {price}".format(
-                                        link_name=link(product.url, product.name),
-                                        price=bold(price(product.price, signed=False))),
-                                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.entity_id, "m02_showproducts"),
-                                    parse_mode="HTML", disable_web_page_preview=True)
-                bot.answerCallbackQuery(callback_query_id=callback_query_id)
+                cbq.edit_message_text(text="Das Produkt {link_name} kostet aktuell {price}".format(
+                    link_name=link(product.url, product.name),
+                    price=bold(price(product.price, signed=False))),
+                    reply_markup=get_entity_keyboard(EntityType.PRODUCT, product.entity_id),
+                    parse_mode="HTML", disable_web_page_preview=True)
+                cbq.answer()
             elif action == "subscribe":
                 try:
                     subscribe_entity(user, product)
                     text = "Du hast das Produkt {link_name} erneut abboniert!".format(
                         link_name=link(product.url, product.name))
-                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                        disable_web_page_preview=True)
-                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text="Produkt erneut abboniert")
+                    cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+                    cbq.answer(text="Produkt erneut abboniert")
                 except AlreadySubscribedException:
                     text = "Produkt bereits abboniert!"
-                    bot.editMessageText(chat_id=user_id, message_id=message_id, text=text, parse_mode="HTML",
-                                        disable_web_page_preview=True)
-                    bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
-    elif action == "newPriceAgent":
-        keyboard = [[InlineKeyboardButton("Wunschliste", callback_data='addWishlist'),
-                     InlineKeyboardButton("Produkt", callback_data='addProduct')]]
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Wofür möchtest du einen Preisagenten einrichten?",
-                            reply_markup=InlineKeyboardMarkup(keyboard))
-    elif action == "myPriceAgents":
-        keyboard = [[InlineKeyboardButton("Wunschlisten", callback_data='showWishlists'),
-                     InlineKeyboardButton("Produkte", callback_data='showProducts')]]
+                    cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+                    cbq.answer(text=text)
+            elif action == "history":
+                print("Action history executed")
+                from geizhals.charts.dataset import Dataset
+                items = get_price_history(product)
+                ds = Dataset(product.name)
+                for p, timestamp, name in items:
+                    ds.add_price(price=p, timestamp=timestamp)
+                chart = ds.get_chart()
+                with open("test.png", "wb") as f:
+                    f.write(chart)
 
-        bot.editMessageText(chat_id=user_id, message_id=message_id,
-                            text="Welche Preisagenten möchtest du einsehen?",
-                            reply_markup=InlineKeyboardMarkup(keyboard))
+                with open("test.png", "rb") as f:
+                    cbq.message.reply_photo(photo=f)
+            else:
+                cbq.answer(text="Die gewählte Funktion ist noch nicht implementiert!")
+
     elif action == "cancel":
         """Reset the user's state"""
-        rm_state(user_id)
+        context.user_data["state"] = STATE_IDLE
         text = "Okay, Ich habe die Aktion abgebrochen!"
-        bot.editMessageText(chat_id=user_id, message_id=message_id, text=text)
-        bot.answerCallbackQuery(callback_query_id=callback_query_id, text=text)
+        cbq.edit_message_text(text=text)
+        cbq.answer(text=text)
 
 
 def unknown(update, context):
