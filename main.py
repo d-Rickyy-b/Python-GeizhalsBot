@@ -108,116 +108,69 @@ def handle_text(update, context):
     """Handles plain text sent to the bot"""
     if context.user_data:
         if context.user_data["state"] == STATE_SEND_P_LINK:
-            add_product(update, context)
+            # add_product(update, context)
+            add_entity(update, context)
         elif context.user_data["state"] == STATE_SEND_WL_LINK:
-            add_wishlist(update, context)
-
-
-def add_wishlist(update, context):
-    text = update.message.text
-    t_user = update.effective_user
-    bot = context.bot
-
-    reply_markup = InlineKeyboardMarkup([[cancel_button]])
-    user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
-    add_user_if_new(user)
-
-    try:
-        url = get_wl_url(text)
-    except InvalidURLException:
-        logger.debug("Invalid url '{}'!".format(text))
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Die URL ist ungültig!",
-                        reply_markup=reply_markup)
-        return
-
-    # Check if website is parsable!
-    try:
-        wishlist = Wishlist.from_url(url)
-    except HTTPError as e:
-        logger.error(e)
-        if e.code == 403:
-            bot.sendMessage(chat_id=t_user.id, text="Wunschliste ist nicht öffentlich! Wunschliste nicht hinzugefügt!")
-        elif e.code == 429:
-            bot.sendMessage(chat_id=t_user.id, text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
-    except ValueError as valueError:
-        # Raised when price could not be parsed
-        logger.error(valueError)
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
-    except Exception as e:
-        logger.error(e)
-        bot.sendMessage(chat_id=t_user.id,
-                        text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
+            # add_wishlist(update, context)
+            add_entity(update, context)
     else:
-        add_wishlist_if_new(wishlist)
-
-        try:
-            logger.debug("Subscribing to wishlist.")
-            subscribe_entity(user, wishlist)
-            bot.sendMessage(t_user.id,
-                            "Preisagent für die Wunschliste {link_name} erstellt! Aktueller Preis: {price}".format(
-                                link_name=link(wishlist.url, wishlist.name),
-                                price=bold(price(wishlist.price, signed=False))),
-                            parse_mode="HTML",
-                            disable_web_page_preview=True)
-            context.user_data["state"] = STATE_IDLE
-        except AlreadySubscribedException as ase:
-            logger.debug("User already subscribed!")
-            bot.sendMessage(t_user.id,
-                            "Du hast bereits einen Preisagenten für diese Wunschliste! Bitte sende mir eine andere URL.",
-                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
+        logger.info("User has no state but sent text!")
 
 
-def add_product(update, context):
+def add_entity(update, context):
     msg = update.message
     text = update.message.text
     t_user = update.effective_user
 
-    logger.info("Adding new product for user '{}'".format(t_user.id))
+    logger.info("Adding new entity for user '{}'".format(t_user.id))
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
     user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
-    add_user_if_new(user)
+    core.add_user_if_new(user)
 
     try:
-        url = get_p_url(text)
-        logger.info("Valid URL for new product is '{}'".format(url))
+        entity_type = core.get_type_by_url(text)
+        url = core.get_e_url(text, entity_type)
+        logger.info("Valid URL for new entity is '{}'".format(url))
     except InvalidURLException:
         logger.warning("Invalid url '{}' sent by user {}!".format(text, t_user))
         msg.reply_text(text="Die URL ist ungültig!", reply_markup=reply_markup)
         return
 
     try:
-        product = Product.from_url(url)
+        if entity_type == EntityType.WISHLIST:
+            entity = Wishlist.from_url(url)
+        elif entity_type == EntityType.PRODUCT:
+            entity = Product.from_url(url)
+        else:
+            raise ValueError("EntityType '{}' not found!".format(entity_type))
     except HTTPError as e:
         logger.error(e)
-        if e.code == 403:
-            msg.reply_text(text="Das Produkt ist nicht zugänglich! Preisagent wurde nicht erstellt!")
-        elif e.code == 429:
+        if e.response.status_code == 403:
+            msg.reply_text(text="Die URL ist nicht öffentlich einsehbar, daher wurde kein neuer Preisagent erstellt!")
+        elif e.response.status_code == 429:
             msg.reply_text(text="Entschuldige, ich bin temporär bei Geizhals blockiert und kann keine Preise auslesen. Bitte probiere es später noch einmal.")
-    except ValueError as valueError:
+    except (ValueError, Exception) as e:
         # Raised when price could not be parsed
-        logger.error(valueError)
-        msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
-    except Exception as e:
         logger.error(e)
-        msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
+        msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Preisagent wurde nicht erstellt!")
     else:
         core.add_entity_if_new(entity)
 
         try:
-            logger.debug("Subscribing to product.")
-            subscribe_entity(user, product)
-            msg.reply_text("Preisagent für das Produkt {link_name} erstellt! Aktueller Preis: {price}".format(
-                                link_name=link(product.url, product.name),
-                                price=bold(price(product.price, signed=False))),
-                           parse_mode="HTML",
+            logger.debug("Subscribing to entity.")
+            core.subscribe_entity(user, entity)
+            entity_data = EntityType.get_type_article_name(entity_type)
+            msg.reply_html("Preisagent für {article} {type} {link_name} erstellt! Aktueller Preis: {price}".format(
+                                article=entity_data.get("article"),
+                                type=entity_data.get("name"),
+                                link_name=link(entity.url, entity.name),
+                                price=bold(price(entity.price, signed=False))),
                            disable_web_page_preview=True)
             context.user_data["state"] = STATE_IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
-            msg.reply_text("Du hast bereits einen Preisagenten für dieses Produkt! Bitte sende mir eine andere URL.",
+            msg.reply_text("Du hast bereits einen Preisagenten für diese URL! Bitte sende mir eine andere URL.",
                            reply_markup=InlineKeyboardMarkup([[cancel_button]]))
 
 
@@ -237,7 +190,7 @@ def check_for_price_update(context):
             new_price = entity.get_current_price()
             new_name = entity.get_current_name()
         except HTTPError as e:
-            if e.code == 403:
+            if e.response.status_code == 403:
                 logger.error("Entity is not public!")
                 entity_type_data = EntityType.get_type_article_name(entity.TYPE)
                 entity_hidden = "{article} {type} {link_name} ist leider nicht mehr einsehbar. " \
