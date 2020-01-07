@@ -124,7 +124,10 @@ class DBwrapper(object):
             return wishlists
 
         def get_all_subscribed_wishlists(self):
-            self.cursor.execute("SELECT w.wishlist_id, name, price, url FROM wishlists w INNER JOIN wishlist_subscribers ws ON ws.wishlist_id=w.wishlist_id GROUP BY w.wishlist_id;")
+            self.cursor.execute("SELECT w.wishlist_id, name, price, url "
+                                "FROM wishlists w "
+                                "INNER JOIN wishlist_subscribers ws ON ws.wishlist_id=w.wishlist_id "
+                                "GROUP BY w.wishlist_id;")
             wishlist_l = self.cursor.fetchall()
             wishlists = []
 
@@ -144,7 +147,10 @@ class DBwrapper(object):
             return products
 
         def get_all_subscribed_products(self):
-            self.cursor.execute("SELECT p.product_id, name, price, url FROM products p INNER JOIN product_subscribers ps ON ps.product_id=p.product_id GROUP BY p.product_id;")
+            self.cursor.execute("SELECT p.product_id, name, price, url "
+                                "FROM products p "
+                                "INNER JOIN product_subscribers ps ON ps.product_id=p.product_id "
+                                "GROUP BY p.product_id;")
             product_l = self.cursor.fetchall()
             products = []
 
@@ -185,11 +191,13 @@ class DBwrapper(object):
             return result > 0
 
         def add_wishlist(self, wishlist_id, name, price, url):
-            self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);", [str(wishlist_id), str(name), str(price), str(url)])
+            self.cursor.execute("INSERT INTO wishlists (wishlist_id, name, price, url) VALUES (?, ?, ?, ?);",
+                                [str(wishlist_id), str(name), str(price), str(url)])
             self.connection.commit()
 
         def add_product(self, product_id, name, price, url):
-            self.cursor.execute("INSERT INTO products (product_id, name, price, url) VALUES (?, ?, ?, ?);", [str(product_id), str(name), str(price), str(url)])
+            self.cursor.execute("INSERT INTO products (product_id, name, price, url) VALUES (?, ?, ?, ?);",
+                                [str(product_id), str(name), str(price), str(url)])
             self.connection.commit()
 
         def rm_wishlist(self, wishlist_id):

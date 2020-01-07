@@ -273,7 +273,8 @@ def entity_price_history(update, _):
 
     if len(items) <= 3 or len(ds.days) <= 3:
         cbq.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup([]))
-        cbq.message.reply_text("Entschuldige, leider habe ich nicht genügend Daten für diesen Preisagenten, um einen Preisverlauf anzeigen zu können! Schau einfach in ein paar Tagen nochmal vorbei!")
+        cbq.message.reply_text("Entschuldige, leider habe ich nicht genügend Daten für diesen Preisagenten, um einen Preisverlauf anzeigen zu können! "
+                               "Schau einfach in ein paar Tagen nochmal vorbei!")
         return
 
     chart = ds.get_chart()
@@ -319,10 +320,11 @@ def show_pa_menu_handler(update, _):
         cbq.edit_message_text(text=MainMenu.text, reply_markup=MainMenu.keyboard)
     elif action == "showwishlists":
         wishlists = core.get_wishlists_for_user(user_id)
+        back_keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]])
 
         if len(wishlists) == 0:
             cbq.edit_message_text(text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!",
-                                  reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
+                                  reply_markup=back_keyboard)
             return
 
         keyboard = get_entities_keyboard("show", wishlists)
@@ -331,8 +333,9 @@ def show_pa_menu_handler(update, _):
         products = core.get_products_for_user(user_id)
 
         if len(products) == 0:
+            back_keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]])
             cbq.edit_message_text(text="Du hast noch keinen Preisagenten für ein Produkt angelegt!",
-                                  reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U000021a9\U0000fe0f Zurück", callback_data="m00_showpriceagents")]]))
+                                  reply_markup=back_keyboard)
             return
 
         keyboard = get_entities_keyboard("show", products)
