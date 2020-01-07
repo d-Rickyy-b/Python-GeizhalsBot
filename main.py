@@ -106,7 +106,7 @@ def show_menu(update, _):
 
 def handle_text(update, context):
     """Handles plain text sent to the bot"""
-    if context.user_data["state"]:
+    if context.user_data:
         if context.user_data["state"] == STATE_SEND_P_LINK:
             add_product(update, context)
         elif context.user_data["state"] == STATE_SEND_WL_LINK:
