@@ -45,6 +45,9 @@ def send_request(url):
                 proxy = statehandler.get_next_proxy()
                 logger.info("Switching proxy to '{}".format(proxy))
             continue
+        elif r.status_code == 403:
+            logger.info("URL is not visible publically!")
+            r.raise_for_status()
         elif r.status_code == 200:
             successful_connection = True
             break
