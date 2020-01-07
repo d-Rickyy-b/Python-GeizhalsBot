@@ -210,7 +210,7 @@ def check_for_price_update(context):
                 core.update_entity_name(entity, new_name)
 
             if old_price == new_price:
-                return
+                continue
 
             entity.price = new_price
             core.update_entity_price(entity, new_price)
