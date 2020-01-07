@@ -367,11 +367,13 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_wishlist(wishlist_id=self.wl.entity_id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
         self.db.add_user(user_id, first_name, last_name, username)
 
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
         self.assertEqual(result, None)
 
         self.db.subscribe_wishlist(self.wl.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
 
         self.assertEqual(len(result), 1)
 
@@ -385,11 +387,13 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_product(product_id=self.p.entity_id, name=self.p.name, url=self.p.url, price=self.p.price)
         self.db.add_user(user_id, first_name, last_name, username)
 
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
         self.assertIsNone(result)
 
         self.db.subscribe_product(self.p.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
 
         self.assertEqual(len(result), 1)
 
@@ -404,11 +408,13 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_user(user_id, first_name, last_name, username)
         self.db.subscribe_wishlist(self.wl.entity_id, user_id)
 
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
         self.assertEqual(len(result), 1)
 
         self.db.unsubscribe_wishlist(user_id, self.wl.entity_id)
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
 
         self.assertIsNone(result)
 
@@ -422,11 +428,13 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_product(product_id=self.p.entity_id, name=self.p.name, url=self.p.url, price=self.p.price)
         self.db.add_user(user_id, first_name, last_name, username)
         self.db.subscribe_product(self.p.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
         self.assertEqual(len(result), 1)
 
         self.db.unsubscribe_product(user_id, self.p.entity_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
 
         self.assertIsNone(result)
 
@@ -555,7 +563,7 @@ class DBWrapperTest(unittest.TestCase):
 
         # Add user
         self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
-        
+
         # Add product1 & product2 & product3
         self.db.add_product(p1.entity_id, p1.name, p1.price, p1.url)
         self.db.add_product(p2.entity_id, p2.name, p2.price, p2.url)
@@ -731,7 +739,6 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_get_lang_id(self):
         """Test to check if receiving the lang_code works"""
-        #user = {"user_id": 123456, "first_name": "John", "last_name": "Doe", "username": "testUsername", "lang_code": "en_US"}
         user = self.user
 
         # Check that user does not already exist

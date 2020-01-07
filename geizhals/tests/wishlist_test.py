@@ -2,16 +2,16 @@
 
 import unittest
 
-from geizhals.exceptions import InvalidWishlistURLException
 from geizhals.entities import Wishlist
+from geizhals.exceptions import InvalidWishlistURLException
 
 
 class WishlistTest(unittest.TestCase):
 
     def setUp(self):
         self.wl = Wishlist(entity_id=676328,
-                           name="NAS", 
-                           url="https://geizhals.de/?cat=WL-676328", 
+                           name="NAS",
+                           url="https://geizhals.de/?cat=WL-676328",
                            price=617.90)
 
     def tearDown(self):
@@ -36,10 +36,10 @@ class WishlistTest(unittest.TestCase):
 
         # Make sure that wrong urls lead to exceptions
         with self.assertRaises(InvalidWishlistURLException):
-            failed_wl = Wishlist.from_url("http://example.com")
+            Wishlist.from_url("http://example.com")
 
     def test_get_wishlist_products(self):
         """Test to check if getting the products of a wishlist works as intended"""
         # Since this is not implemented yet, there should be a exception
         with self.assertRaises(NotImplementedError):
-            products = self.wl.get_wishlist_products()
+            self.wl.get_wishlist_products()
