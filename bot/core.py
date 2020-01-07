@@ -38,6 +38,20 @@ def add_product_if_new(product):
         pass
 
 
+def add_entity_if_new(entity):
+    db = DBwrapper.get_instance()
+    if entity.TYPE == EntityType.WISHLIST:
+        if db.is_wishlist_saved(entity.entity_id):
+            return
+        db.add_wishlist(entity.entity_id, entity.name, entity.price, entity.url)
+    elif entity.TYPE == EntityType.PRODUCT:
+        if db.is_product_saved(entity.entity_id):
+            return
+        db.add_product(entity.entity_id, entity.name, entity.price, entity.url)
+    else:
+        raise ValueError("Unknown EntityType")
+
+
 def is_user_wishlist_subscriber(user, wishlist):
     """Returns if a user is a wishlist subscriber"""
     db = DBwrapper.get_instance()
@@ -163,6 +177,26 @@ def get_wl_url(text):
 def get_p_url(text):
     if re.match(Product.url_pattern, text):
         return text
+    else:
+        raise InvalidURLException
+
+
+def get_e_url(text, entity_type):
+    if entity_type == EntityType.WISHLIST:
+        if re.match(Wishlist.url_pattern, text):
+            return text
+    elif entity_type == EntityType.PRODUCT:
+        if re.match(Product.url_pattern, text):
+            return text
+
+    raise InvalidURLException
+
+
+def get_type_by_url(text):
+    if re.match(Wishlist.url_pattern, text):
+        return EntityType.WISHLIST
+    elif re.match(Product.url_pattern, text):
+        return EntityType.PRODUCT
     else:
         raise InvalidURLException
 
