@@ -6,3 +6,6 @@ CERTPATH = "/etc/certs/example.com/fullchain.cer"
 USE_PROXIES = True
 PROXY_LIST = ""
 ADMIN_IDs = [1234, 4321]
+
+MAX_WISHLISTS = 5
+MAX_PRODUCTS = 5

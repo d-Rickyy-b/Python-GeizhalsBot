@@ -150,12 +150,11 @@ class DBWrapperTest(unittest.TestCase):
         db_wishlists = self.db.get_all_wishlists()
 
         for wl in wishlists:
-            found = False
             for db_wl in db_wishlists:
                 if db_wl.entity_id == wl.get("entity_id"):
-                    found = True
-
-            self.assertTrue(found, msg="Inserted wishlist {} was not found!".format(wl.get("entity_id")))
+                    break
+            else:
+                self.fail(msg="Inserted wishlist {} was not found!".format(wl.get("entity_id")))
 
     def test_get_all_subscribed_wishlists(self):
         """Test to check if retrieving subscribed wishlists works"""
@@ -210,12 +209,11 @@ class DBWrapperTest(unittest.TestCase):
         db_products = self.db.get_all_products()
 
         for db_p in db_products:
-            found = False
             for p in products:
                 if db_p.entity_id == p.get("entity_id"):
-                    found = True
-
-            self.assertTrue(found, msg="Inserted product was not found!")
+                    break
+            else:
+                self.fail(msg="Inserted product was not found!")
 
     def test_get_all_subscribed_products(self):
         """Test to check if retrieving subscribed products works"""
@@ -527,14 +525,12 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(len(wishlists), len(local_wishlists))
 
         for local_wishlist in local_wishlists:
-            found = False
             for wishlist in wishlists:
                 if wishlist.entity_id == local_wishlist.entity_id:
-                    found = True
                     break
-
-            # Make sure that each subscribed wishlist is in the list
-            self.assertTrue(found)
+            else:
+                # Make sure that each subscribed wishlist is in the list
+                self.fail("Subscribed wishlist is not in the list")
 
     def test_get_products_for_user(self):
         """Test to check if getting products for a user works as intended"""
@@ -564,14 +560,12 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(len(products), len(local_products))
 
         for local_product in local_products:
-            found = False
             for product in products:
                 if product.entity_id == local_product.entity_id:
-                    found = True
                     break
-
-            # Make sure that each subscribed product is in the list
-            self.assertTrue(found)
+            else:
+                # Make sure that each subscribed product is in the list
+                self.fail("Subscribed product is not in the list")
 
     def test_is_user_wishlist_subscriber(self):
         """Check if checking for wishlist subscribers works as intended"""
@@ -694,17 +688,14 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(len(all_users_db), len(users), msg="Users in database is not same amount as users in test!")
 
         for db_user in all_users_db:
-            found = False
-
             for user in users:
                 if user.get("user_id") == db_user.get("user_id"):
-                    found = True
                     self.assertEqual(user.get("first_name"), db_user.get("first_name"))
                     self.assertEqual(user.get("username"), db_user.get("username"))
                     self.assertEqual(user.get("lang_code"), db_user.get("lang_code"))
                     break
-
-            self.assertTrue(found, msg="User not found!")
+            else:
+                self.fail("User not found!")
 
     def test_get_all_subscribers(self):
         self.assertEqual([], self.db.get_all_subscribers(), msg="Initial user list not empty!")
