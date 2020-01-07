@@ -1,7 +1,8 @@
-[![Build Status](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot.svg?branch=master)](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot) [![Coverage Status](https://coveralls.io/repos/github/d-Rickyy-b/Python-GeizhalsBot/badge.svg?branch=master)](https://coveralls.io/github/d-Rickyy-b/Python-GeizhalsBot?branch=master)
+[![Build Status](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot.svg?branch=master)](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot) [![Coverage
+ Status](https://coveralls.io/repos/github/d-Rickyy-b/Python-GeizhalsBot/badge.svg?branch=master)](https://coveralls.io/github/d-Rickyy-b/Python-GeizhalsBot?branch=master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c923f31dca164626bedb1b21c663cc94)](https://www.codacy.com/manual/d-Rickyy-b/Python-GeizhalsBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=d-Rickyy-b/Python-GeizhalsBot&amp;utm_campaign=Badge_Grade)
 
 # Python-GeizhalsBot
-A bot to get notified about changes of the price of a Geizhals.de wishlist on Telegram. It uses the [Python-Telegram-Bot](https://github.com/python-telegram-bot/python-telegram-bot) Framework for talking to Telegram servers.
+A bot to get notified about changes of the price of a [geizhals.de](https://geizhals.de) wishlist on Telegram. It uses the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) Framework for talking to Telegram servers.
 To get the price of the site it uses pyquery as html parser, since there is no official API for grabbing prices.
 
 ### Requirements
@@ -23,7 +24,6 @@ If you don't want to use docker but still want a comfortable way to control the 
 
 Create a new file as root in the systemd folder: `/etc/systemd/system/geizhalsbot.service`.
 An example systemd configuration can be found in [this GitHub Gist](https://gist.github.com/d-Rickyy-b/6ef4c95bed57da1056e0c696a36e8559). Make sure to change the user and the paths accordingly.
-
 
 With `systemctl start geizhalsbot` you can start the bot.  
 With `systemctl status geizhalsbot` the current status of the service is shown.  
