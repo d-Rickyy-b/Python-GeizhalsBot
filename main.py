@@ -60,7 +60,6 @@ def start_cmd(update, context):
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
 
-
 def help_cmd(update, context):
     """Bot help command"""
     user_id = update.effective_user.id
@@ -69,7 +68,7 @@ def help_cmd(update, context):
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                # "/remove	-	Entfernt eine Wunschliste\n"
+        # "/remove	-	Entfernt eine Wunschliste\n"
 
     context.bot.sendMessage(user_id, help_text)
 
@@ -176,6 +175,7 @@ def add_entity(update, context):
 
 def check_for_price_update(context):
     """Check if the price of any subscribed wishlist or product was updated"""
+    bot = context.bot
     logger.debug("Checking for updates!")
     bot = context.bot
 
