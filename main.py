@@ -3,19 +3,21 @@
 import datetime
 import logging.handlers
 import os
-from urllib.error import HTTPError
+import re
 
+from requests.exceptions import HTTPError
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
+import bot.core as core
 import config
-from bot.core import *
 from bot.menus import MainMenu, NewPriceAgentMenu, ShowPriceAgentsMenu, ShowWLPriceAgentsMenu, ShowPPriceAgentsMenu
 from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyboard
 from bot.user import User
 from geizhals import GeizhalsStateHandler
+from geizhals.entities import EntityType, Wishlist, Product
 from util.exceptions import AlreadySubscribedException, InvalidURLException
 from util.formatter import bold, link, price
 
@@ -54,7 +56,7 @@ def start_cmd(update, context):
     user = update.effective_user
 
     # If user is here for the first time > Save him to the DB
-    add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
+    core.add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
 
@@ -83,7 +85,7 @@ def broadcast(update, context):
     logger.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
     message_with_prefix = update.message.text
     final_message = message_with_prefix.replace("/broadcast ", "")
-    users = get_all_subscribers()
+    users = core.get_all_subscribers()
     for user in users:
         bot.send_message(chat_id=user, text=final_message)
 
@@ -202,7 +204,7 @@ def add_product(update, context):
         logger.error(e)
         msg.reply_text(text="Name oder Preis konnte nicht ausgelesen werden! Wunschliste nicht erstellt!")
     else:
-        add_product_if_new(product)
+        core.add_entity_if_new(entity)
 
         try:
             logger.debug("Subscribing to product.")
@@ -224,7 +226,7 @@ def check_for_price_update(context):
     logger.debug("Checking for updates!")
     bot = context.bot
 
-    entities = get_all_entities_with_subscribers()
+    entities = core.get_all_entities_with_subscribers()
 
     # Check all entities for price updates
     for entity in entities:
@@ -242,24 +244,24 @@ def check_for_price_update(context):
                                 "Ich entferne diesen Preisagenten!".format(article=entity_type_data.get("article").capitalize(),
                                                                            type=entity_type_data.get("name"), link_name=link(entity.url, entity.name))
 
-                for user_id in get_entity_subscribers(entity):
-                    user = get_user_by_id(user_id)
+                for user_id in core.get_entity_subscribers(entity):
+                    user = core.get_user_by_id(user_id)
                     bot.send_message(user_id, entity_hidden, parse_mode="HTML")
-                    unsubscribe_entity(user, entity)
+                    core.unsubscribe_entity(user, entity)
 
-                rm_entity(entity)
+                core.rm_entity(entity)
         except (ValueError, Exception) as e:
             logger.error("Exception while checking for price updates! {}".format(e))
         else:
             if old_name != new_name:
-                update_entity_name(entity, new_name)
+                core.update_entity_name(entity, new_name)
 
             if old_price == new_price:
                 return
 
             entity.price = new_price
-            update_entity_price(entity, new_price)
-            entity_subscribers = get_entity_subscribers(entity)
+            core.update_entity_price(entity, new_price)
+            entity_subscribers = core.get_entity_subscribers(entity)
 
             for user_id in entity_subscribers:
                 # Notify each subscriber
@@ -268,7 +270,7 @@ def check_for_price_update(context):
                 except Unauthorized as e:
                     if e.message == "Forbidden: user is deactivated":
                         logger.info("Removed user from db, because account was deleted.")
-                        delete_user(user_id)
+                        core.delete_user(user_id)
 
 
 def notify_user(bot, user_id, entity, old_price):
@@ -308,8 +310,8 @@ def entity_price_history(update, _):
         cbq.answer(text=text)
         return
 
-    entity = get_entity(entity_id, entity_type)
-    items = get_price_history(entity)
+    entity = core.get_entity(entity_id, entity_type)
+    items = core.get_price_history(entity)
 
     from geizhals.charts.dataset import Dataset
     ds = Dataset(entity.name)
@@ -363,7 +365,7 @@ def show_pa_menu_handler(update, _):
     if action == "back":
         cbq.edit_message_text(text=MainMenu.text, reply_markup=MainMenu.keyboard)
     elif action == "showwishlists":
-        wishlists = get_wishlists_for_user(user_id)
+        wishlists = core.get_wishlists_for_user(user_id)
 
         if len(wishlists) == 0:
             cbq.edit_message_text(text="Du hast noch keinen Preisagenten für eine Wunschliste angelegt!",
@@ -373,7 +375,7 @@ def show_pa_menu_handler(update, _):
         keyboard = get_entities_keyboard("show", wishlists)
         cbq.edit_message_text(text=ShowWLPriceAgentsMenu.text, reply_markup=keyboard)
     elif action == "showproducts":
-        products = get_products_for_user(user_id)
+        products = core.get_products_for_user(user_id)
 
         if len(products) == 0:
             cbq.edit_message_text(text="Du hast noch keinen Preisagenten für ein Produkt angelegt!",
@@ -396,8 +398,8 @@ def add_pa_menu_handler(update, context):
     if action == "back":
         cbq.edit_message_text(text=MainMenu.text, reply_markup=MainMenu.keyboard)
     elif action == "addwishlist":
-        if get_wishlist_count(user_id) >= config.MAX_WISHLISTS:
-            keyboard = get_entities_keyboard("delete", get_wishlists_for_user(user_id), prefix_text="❌ ", cancel=True)
+        if core.get_wishlist_count(user_id) >= config.MAX_WISHLISTS:
+            keyboard = get_entities_keyboard("delete", core.get_wishlists_for_user(user_id), prefix_text="❌ ", cancel=True)
             cbq.edit_message_text(text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
                                        "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
                                   reply_markup=keyboard)
@@ -408,10 +410,10 @@ def add_pa_menu_handler(update, context):
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
         cbq.answer()
     elif action == "addproduct":
-        if get_product_count(user_id) >= config.MAX_PRODUCTS:
+        if core.get_product_count(user_id) >= config.MAX_PRODUCTS:
             cbq.edit_message_text(text="Du kannst zu maximal 5 Wunschlisten Benachrichtigungen bekommen. "
                                        "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
-                                  reply_markup=get_entities_keyboard("delete", get_products_for_user(user_id),
+                                  reply_markup=get_entities_keyboard("delete", core.get_products_for_user(user_id),
                                                                      prefix_text="❌ ", cancel=True))
 
             return
@@ -432,8 +434,8 @@ def pa_detail_handler(update, context):
     menu, action, entity_id, entity_type_str = cbq.data.split("_")
     entity_type = EntityType(int(entity_type_str))
 
-    entity = get_entity(entity_id, entity_type)
-    user = get_user_by_id(user_id)
+    entity = core.get_entity(entity_id, entity_type)
+    user = core.get_user_by_id(user_id)
 
     if action == "show":
         cbq.edit_message_text(text="{link_name} kostet aktuell {price}".format(
@@ -443,7 +445,7 @@ def pa_detail_handler(update, context):
             parse_mode="HTML", disable_web_page_preview=True)
         cbq.answer()
     elif action == "delete":
-        unsubscribe_entity(user, entity)
+        core.unsubscribe_entity(user, entity)
 
         callback_data = 'm04_subscribe_{id}_{type}'.format(id=entity.entity_id,
                                                            type=entity.TYPE.value)
@@ -458,7 +460,7 @@ def pa_detail_handler(update, context):
     elif action == "subscribe":
         entity_info = EntityType.get_type_article_name(entity.TYPE)
         try:
-            subscribe_entity(user, entity)
+            core.subscribe_entity(user, entity)
 
             text = "Du hast {article} {entity_name} {link_name} erneut abboniert!".format(
                 article=entity_info.get("article"), entity_name=entity_info.get("name"),
