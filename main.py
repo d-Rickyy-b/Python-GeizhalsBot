@@ -56,7 +56,8 @@ def start_cmd(update, context):
     user = update.effective_user
 
     # If user is here for the first time > Save him to the DB
-    core.add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
+    u = User(user_id=user.id, first_name=user.first_name, last_name=user.last_name, username=user.username, lang_code=user.language_code)
+    core.add_user_if_new(u)
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
 
@@ -125,7 +126,7 @@ def add_entity(update, context):
     logger.info("Adding new entity for user '{}'".format(t_user.id))
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
-    user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
+    user = User(user_id=t_user.id, first_name=t_user.first_name, last_name=t_user.last_name, username=t_user.username, lang_code=t_user.language_code)
     core.add_user_if_new(user)
 
     try:

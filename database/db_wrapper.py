@@ -225,10 +225,10 @@ class DBwrapper(object):
             self.connection.commit()
 
         def get_user(self, user_id):
-            self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
+            self.cursor.execute("SELECT user_id, first_name, last_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
             user_data = self.cursor.fetchone()
             if user_data:
-                return User(user_id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
+                return User(user_id=user_data[0], first_name=user_data[1], last_name=user_data[2], username=user_data[3], lang_code=user_data[4])
             return None
 
         def get_userids_for_wishlist(self, wishlist_id):
@@ -382,10 +382,12 @@ class DBwrapper(object):
             else:
                 return "en"
 
-        def add_user(self, user_id, first_name, username, lang_code="de-DE"):
+        def add_user(self, user_id, first_name, last_name, username, lang_code="de-DE"):
             lang_code = lang_code or "de-DE"
+            first_use = int(datetime.utcnow().timestamp())
             try:
-                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
+                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?);", (str(user_id), str(first_name), last_name,
+                                                                                     username, first_use, str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
