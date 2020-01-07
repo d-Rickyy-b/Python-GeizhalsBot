@@ -209,11 +209,13 @@ def check_for_price_update(context):
             if old_name != new_name:
                 core.update_entity_name(entity, new_name)
 
+            # Make sure to update the price no matter if it changed. Helps for generating charts
+            entity.price = new_price
+            core.update_entity_price(entity, new_price)
+
             if old_price == new_price:
                 return
 
-            entity.price = new_price
-            core.update_entity_price(entity, new_price)
             entity_subscribers = core.get_entity_subscribers(entity)
 
             for user_id in entity_subscribers:
