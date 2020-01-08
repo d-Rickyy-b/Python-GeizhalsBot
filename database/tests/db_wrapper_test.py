@@ -17,6 +17,8 @@ class DBWrapperTest(unittest.TestCase):
         # Define sample wishlist and product
         self.wl = Wishlist(123456, "Wishlist", "https://geizhals.de/?cat=WL-123456", 123.45)
         self.p = Product(123456, "Product", "https://geizhals.de/a123456", 123.45)
+        self.user = {"user_id": 415641, "first_name": "Peter", "last_name": "Müller", "username": "jkopsdfjk", "lang_code": "en_US"}
+        self.user2 = {"user_id": 123456, "first_name": "John", "last_name": "Doe", "username": "ölyjsdf", "lang_code": "de"}
 
     def tearDown(self):
         self.db.delete_all_tables()
@@ -30,6 +32,9 @@ class DBWrapperTest(unittest.TestCase):
             pass
 
         DBwrapper.instance = None
+
+    def helper_add_user(self, user):
+        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
 
     def test_create_database(self):
         """Test for checking if the database gets created correctly"""
@@ -75,6 +80,7 @@ class DBWrapperTest(unittest.TestCase):
         """Test to check if the subscribed wishlist count is correct"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
         wl2 = Wishlist("9922113", "TestName", "https://geizhals.de/?cat=WL-123456", 12.12)
 
@@ -82,7 +88,7 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_wishlist(wishlist_id=wl2.entity_id, name=wl2.name, url=wl2.url, price=wl2.price)
 
         # Make sure that count is 0 in the beginning
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
         count = self.db.get_subscribed_wishlist_count(user_id)
         self.assertEqual(count, 0)
 
@@ -105,6 +111,7 @@ class DBWrapperTest(unittest.TestCase):
         """Test to check if the subscribed product count is correct"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
         p2 = Product("9922113", "TestName", "https://geizhals.de/?cat=WL-123456", 12.12)
 
@@ -112,7 +119,7 @@ class DBWrapperTest(unittest.TestCase):
         self.db.add_product(product_id=p2.entity_id, name=p2.name, url=p2.url, price=p2.price)
 
         # Make sure that count is 0 in the beginning
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
         count = self.db.get_subscribed_product_count(user_id)
         self.assertEqual(count, 0)
 
@@ -173,8 +180,8 @@ class DBWrapperTest(unittest.TestCase):
             self.db.add_wishlist(wishlist_id=wl.get("entity_id"), name=wl.get("name"), url=wl.get("url"), price=wl.get("price"))
 
         # Add two users - otherwise we cannot subscribe
-        self.db.add_user(1234, "Test user 1", "Testie")
-        self.db.add_user(1337, "Test user 2", "Tester")
+        self.db.add_user(1234, "Test user 1", "Doe", "Testie")
+        self.db.add_user(1337, "Test user 2", "Doe", "Tester")
 
         # No subscriptions to start with
         self.assertEqual(0, len(self.db.get_all_subscribed_wishlists()), "There are already subscriptions!")
@@ -231,8 +238,8 @@ class DBWrapperTest(unittest.TestCase):
             self.db.add_product(product_id=p.get("entity_id"), name=p.get("name"), url=p.get("url"), price=p.get("price"))
 
         # Add two users - otherwise we cannot subscribe
-        self.db.add_user(1234, "Test user 1", "Testie")
-        self.db.add_user(1337, "Test user 2", "Tester")
+        self.db.add_user(1234, "Test user 1", "Doe", "Testie")
+        self.db.add_user(1337, "Test user 2", "Doe", "Tester")
 
         # No subscriptions to start with
         self.assertEqual(0, len(self.db.get_all_subscribed_products()), "There are already subscriptions!")
@@ -354,16 +361,19 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if subscribing a wishlist works as intended"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
 
         self.db.add_wishlist(wishlist_id=self.wl.entity_id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
 
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
         self.assertEqual(result, None)
 
         self.db.subscribe_wishlist(self.wl.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
 
         self.assertEqual(len(result), 1)
 
@@ -371,16 +381,19 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if subscribing a product works as intended"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
 
         self.db.add_product(product_id=self.p.entity_id, name=self.p.name, url=self.p.url, price=self.p.price)
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
 
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
         self.assertIsNone(result)
 
         self.db.subscribe_product(self.p.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
 
         self.assertEqual(len(result), 1)
 
@@ -388,17 +401,20 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if unsubscribing a wishlist works as intended"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
 
         self.db.add_wishlist(wishlist_id=self.wl.entity_id, name=self.wl.name, url=self.wl.url, price=self.wl.price)
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
         self.db.subscribe_wishlist(self.wl.entity_id, user_id)
 
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
         self.assertEqual(len(result), 1)
 
         self.db.unsubscribe_wishlist(user_id, self.wl.entity_id)
-        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;", [str(user_id), str(self.wl.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT wishlist_id FROM wishlist_subscribers AS ws WHERE ws.user_id=? AND ws.wishlist_id=?;",
+                                        [str(user_id), str(self.wl.entity_id)]).fetchone()
 
         self.assertIsNone(result)
 
@@ -406,34 +422,38 @@ class DBWrapperTest(unittest.TestCase):
         """Test for checking if unsubscribing a product works as intended"""
         user_id = 11223344
         first_name = "John"
+        last_name = "Doe"
         username = "JohnDoe"
 
         self.db.add_product(product_id=self.p.entity_id, name=self.p.name, url=self.p.url, price=self.p.price)
-        self.db.add_user(user_id, first_name, username)
+        self.db.add_user(user_id, first_name, last_name, username)
         self.db.subscribe_product(self.p.entity_id, user_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
         self.assertEqual(len(result), 1)
 
         self.db.unsubscribe_product(user_id, self.p.entity_id)
-        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;", [str(user_id), str(self.p.entity_id)]).fetchone()
+        result = self.db.cursor.execute("SELECT product_id FROM product_subscribers AS ps WHERE ps.user_id=? AND ps.product_id=?;",
+                                        [str(user_id), str(self.p.entity_id)]).fetchone()
 
         self.assertIsNone(result)
 
     def test_get_user(self):
         """Test to check if getting user information works as intended"""
         # Check that None is returned if no user is saved
-        user = {"user_id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"}
+        user = self.user
 
         user_db = self.db.get_user(user.get("user_id"))
         self.assertIsNone(user_db)
 
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
         user_db = self.db.get_user(user.get("user_id"))
-
-        self.assertEqual(user_db.user_id, user.get("user_id"))
-        self.assertEqual(user_db.first_name, user.get("first_name"))
-        self.assertEqual(user_db.username, user.get("username"))
-        self.assertEqual(user_db.lang_code, user.get("lang_code"))
+        print(user_db.last_name)
+        self.assertEqual(user.get("user_id"), user_db.user_id)
+        self.assertEqual(user.get("first_name"), user_db.first_name)
+        self.assertEqual(user.get("last_name"), user_db.last_name)
+        self.assertEqual(user.get("username"), user_db.username)
+        self.assertEqual(user.get("lang_code"), user_db.lang_code)
 
     def test_get_userids_for_wishlist(self):
         """Test to check if getting the (subscriber) userid from a wishlist works as intended"""
@@ -442,11 +462,11 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(0, len(users))
 
         # Add users and wishlist
-        user = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
-        user2 = {"user_id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+        user = self.user
+        user2 = self.user2
 
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
-        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
+        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("last_name"), user2.get("username"), user2.get("lang_code"))
         self.db.add_wishlist(self.wl.entity_id, self.wl.name, self.wl.price, self.wl.url)
 
         # Subscribe user to wishlist
@@ -473,11 +493,11 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(0, len(users))
 
         # Add users and wishlist
-        user = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
-        user2 = {"user_id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+        user = self.user
+        user2 = self.user2
 
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
-        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
+        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("last_name"), user2.get("username"), user2.get("lang_code"))
         self.db.add_product(self.p.entity_id, self.p.name, self.p.price, self.p.url)
 
         # Subscribe user to wishlist
@@ -499,7 +519,7 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_get_wishlists_for_user(self):
         """Test to check if getting wishlists for a user works as intended"""
-        user = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user = self.user
 
         wl1 = Wishlist(123123, "Wishlist", "https://geizhals.de/?cat=WL-123123", 123.45)
         wl2 = Wishlist(987123, "Wishlist2", "https://geizhals.de/?cat=WL-987123", 1.23)
@@ -534,7 +554,7 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_get_products_for_user(self):
         """Test to check if getting products for a user works as intended"""
-        user = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
+        user = self.user
 
         p1 = Product(123123, "Product", "https://geizhals.de/?cat=WL-123123", 123.45)
         p2 = Product(987123, "Product2", "https://geizhals.de/?cat=WL-987123", 1.23)
@@ -542,8 +562,8 @@ class DBWrapperTest(unittest.TestCase):
         local_products = [p1, p2]
 
         # Add user
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
-        
+        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
+
         # Add product1 & product2 & product3
         self.db.add_product(p1.entity_id, p1.name, p1.price, p1.url)
         self.db.add_product(p2.entity_id, p2.name, p2.price, p2.url)
@@ -569,15 +589,15 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_is_user_wishlist_subscriber(self):
         """Check if checking for wishlist subscribers works as intended"""
-        user1 = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
-        user2 = {"user_id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+        user1 = self.user
+        user2 = self.user2
 
         wl1 = Wishlist(123123, "Wishlist", "https://geizhals.de/?cat=WL-123123", 123.45)
         wl2 = Wishlist(987123, "Wishlist2", "https://geizhals.de/?cat=WL-987123", 1.23)
 
         # Add user1, add user2
-        self.db.add_user(user1.get("user_id"), user1.get("first_name"), user1.get("username"), user1.get("lang_code"))
-        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.helper_add_user(user1)
+        self.helper_add_user(user2)
         # Add wishlist1, add wishlist2
         self.db.add_wishlist(wl1.entity_id, wl1.name, wl1.price, wl1.url)
         self.db.add_wishlist(wl2.entity_id, wl2.name, wl2.price, wl2.url)
@@ -602,15 +622,15 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_is_user_product_subscriber(self):
         """Check if checking for product subscribers works as intended"""
-        user1 = {"user_id": 415641, "first_name": "Peter", "username": "jkopsdfjk", "lang_code": "en_US"}
-        user2 = {"user_id": 123456, "first_name": "John", "username": "ölyjsdf", "lang_code": "de"}
+        user1 = self.user
+        user2 = self.user2
 
         p1 = Product(123123, "Product", "https://geizhals.de/?cat=WL-123123", 123.45)
         p2 = Product(987123, "Product2", "https://geizhals.de/?cat=WL-987123", 1.23)
 
         # Add user1, add user2
-        self.db.add_user(user1.get("user_id"), user1.get("first_name"), user1.get("username"), user1.get("lang_code"))
-        self.db.add_user(user2.get("user_id"), user2.get("first_name"), user2.get("username"), user2.get("lang_code"))
+        self.helper_add_user(user1)
+        self.helper_add_user(user2)
         # Add product1, add product2
         self.db.add_product(p1.entity_id, p1.name, p1.price, p1.url)
         self.db.add_product(p2.entity_id, p2.name, p2.price, p2.url)
@@ -671,17 +691,17 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_get_all_users(self):
         """Test to check if retreiving all users from the database works"""
-        users = [{"user_id": 415641, "first_name": "Peter", "username": "name2", "lang_code": "en_US"},
-                 {"user_id": 564864654, "first_name": "asdf", "username": "AnotherUser", "lang_code": "en_US"},
-                 {"user_id": 54564162, "first_name": "NoName", "username": "Metallica", "lang_code": "en_US"},
-                 {"user_id": 5555333, "first_name": "1234", "username": "d_Rickyy_b", "lang_code": "en_US"}]
+        users = [{"user_id": 415641, "first_name": "Peter", "last_name": "Müller", "username": "name2", "lang_code": "en_US"},
+                 {"user_id": 564864654, "first_name": "asdf", "last_name": "jhkasd", "username": "AnotherUser", "lang_code": "en_US"},
+                 {"user_id": 54564162, "first_name": "NoName", "last_name": "123iuj", "username": "Metallica", "lang_code": "en_US"},
+                 {"user_id": 5555333, "first_name": "1234", "last_name": "koldfg", "username": "d_Rickyy_b", "lang_code": "en_US"}]
 
         # Check that database is empty
         all_users_db = self.db.get_all_users()
         self.assertEqual(len(all_users_db), 0, msg="There are already users in the db!")
 
         for user in users:
-            self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+            self.helper_add_user(user)
 
         all_users_db = self.db.get_all_users()
 
@@ -700,8 +720,8 @@ class DBWrapperTest(unittest.TestCase):
     def test_get_all_subscribers(self):
         self.assertEqual([], self.db.get_all_subscribers(), msg="Initial user list not empty!")
 
-        self.db.add_user(12345, "Test", "User")
-        self.db.add_user(54321, "Test2", "User2")
+        self.db.add_user(12345, "Test", "lastName", "User")
+        self.db.add_user(54321, "Test2", "lastName2", "User2")
         self.assertEqual([], self.db.get_all_subscribers(), msg="User list not empty although no subscribers!")
 
         self.db.add_product(1, "Testproduct", 30, "https://example.com")
@@ -719,18 +739,19 @@ class DBWrapperTest(unittest.TestCase):
 
     def test_get_lang_id(self):
         """Test to check if receiving the lang_code works"""
-        user = {"user_id": 123456, "first_name": "John", "username": "testUsername", "lang_code": "en_US"}
+        user = self.user
 
         # Check that user does not already exist
         user_db = self.db.get_user(user.get("user_id"))
         self.assertEqual(user_db, None)
 
         # Add user to database
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        self.helper_add_user(user)
 
         lang_id = self.db.get_lang_id(user.get("user_id"))
         self.assertEqual(lang_id, user.get("lang_code"))
 
+        # Trying a random user_id that is not stored yet
         self.assertEqual(self.db.get_lang_id(19283746), "en")
 
     def test_add_user(self):
@@ -742,7 +763,7 @@ class DBWrapperTest(unittest.TestCase):
         self.assertEqual(user_db, None)
 
         # Add user to database
-        self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("username"), user.get("lang_code"))
+        self.helper_add_user(user)
 
         # Check if user was added
         user_db = self.db.get_user(user.get("user_id"))
@@ -750,7 +771,7 @@ class DBWrapperTest(unittest.TestCase):
 
         # Test default value of lang_code
         user2 = {"user_id": 4321, "first_name": "Peter", "username": "AsDf", "lang_code": "en_US"}
-        self.db.add_user(user_id=user2.get("user_id"), first_name=user2.get("first_name"), username=user2.get("username"))
+        self.db.add_user(user_id=user2.get("user_id"), first_name=user2.get("first_name"), last_name=user2.get("last_name"), username=user2.get("username"))
         user_db2 = self.db.get_user(user2.get("user_id"))
         self.assertEqual("de-DE", user_db2.lang_code)
 

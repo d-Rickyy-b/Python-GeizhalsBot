@@ -36,4 +36,4 @@ class ProductTest(unittest.TestCase):
 
         # Make sure that wrong urls lead to exceptions
         with self.assertRaises(InvalidWishlistURLException):
-            failed_p = Product.from_url("http://example.com")
+            Product.from_url("http://example.com")

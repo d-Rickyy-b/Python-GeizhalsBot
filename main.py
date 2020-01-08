@@ -56,7 +56,8 @@ def start_cmd(update, context):
     user = update.effective_user
 
     # If user is here for the first time > Save him to the DB
-    core.add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
+    u = User(user_id=user.id, first_name=user.first_name, last_name=user.last_name, username=user.username, lang_code=user.language_code)
+    core.add_user_if_new(u)
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
 
@@ -82,15 +83,21 @@ def broadcast(update, context):
         logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
         return
 
-    logger.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
     message_with_prefix = update.message.text
     final_message = message_with_prefix.replace("/broadcast ", "")
     users = core.get_all_subscribers()
+    logger.info("Sending message broadcast to all ({}) users! Requested by admin '{}'".format(len(users), user_id))
     for user in users:
-        bot.send_message(chat_id=user, text=final_message)
+        try:
+            logger.debug("Sending broadcast to user '{}'".format(user))
+            bot.send_message(chat_id=user, text=final_message)
+        except Unauthorized:
+            logger.info("User '{}' blocked the bot!".format(user))
+            core.delete_user(user)
 
     for admin in config.ADMIN_IDs:
-        bot.send_message(chat_id=admin, text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
+        bot.send_message(chat_id=admin,
+                         text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
 
 
 # Inline menus
@@ -125,7 +132,7 @@ def add_entity(update, context):
     logger.info("Adding new entity for user '{}'".format(t_user.id))
 
     reply_markup = InlineKeyboardMarkup([[cancel_button]])
-    user = User(t_user.id, t_user.first_name, t_user.username, t_user.language_code)
+    user = User(user_id=t_user.id, first_name=t_user.first_name, last_name=t_user.last_name, username=t_user.username, lang_code=t_user.language_code)
     core.add_user_if_new(user)
 
     try:
@@ -209,11 +216,13 @@ def check_for_price_update(context):
             if old_name != new_name:
                 core.update_entity_name(entity, new_name)
 
+            # Make sure to update the price no matter if it changed. Helps for generating charts
+            entity.price = new_price
+            core.update_entity_price(entity, new_price)
+
             if old_price == new_price:
                 continue
 
-            entity.price = new_price
-            core.update_entity_price(entity, new_price)
             entity_subscribers = core.get_entity_subscribers(entity)
 
             for user_id in entity_subscribers:
@@ -222,8 +231,10 @@ def check_for_price_update(context):
                     notify_user(bot, user_id, entity, old_price)
                 except Unauthorized as e:
                     if e.message == "Forbidden: user is deactivated":
-                        logger.info("Removed user from db, because account was deleted.")
-                        core.delete_user(user_id)
+                        logger.info("Removing user from db, because account was deleted.")
+                    elif e.message == "Forbidden: bot was blocked by the user":
+                        logger.info("Removing user from db, because they blocked the bot.")
+                    core.delete_user(user_id)
 
 
 def notify_user(bot, user_id, entity, old_price):
