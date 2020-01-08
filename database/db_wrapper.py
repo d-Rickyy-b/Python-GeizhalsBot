@@ -50,6 +50,11 @@ class DBwrapper(object):
 
         def create_tables(self):
             """Creates all the tables of the database, if they don't exist"""
+            version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
+            self.logger.info("Current db version: {}".format(version))
+            if version > 0:
+                return
+
             self.logger.info("Creating tables if they don't exist!")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'users' \
@@ -96,13 +101,16 @@ class DBwrapper(object):
                                        FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
                                        FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
 
+            self.cursor.execute("PRAGMA user_version = 1;")
+            self.connection.commit()
+
         def migrate_db(self):
             """Run migrations, when there needs to be specific database changes, after the software is productive"""
             version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
             self.logger.info("Using geizhalsbot database version {}".format(version))
 
-            if version == 0:
-                # Migration 0
+            if version < 1:
+                # Migration 1
                 # Adding last_name and first_use variables to users table
                 self.logger.info("Running migration 0!")
                 self.cursor.execute("ALTER TABLE users ADD 'last_name' TEXT;")
@@ -110,9 +118,9 @@ class DBwrapper(object):
                 self.cursor.execute("PRAGMA user_version = 1;")
                 self.connection.commit()
                 self.logger.info("Migration 0 successfully executed!")
-            # if version <= 1:
-                # Migration 1
-                # self.logger.info("Running migration 1!")
+            # if version < 2:
+                # Migration 2
+                # self.logger.info("Running migration 2!")
 
         def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
