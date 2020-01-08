@@ -52,9 +52,11 @@ class DBwrapper(object):
             """Creates all the tables of the database, if they don't exist"""
             version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
             self.logger.info("Current db version: {}".format(version))
+            # Version 0 means that the db was never created and hence the tables must be created first
             if version > 0:
                 return
 
+            # If the database already existed we don't execute this method but instead do all the db changes in the migrations
             self.logger.info("Creating tables if they don't exist!")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'users' \
@@ -101,7 +103,8 @@ class DBwrapper(object):
                                        FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
                                        FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
 
-            self.cursor.execute("PRAGMA user_version = 1;")
+            # Since we created all the tables, we can now set the user_version to the latest db version
+            self.cursor.execute("PRAGMA user_version = 2;")
             self.connection.commit()
 
         def migrate_db(self):
@@ -109,16 +112,16 @@ class DBwrapper(object):
             version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
             self.logger.info("Using geizhalsbot database version {}".format(version))
 
-            if version < 1:
+            if version <= 1:
                 # Migration 1
                 # Adding last_name and first_use variables to users table
-                self.logger.info("Running migration 0!")
+                self.logger.info("Running migration 1!")
                 self.cursor.execute("ALTER TABLE users ADD 'last_name' TEXT;")
                 self.cursor.execute("ALTER TABLE users ADD 'first_use' INTEGER NOT NULL DEFAULT 0;")
-                self.cursor.execute("PRAGMA user_version = 1;")
+                self.cursor.execute("PRAGMA user_version = 2;")
                 self.connection.commit()
-                self.logger.info("Migration 0 successfully executed!")
-            # if version < 2:
+                self.logger.info("Migration 1 successfully executed!")
+            # if version <= 2:
                 # Migration 2
                 # self.logger.info("Running migration 2!")
 
