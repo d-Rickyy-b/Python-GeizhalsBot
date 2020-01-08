@@ -83,15 +83,21 @@ def broadcast(update, context):
         logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
         return
 
-    logger.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
     message_with_prefix = update.message.text
     final_message = message_with_prefix.replace("/broadcast ", "")
     users = core.get_all_subscribers()
+    logger.info("Sending message broadcast to all ({}) users! Requested by admin '{}'".format(len(users), user_id))
     for user in users:
-        bot.send_message(chat_id=user, text=final_message)
+        try:
+            logger.debug("Sending broadcast to user '{}'".format(user))
+            bot.send_message(chat_id=user, text=final_message)
+        except Unauthorized:
+            logger.info("User '{}' blocked the bot!".format(user))
+            core.delete_user(user)
 
     for admin in config.ADMIN_IDs:
-        bot.send_message(chat_id=admin, text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
+        bot.send_message(chat_id=admin,
+                         text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
 
 
 # Inline menus
@@ -225,8 +231,10 @@ def check_for_price_update(context):
                     notify_user(bot, user_id, entity, old_price)
                 except Unauthorized as e:
                     if e.message == "Forbidden: user is deactivated":
-                        logger.info("Removed user from db, because account was deleted.")
-                        core.delete_user(user_id)
+                        logger.info("Removing user from db, because account was deleted.")
+                    elif e.message == "Forbidden: bot was blocked by the user":
+                        logger.info("Removing user from db, because they blocked the bot.")
+                    core.delete_user(user_id)
 
 
 def notify_user(bot, user_id, entity, old_price):
