@@ -24,6 +24,7 @@ class DBwrapper(object):
             self.create_database(database_path)
             self.setup_connection(database_path)
             self.create_tables()
+            self.migrate_db()
 
         def delete_all_tables(self):
             self.logger.info("Dropping all tables!")
@@ -49,12 +50,14 @@ class DBwrapper(object):
 
         def create_tables(self):
             """Creates all the tables of the database, if they don't exist"""
-            self.logger.info("Creating tables!")
+            self.logger.info("Creating tables if they don't exist!")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'users' \
                                        ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
                                        'first_name' TEXT, \
+                                       'last_name' TEXT, \
                                        'username' TEXT, \
+                                       'first_use' INTEGER NOT NULL DEFAULT 0, \
                                        'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'products' \
@@ -92,6 +95,24 @@ class DBwrapper(object):
                                        'user_id' INTEGER NOT NULL, \
                                        FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
                                        FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
+
+        def migrate_db(self):
+            """Run migrations, when there needs to be specific database changes, after the software is productive"""
+            version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
+            self.logger.info("Using geizhalsbot database version {}".format(version))
+
+            if version == 0:
+                # Migration 0
+                # Adding last_name and first_use variables to users table
+                self.logger.info("Running migration 0!")
+                self.cursor.execute("ALTER TABLE users ADD 'last_name' TEXT;")
+                self.cursor.execute("ALTER TABLE users ADD 'first_use' INTEGER NOT NULL DEFAULT 0;")
+                self.cursor.execute("PRAGMA user_version = 1;")
+                self.connection.commit()
+                self.logger.info("Migration 0 successfully executed!")
+            # if version <= 1:
+                # Migration 1
+                # self.logger.info("Running migration 1!")
 
         def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
