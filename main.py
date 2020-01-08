@@ -221,7 +221,7 @@ def check_for_price_update(context):
             core.update_entity_price(entity, new_price)
 
             if old_price == new_price:
-                return
+                continue
 
             entity_subscribers = core.get_entity_subscribers(entity)
 
