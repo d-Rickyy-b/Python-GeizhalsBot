@@ -50,6 +50,22 @@ updater = Updater(token=config.BOT_TOKEN, use_context=True)
 dp = updater.dispatcher
 
 
+def admin_method(func):
+    """Decorator for marking methods as admin-only methods, so that strangers can't use them"""
+
+    def admin_check(update, context):
+        user = update.effective_user
+
+        if user.id in config.ADMIN_IDs:
+            return func(update, context)
+
+        update.message.reply_text('You have not the required permissions to do that!')
+        logger.warning("User {} ({}, @{}) tried to use an admin function '{}'!".format(user.id, user.first_name, user.username,
+                                                                                       func.__name__))
+
+    return admin_check
+
+
 # Text commands
 def start_cmd(update, context):
     """Bot start command"""
@@ -59,6 +75,7 @@ def start_cmd(update, context):
     core.add_user_if_new(User(user.id, user.first_name, user.username, user.language_code))
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
     context.user_data["state"] = STATE_IDLE
+
 
 def help_cmd(update, context):
     """Bot help command"""
@@ -73,13 +90,11 @@ def help_cmd(update, context):
     context.bot.sendMessage(user_id, help_text)
 
 
+@admin_method
 def broadcast(update, context):
     """Method to send a broadcast to all of the users of the bot"""
     user_id = update.effective_user.id
     bot = context.bot
-    if user_id not in config.ADMIN_IDs:
-        logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
-        return
 
     logger.info("Sending message broadcast to all users! Requested by admin '{}'".format(user_id))
     message_with_prefix = update.message.text
@@ -90,6 +105,27 @@ def broadcast(update, context):
 
     for admin in config.ADMIN_IDs:
         bot.send_message(chat_id=admin, text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
+
+
+@admin_method
+def get_usage_info(update, context):
+    subs = len(core.get_all_subscribers())
+    products = len(core.get_all_products_with_subscribers())
+    wishlists = len(core.get_all_wishlists_with_subscribers())
+    all_subbed = len(core.get_all_entities_with_subscribers())
+    all_entites = len(core.get_all_entities())
+    price_count = core.get_price_count()
+    total_users = len(core.get_all_users())
+    update.message.reply_text("<b>Current statistics for</b> @{}\n\n"
+                              "Subscriber count: {}\n\n"
+                              "Subscribed products: {}\n"
+                              "Subscribed wishlists: {}\n"
+                              "<b>Subscribed entities total: {}</b>\n\n"
+                              "Number of entities in db: {}\n\n"
+                              "Number of stored prices in db: {}\n\n"
+                              "Total users: {}"
+                              "".format(context.bot.username, subs, products, wishlists, all_subbed, all_entites, price_count, total_users),
+                              parse_mode="HTML")
 
 
 # Inline menus
@@ -475,6 +511,8 @@ def error_callback(_, context):
         logger.error(e.message)  # handle all other telegram related errors
 
 
+dp.add_handler(CommandHandler("stats", callback=get_usage_info))
+dp.add_handler(MessageHandler(Filters.regex("!stats"), callback=get_usage_info))
 # Basic handlers for standard commands
 dp.add_handler(CommandHandler("start", callback=start_cmd))
 dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
