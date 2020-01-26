@@ -317,13 +317,8 @@ def entity_price_history(update, _):
     file_name = "{}.png".format(entity.entity_id)
     logger.info("Generated new chart '{}' for user '{}'".format(file_name, cbq.from_user.id))
 
-    with open(file_name, "wb") as file:
-        file.write(chart)
-
-    with open(file_name, "rb") as file:
-        cbq.message.reply_photo(photo=file)
-
-    os.remove(file_name)
+    file = io.BytesIO(chart)
+    cbq.message.reply_photo(photo=file)
 
     cbq.message.edit_text("Hier ist der Preisverlauf für {}".format(link(entity.url, entity.name)), reply_markup=InlineKeyboardMarkup([]),
                           parse_mode="HTML", disable_web_page_preview=True)
