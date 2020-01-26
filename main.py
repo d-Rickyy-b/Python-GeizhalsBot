@@ -508,6 +508,7 @@ def error_callback(_, context):
 
 dp.add_handler(CommandHandler("stats", callback=get_usage_info))
 dp.add_handler(MessageHandler(Filters.regex("!stats"), callback=get_usage_info))
+
 # Basic handlers for standard commands
 dp.add_handler(CommandHandler("start", callback=start_cmd))
 dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
@@ -536,7 +537,7 @@ dt = datetime.datetime.today()
 seconds = int(dt.timestamp())
 repeat_in_minutes = 30
 repeat_in_seconds = 60 * repeat_in_minutes
-delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
+delta_t = repeat_in_seconds - (seconds % repeat_in_seconds)
 
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()
