@@ -24,6 +24,7 @@ class DBwrapper(object):
             self.create_database(database_path)
             self.setup_connection(database_path)
             self.create_tables()
+            self.migrate_db()
 
         def delete_all_tables(self):
             self.logger.info("Dropping all tables!")
@@ -49,12 +50,19 @@ class DBwrapper(object):
 
         def create_tables(self):
             """Creates all the tables of the database, if they don't exist"""
-            self.logger.info("Creating tables!")
+            version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
+            self.logger.info("Current db version: {}".format(version))
+            if version > 0:
+                return
+
+            self.logger.info("Creating tables if they don't exist!")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'users' \
                                        ('user_id' INTEGER NOT NULL PRIMARY KEY UNIQUE, \
                                        'first_name' TEXT, \
+                                       'last_name' TEXT, \
                                        'username' TEXT, \
+                                       'first_use' INTEGER NOT NULL DEFAULT 0, \
                                        'lang_code' TEXT NOT NULL DEFAULT 'en_US');")
 
             self.cursor.execute("CREATE TABLE IF NOT EXISTS 'products' \
@@ -92,6 +100,27 @@ class DBwrapper(object):
                                        'user_id' INTEGER NOT NULL, \
                                        FOREIGN KEY('wishlist_id') REFERENCES wishlists(wishlist_id) ON DELETE CASCADE ON UPDATE CASCADE, \
                                        FOREIGN KEY('user_id') REFERENCES users(user_id) ON DELETE CASCADE);")
+
+            self.cursor.execute("PRAGMA user_version = 1;")
+            self.connection.commit()
+
+        def migrate_db(self):
+            """Run migrations, when there needs to be specific database changes, after the software is productive"""
+            version = int(self.cursor.execute("PRAGMA user_version").fetchone()[0])
+            self.logger.info("Using geizhalsbot database version {}".format(version))
+
+            if version < 1:
+                # Migration 1
+                # Adding last_name and first_use variables to users table
+                self.logger.info("Running migration 0!")
+                self.cursor.execute("ALTER TABLE users ADD 'last_name' TEXT;")
+                self.cursor.execute("ALTER TABLE users ADD 'first_use' INTEGER NOT NULL DEFAULT 0;")
+                self.cursor.execute("PRAGMA user_version = 1;")
+                self.connection.commit()
+                self.logger.info("Migration 0 successfully executed!")
+            # if version < 2:
+                # Migration 2
+                # self.logger.info("Running migration 2!")
 
         def setup_connection(self, database_path):
             self.connection = sqlite3.connect(database_path, check_same_thread=False)
@@ -225,10 +254,10 @@ class DBwrapper(object):
             self.connection.commit()
 
         def get_user(self, user_id):
-            self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
+            self.cursor.execute("SELECT user_id, first_name, last_name, username, lang_code FROM users WHERE user_id=?;", [str(user_id)])
             user_data = self.cursor.fetchone()
             if user_data:
-                return User(user_id=user_data[0], first_name=user_data[1], username=user_data[2], lang_code=user_data[3])
+                return User(user_id=user_data[0], first_name=user_data[1], last_name=user_data[2], username=user_data[3], lang_code=user_data[4])
             return None
 
         def get_userids_for_wishlist(self, wishlist_id):
@@ -396,10 +425,12 @@ class DBwrapper(object):
             else:
                 return "en"
 
-        def add_user(self, user_id, first_name, username, lang_code="de-DE"):
+        def add_user(self, user_id, first_name, last_name, username, lang_code="de-DE"):
             lang_code = lang_code or "de-DE"
+            first_use = int(datetime.utcnow().timestamp())
             try:
-                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?);", (str(user_id), str(first_name), str(username), str(lang_code)))
+                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?);", (str(user_id), str(first_name), last_name,
+                                                                                     username, first_use, str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
