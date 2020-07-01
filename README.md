@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot.svg?branch=master)](https://travis-ci.org/d-Rickyy-b/Python-GeizhalsBot) [![Coverage
- Status](https://coveralls.io/repos/github/d-Rickyy-b/Python-GeizhalsBot/badge.svg?branch=master)](https://coveralls.io/github/d-Rickyy-b/Python-GeizhalsBot?branch=master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c923f31dca164626bedb1b21c663cc94)](https://www.codacy.com/manual/d-Rickyy-b/Python-GeizhalsBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=d-Rickyy-b/Python-GeizhalsBot&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.com/d-Rickyy-b/Python-GeizhalsBot.svg?branch=master)](https://travis-ci.com/d-Rickyy-b/Python-GeizhalsBot)
+[![Coverage Status](https://coveralls.io/repos/github/d-Rickyy-b/Python-GeizhalsBot/badge.svg?branch=master)](https://coveralls.io/github/d-Rickyy-b/Python-GeizhalsBot?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c923f31dca164626bedb1b21c663cc94)](https://www.codacy.com/manual/d-Rickyy-b/Python-GeizhalsBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=d-Rickyy-b/Python-GeizhalsBot&amp;utm_campaign=Badge_Grade)
 
 # Python-GeizhalsBot
 A bot to get notified about changes of the price of a [geizhals.de](https://geizhals.de) wishlist on Telegram. It uses the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) Framework for talking to Telegram servers.

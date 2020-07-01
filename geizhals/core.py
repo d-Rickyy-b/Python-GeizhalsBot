@@ -82,7 +82,7 @@ def parse_entity_price(html_str, entity_type):
 
 def parse_entity_name(html_str, entity_type):
     if entity_type == EntityType.WISHLIST:
-        selector = "h1.gh_listtitle"
+        selector = "div.wishlist span.wishlist_title"
     elif entity_type == EntityType.PRODUCT:
         selector = "div.variant__header h1[itemprop='name']"
     else:
