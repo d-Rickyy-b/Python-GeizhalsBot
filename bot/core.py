@@ -108,6 +108,16 @@ def get_all_entities_with_subscribers():
     return entities
 
 
+def get_all_wishlists_with_subscribers():
+    db = DBwrapper.get_instance()
+    return db.get_all_subscribed_wishlists()
+
+
+def get_all_products_with_subscribers():
+    db = DBwrapper.get_instance()
+    return db.get_all_subscribed_products()
+
+
 def get_wishlist(wishlist_id):
     """Returns the wishlist object for an product_id"""
     db = DBwrapper.get_instance()
@@ -252,6 +262,14 @@ def get_price_history(entity, weeks=4):
         return db.get_product_price_history(entity.entity_id, weeks)
 
 
+def get_price_count():
+    db = DBwrapper.get_instance()
+    p_c = db.get_product_pricecount()
+    wl_c = db.get_wishlist_pricecount()
+
+    return p_c + wl_c
+
+
 def delete_user(user_id):
     db = DBwrapper.get_instance()
     db.delete_user(user_id)
@@ -260,3 +278,8 @@ def delete_user(user_id):
 def get_all_subscribers():
     db = DBwrapper.get_instance()
     return db.get_all_subscribers()
+
+
+def get_all_users():
+    db = DBwrapper.get_instance()
+    return db.get_all_users()

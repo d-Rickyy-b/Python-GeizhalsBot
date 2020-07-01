@@ -50,6 +50,22 @@ updater = Updater(token=config.BOT_TOKEN, use_context=True)
 dp = updater.dispatcher
 
 
+def admin_method(func):
+    """Decorator for marking methods as admin-only methods, so that strangers can't use them"""
+
+    def admin_check(update, context):
+        user = update.effective_user
+
+        if user.id in config.ADMIN_IDs:
+            return func(update, context)
+
+        update.message.reply_text('You have not the required permissions to do that!')
+        logger.warning("User {} ({}, @{}) tried to use an admin function '{}'!".format(user.id, user.first_name, user.username,
+                                                                                       func.__name__))
+
+    return admin_check
+
+
 # Text commands
 def start_cmd(update, context):
     """Bot start command"""
@@ -70,18 +86,16 @@ def help_cmd(update, context):
                 "/help	-	Zeigt diese Hilfe\n" \
                 "/show	-	Zeigt deine Listen an\n" \
                 "/add	-	Fügt neue Wunschliste hinzu\n" \
-                # "/remove	-	Entfernt eine Wunschliste\n"
+        # "/remove	-	Entfernt eine Wunschliste\n"
 
     context.bot.sendMessage(user_id, help_text)
 
 
+@admin_method
 def broadcast(update, context):
     """Method to send a broadcast to all of the users of the bot"""
     user_id = update.effective_user.id
     bot = context.bot
-    if user_id not in config.ADMIN_IDs:
-        logger.warning("User {} tried to use the broadcast functionality!".format(user_id))
-        return
 
     message_with_prefix = update.message.text
     final_message = message_with_prefix.replace("/broadcast ", "")
@@ -98,6 +112,27 @@ def broadcast(update, context):
     for admin in config.ADMIN_IDs:
         bot.send_message(chat_id=admin,
                          text="Sent message broadcast to all users! Requested by admin '{}' with the text:\n\n{}".format(user_id, final_message))
+
+
+@admin_method
+def get_usage_info(update, context):
+    subs = len(core.get_all_subscribers())
+    products = len(core.get_all_products_with_subscribers())
+    wishlists = len(core.get_all_wishlists_with_subscribers())
+    all_subbed = len(core.get_all_entities_with_subscribers())
+    all_entites = len(core.get_all_entities())
+    price_count = core.get_price_count()
+    total_users = len(core.get_all_users())
+    update.message.reply_text("<b>Current statistics for</b> @{}\n\n"
+                              "Subscriber count: {}\n\n"
+                              "Subscribed products: {}\n"
+                              "Subscribed wishlists: {}\n"
+                              "<b>Subscribed entities total: {}</b>\n\n"
+                              "Number of entities in db: {}\n\n"
+                              "Number of stored prices in db: {}\n\n"
+                              "Total users: {}"
+                              "".format(context.bot.username, subs, products, wishlists, all_subbed, all_entites, price_count, total_users),
+                              parse_mode="HTML")
 
 
 # Inline menus
@@ -183,6 +218,7 @@ def add_entity(update, context):
 
 def check_for_price_update(context):
     """Check if the price of any subscribed wishlist or product was updated"""
+    bot = context.bot
     logger.debug("Checking for updates!")
     bot = context.bot
 
@@ -292,13 +328,8 @@ def entity_price_history(update, _):
     file_name = "{}.png".format(entity.entity_id)
     logger.info("Generated new chart '{}' for user '{}'".format(file_name, cbq.from_user.id))
 
-    with open(file_name, "wb") as file:
-        file.write(chart)
-
-    with open(file_name, "rb") as file:
-        cbq.message.reply_photo(photo=file)
-
-    os.remove(file_name)
+    file = io.BytesIO(chart)
+    cbq.message.reply_photo(photo=file)
 
     cbq.message.edit_text("Hier ist der Preisverlauf für {}".format(link(entity.url, entity.name)), reply_markup=InlineKeyboardMarkup([]),
                           parse_mode="HTML", disable_web_page_preview=True)
@@ -486,6 +517,9 @@ def error_callback(_, context):
         logger.error(e.message)  # handle all other telegram related errors
 
 
+dp.add_handler(CommandHandler("stats", callback=get_usage_info))
+dp.add_handler(MessageHandler(Filters.regex("!stats"), callback=get_usage_info))
+
 # Basic handlers for standard commands
 dp.add_handler(CommandHandler("start", callback=start_cmd))
 dp.add_handler(CommandHandler(["help", "hilfe"], callback=help_cmd))
@@ -514,7 +548,7 @@ dt = datetime.datetime.today()
 seconds = int(dt.timestamp())
 repeat_in_minutes = 30
 repeat_in_seconds = 60 * repeat_in_minutes
-delta_t = repeat_in_seconds - (seconds % (60 * repeat_in_minutes))
+delta_t = repeat_in_seconds - (seconds % repeat_in_seconds)
 
 updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat_in_seconds, first=delta_t)
 updater.job_queue.start()

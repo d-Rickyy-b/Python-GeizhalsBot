@@ -381,6 +381,20 @@ class DBwrapper(object):
             results = self.cursor.fetchall()
             return results
 
+        def get_wishlist_pricecount(self):
+            """Returns the amount of stored prices"""
+            self.cursor.execute("SELECT count(*) FROM wishlist_prices;")
+            result = self.cursor.fetchone()[0]
+
+            return result
+
+        def get_product_pricecount(self):
+            """Returns the amount of stored prices"""
+            self.cursor.execute("SELECT count(*) FROM product_prices;")
+            result = self.cursor.fetchone()[0]
+
+            return result
+
         def get_all_users(self):
             self.cursor.execute("SELECT user_id, first_name, username, lang_code FROM users;")
             result = self.cursor.fetchall()

@@ -84,7 +84,7 @@ def parse_entity_name(html_str, entity_type):
     if entity_type == EntityType.WISHLIST:
         selector = "h1.gh_listtitle"
     elif entity_type == EntityType.PRODUCT:
-        selector = "div#gh_artbox span[itemprop='name']"
+        selector = "div.variant__header h1[itemprop='name']"
     else:
         raise ValueError("The given type {} is unknown!".format(entity_type))
 
@@ -96,6 +96,7 @@ def parse_entity_name(html_str, entity_type):
 
     # If name is still empty, raise error
     if name == "":
+        #TODO maybe we should notify the user / dev
         raise ValueError("Name cannot be parsed!")
 
     return name
