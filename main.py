@@ -4,6 +4,7 @@ import datetime
 import logging.handlers
 import os
 import re
+import io
 
 from requests.exceptions import HTTPError
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton

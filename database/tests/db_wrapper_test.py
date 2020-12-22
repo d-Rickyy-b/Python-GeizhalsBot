@@ -448,7 +448,6 @@ class DBWrapperTest(unittest.TestCase):
 
         self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
         user_db = self.db.get_user(user.get("user_id"))
-        print(user_db.last_name)
         self.assertEqual(user.get("user_id"), user_db.user_id)
         self.assertEqual(user.get("first_name"), user_db.first_name)
         self.assertEqual(user.get("last_name"), user_db.last_name)
