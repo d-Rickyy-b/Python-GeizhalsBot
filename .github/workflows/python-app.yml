@@ -19,7 +19,7 @@ jobs:
     
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -41,13 +41,6 @@ jobs:
     - name: Run unit tests and coverage report
       run: |
         coverage run --omit='*/virtualenv/*,*/site-packages/*' -m unittest discover -s . -v -p "*_test.py"
-    - name: Upload Coveralls report
-      run: |
-        coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        COVERALLS_FLAG_NAME: ${{ matrix.test-name }}
-        COVERALLS_PARALLEL: true
 
   coveralls:
     name: Finish Coveralls
