@@ -42,7 +42,5 @@ jobs:
       run: |
         coverage run --omit='*/virtualenv/*,*/site-packages/*' -m unittest discover -s . -v -p "*_test.py"
     - name: Upload Coveralls report
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
       run: |
         coveralls
