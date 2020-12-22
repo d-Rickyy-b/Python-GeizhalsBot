@@ -4,7 +4,7 @@
 name: build
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, ci-is-shit ]
   pull_request:
     branches: [ master ]
 
