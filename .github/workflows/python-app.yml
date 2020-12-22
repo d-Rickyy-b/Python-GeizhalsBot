@@ -10,7 +10,6 @@ on:
 
 env:
   CI: true
-  COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
