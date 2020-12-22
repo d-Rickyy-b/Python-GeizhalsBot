@@ -40,6 +40,7 @@ logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO, handlers=[logfile_handler])
 logging.getLogger("telegram").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.ERROR)
 
 logger = logging.getLogger("geizhals.main")
 
