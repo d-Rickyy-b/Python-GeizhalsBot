@@ -3,7 +3,7 @@
 
 import re
 
-from database.db_wrapper import Database
+from database import Database
 from geizhals.entities import EntityType, Product, Wishlist
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException

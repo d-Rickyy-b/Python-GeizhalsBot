@@ -2,11 +2,11 @@
 
 import unittest
 
-from database.db_wrapper import Database
+from database import Database
 from geizhals.entities import Product, Wishlist
 
 
-class DBWrapperTest(unittest.TestCase):
+class DatabaseTest(unittest.TestCase):
 
     def setUp(self):
         self.db_name = "test.db"
