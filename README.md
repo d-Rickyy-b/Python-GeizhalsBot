@@ -1,5 +1,4 @@
-[![Build Status](https://github.com/d-Rickyy-b/Python-GeizhalsBot/workflows/build/badge.svg?branch=master)](https://github.
-com/d-Rickyy-b/Python-GeizhalsBot/actions?query=workflow%3Abuild+branch%3Amaster)
+[![Build Status](https://github.com/d-Rickyy-b/Python-GeizhalsBot/workflows/build/badge.svg?branch=master)](https://github.com/d-Rickyy-b/Python-GeizhalsBot/actions?query=workflow%3Abuild+branch%3Amaster)
 [![codecov](https://codecov.io/gh/d-Rickyy-b/Python-GeizhalsBot/branch/master/graph/badge.svg?token=FMP0JX7HKA)](https://codecov.io/gh/d-Rickyy-b/Python-GeizhalsBot)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c923f31dca164626bedb1b21c663cc94)](https://www.codacy.com/manual/d-Rickyy-b/Python-GeizhalsBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=d-Rickyy-b/Python-GeizhalsBot&amp;utm_campaign=Badge_Grade)
 
