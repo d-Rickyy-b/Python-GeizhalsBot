@@ -3,7 +3,7 @@
 
 import re
 
-from database.db_wrapper import DBwrapper
+from database.db_wrapper import Database
 from geizhals.entities import EntityType, Product, Wishlist
 from util.exceptions import AlreadySubscribedException, WishlistNotFoundException, ProductNotFoundException, \
     InvalidURLException
@@ -11,14 +11,14 @@ from util.exceptions import AlreadySubscribedException, WishlistNotFoundExceptio
 
 def add_user_if_new(user):
     """Save a user to the database, if the user is not already stored"""
-    db = DBwrapper.get_instance()
+    db = Database()
     if not db.is_user_saved(user.user_id):
         db.add_user(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name, username=user.username, lang_code=user.lang_code)
 
 
 def add_wishlist_if_new(wishlist):
     """Save a wishlist to the database, if it is not already stored"""
-    db = DBwrapper.get_instance()
+    db = Database()
 
     if not db.is_wishlist_saved(wishlist.entity_id):
         # logger.debug("URL not in database!")
@@ -30,7 +30,7 @@ def add_wishlist_if_new(wishlist):
 
 def add_product_if_new(product):
     """Save a product to the database, if it is not already stored"""
-    db = DBwrapper.get_instance()
+    db = Database()
 
     if not db.is_product_saved(product.entity_id):
         db.add_product(product.entity_id, product.name, product.price, product.url)
@@ -39,7 +39,7 @@ def add_product_if_new(product):
 
 
 def add_entity_if_new(entity):
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         if db.is_wishlist_saved(entity.entity_id):
             return
@@ -54,14 +54,14 @@ def add_entity_if_new(entity):
 
 def is_user_wishlist_subscriber(user, wishlist):
     """Returns if a user is a wishlist subscriber"""
-    db = DBwrapper.get_instance()
+    db = Database()
 
     return db.is_user_wishlist_subscriber(user.user_id, wishlist.entity_id)
 
 
 def subscribe_entity(user, entity):
     """Subscribe to an entity as a user"""
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         if not db.is_user_wishlist_subscriber(user.user_id, entity.entity_id):
             db.subscribe_wishlist(entity.entity_id, user.user_id)
@@ -77,7 +77,7 @@ def subscribe_entity(user, entity):
 
 
 def unsubscribe_entity(user, entity):
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         db.unsubscribe_wishlist(user.user_id, entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -88,7 +88,7 @@ def unsubscribe_entity(user, entity):
 
 def get_all_entities():
     """Returns all the entities in the database"""
-    db = DBwrapper.get_instance()
+    db = Database()
     wishlists = db.get_all_wishlists()
     products = db.get_all_products()
 
@@ -99,7 +99,7 @@ def get_all_entities():
 
 def get_all_entities_with_subscribers():
     """Returns all the entities with subscribers in the database"""
-    db = DBwrapper.get_instance()
+    db = Database()
     wishlists = db.get_all_subscribed_wishlists()
     products = db.get_all_subscribed_products()
 
@@ -109,18 +109,18 @@ def get_all_entities_with_subscribers():
 
 
 def get_all_wishlists_with_subscribers():
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_all_subscribed_wishlists()
 
 
 def get_all_products_with_subscribers():
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_all_subscribed_products()
 
 
 def get_wishlist(wishlist_id):
     """Returns the wishlist object for an product_id"""
-    db = DBwrapper.get_instance()
+    db = Database()
     wishlist = db.get_wishlist_info(wishlist_id)
 
     if wishlist is None:
@@ -131,7 +131,7 @@ def get_wishlist(wishlist_id):
 
 def get_product(product_id):
     """Returns the product object for an product_id"""
-    db = DBwrapper.get_instance()
+    db = Database()
     product = db.get_product_info(product_id)
 
     if product is None:
@@ -151,29 +151,29 @@ def get_entity(entity_id, entity_type):
 
 def get_wishlist_count(user_id):
     """Returns the count of subscribed wishlists for a user"""
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_subscribed_wishlist_count(user_id)
 
 
 def get_product_count(user_id):
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_subscribed_product_count(user_id)
 
 
 def get_wishlists_for_user(user_id):
     """Returns the subscribed wishlists for a certain user"""
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_wishlists_for_user(user_id)
 
 
 def get_products_for_user(user_id):
     """Returns the subscribed wishlists for a certain user"""
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_products_for_user(user_id)
 
 
 def get_user_by_id(user_id):
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_user(user_id)
 
 
@@ -213,7 +213,7 @@ def get_type_by_url(text):
 
 def get_entity_subscribers(entity):
     """Returns the subscribers of an entity"""
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         return db.get_userids_for_wishlist(entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -224,7 +224,7 @@ def get_entity_subscribers(entity):
 
 def update_entity_price(entity, price):
     """Update the price of an entity"""
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         db.update_wishlist_price(entity.entity_id, price)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -235,7 +235,7 @@ def update_entity_price(entity, price):
 
 def update_entity_name(entity, name):
     """Update the name of an entity"""
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         db.update_wishlist_name(entity.entity_id, name)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -245,7 +245,7 @@ def update_entity_name(entity, name):
 
 
 def rm_entity(entity):
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         db.rm_wishlist(entity.entity_id)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -255,7 +255,7 @@ def rm_entity(entity):
 
 
 def get_price_history(entity, weeks=4):
-    db = DBwrapper.get_instance()
+    db = Database()
     if entity.TYPE == EntityType.WISHLIST:
         return db.get_wishlist_price_history(entity.entity_id, weeks)
     elif entity.TYPE == EntityType.PRODUCT:
@@ -263,7 +263,7 @@ def get_price_history(entity, weeks=4):
 
 
 def get_price_count():
-    db = DBwrapper.get_instance()
+    db = Database()
     p_c = db.get_product_pricecount()
     wl_c = db.get_wishlist_pricecount()
 
@@ -271,15 +271,15 @@ def get_price_count():
 
 
 def delete_user(user_id):
-    db = DBwrapper.get_instance()
+    db = Database()
     db.delete_user(user_id)
 
 
 def get_all_subscribers():
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_all_subscribers()
 
 
 def get_all_users():
-    db = DBwrapper.get_instance()
+    db = Database()
     return db.get_all_users()

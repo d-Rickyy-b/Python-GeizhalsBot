@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
 
-from database.db_wrapper import DBwrapper
+from database.db_wrapper import Database
 from geizhals.entities import Product, Wishlist
 
 
@@ -12,7 +11,7 @@ class DBWrapperTest(unittest.TestCase):
     def setUp(self):
         self.db_name = "test.db"
         self.db_name_test_create = "test_create.db"
-        self.db = DBwrapper.get_instance(self.db_name)
+        self.db = Database(self.db_name)
 
         # Define sample wishlist and product
         self.wl = Wishlist(123456, "Wishlist", "https://geizhals.de/?cat=WL-123456", 123.45)
@@ -23,15 +22,20 @@ class DBWrapperTest(unittest.TestCase):
     def tearDown(self):
         self.db.delete_all_tables()
         self.db.close_conn()
-        try:
-            test_db = os.path.join(self.db.dir_path, self.db_name)
-            test_create_db = os.path.join(self.db.dir_path, self.db_name_test_create)
-            os.remove(test_db)
-            os.remove(test_create_db)
-        except OSError as e:
-            pass
 
-        DBwrapper.instance = None
+        try:
+            test_db = self.db.dir_path / self.db_name
+            test_db.unlink()
+        except OSError as e:
+            print(e)
+
+        try:
+            test_create_db = self.db.dir_path / self.db_name_test_create
+            test_create_db.unlink()
+        except Exception as e:
+            print(e)
+
+        Database._instance = None
 
     def helper_add_user(self, user):
         self.db.add_user(user.get("user_id"), user.get("first_name"), user.get("last_name"), user.get("username"), user.get("lang_code"))
@@ -39,25 +43,23 @@ class DBWrapperTest(unittest.TestCase):
     def test_create_database(self):
         """Test for checking if the database gets created correctly"""
         # Use another path, since we want to check that method independendly from the initialization
-        path = self.db.dir_path
-        db_path = os.path.join(path, self.db_name_test_create)
+        db_path = self.db.dir_path / self.db_name_test_create
 
         # Check if db file doesn't already exist
-        self.assertFalse(os.path.exists(db_path))
+        self.assertFalse(db_path.exists())
 
         # Create database file
         self.db.create_database(db_path)
 
         # Check if the db file was created in the directory
-        self.assertTrue(os.path.exists(db_path))
+        self.assertTrue(db_path.exists())
 
     def test_create_tables(self):
         """Test for checking if the database tables are created correctly"""
         table_names = ["users", "products", "wishlists", "product_prices", "wishlist_prices", "product_subscribers", "wishlist_subscribers"]
 
         # Use another path, since we want to check that method independendly from the initialization
-        path = self.db.dir_path
-        db_path = os.path.join(path, self.db_name_test_create)
+        db_path = self.db.dir_path / self.db_name_test_create
 
         # Create database file
         self.db.create_database(db_path)
