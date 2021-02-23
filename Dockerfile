@@ -4,11 +4,11 @@ LABEL maintainer="d-Rickyy-b <geizhalsbot@rico-j.de>"
 LABEL site="https://github.com/d-Rickyy-b/Python-GeizhalsBot"
 
 # Create bot & log directories
-RUN mkdir -p /usr/src/bot/logs
-WORKDIR /usr/src/bot
+RUN mkdir -p /geizhalsbot/logs
+WORKDIR /geizhalsbot
 
 # Copy the source code to the container
-COPY . /usr/src/bot
+COPY . /geizhalsbot
 
 # Install dependencies needed for installing the python requirements
 # In particular 'lxml' needs to be compiled first
