@@ -4,9 +4,9 @@
 name: build
 on:
   push:
-    branches: [ master, dev, ci-is-shit ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, dev ]
 
 env:
   CI: true

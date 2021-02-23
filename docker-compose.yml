@@ -4,6 +4,6 @@ services:
     container_name: ghbot
     restart: always
     volumes:
-      - "/path/to/logs/:/usr/src/bot/logs"
-      - "/path/to/config.py:/usr/src/bot/config.py"
+      - /path/to/logs/:/geizhalsbot/logs
+      - /path/to/config.py:/geizhalsbot/config.py
     build: .
