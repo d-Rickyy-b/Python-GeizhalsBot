@@ -1,4 +1,4 @@
-FROM python:3.5-alpine
+FROM python:3-slim
 
 LABEL maintainer="d-Rickyy-b <geizhalsbot@rico-j.de>"
 LABEL site="https://github.com/d-Rickyy-b/Python-GeizhalsBot"
