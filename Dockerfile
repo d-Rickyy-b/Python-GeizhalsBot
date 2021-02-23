@@ -1,6 +1,6 @@
 FROM python:3.5-alpine
 
-LABEL maintainer="d-Rickyy-b <bots@rickyy.de>"
+LABEL maintainer="d-Rickyy-b <geizhalsbot@rico-j.de>"
 LABEL site="https://github.com/d-Rickyy-b/Python-GeizhalsBot"
 
 # Create bot & log directories
