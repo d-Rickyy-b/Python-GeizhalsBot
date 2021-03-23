@@ -7,4 +7,4 @@ services:
     volumes:
       - /path/to/logs/:/geizhalsbot/logs
       - /path/to/config.py:/geizhalsbot/config.py
-    build: .
+    ports:
