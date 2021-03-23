@@ -8,3 +8,5 @@ services:
       - /path/to/logs/:/geizhalsbot/logs
       - /path/to/config.py:/geizhalsbot/config.py
     ports:
+      # Ports for the webhook server
+      - 127.0.0.1:8080:80
