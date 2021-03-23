@@ -96,7 +96,7 @@ def parse_entity_name(html_str, entity_type):
 
     # If name is still empty, raise error
     if name == "":
-        #TODO maybe we should notify the user / dev
+        # TODO maybe we should notify the user / dev
         raise ValueError("Name cannot be parsed!")
 
     return name

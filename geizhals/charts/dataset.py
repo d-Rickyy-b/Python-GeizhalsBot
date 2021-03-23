@@ -61,7 +61,7 @@ class Dataset(object):
                         options=dict(
                             legend=dict(display=False),
                             title=dict(display=True, text=self.product_name),
-                            scales=dict(yAxes=[dict(ticks=dict(suggestedMin=best_price-2*diff, suggestedMax=worst_price+diff/2))],
+                            scales=dict(yAxes=[dict(ticks=dict(suggestedMin=best_price - 2 * diff, suggestedMax=worst_price + diff / 2))],
                                         xAxes=[dict(type="time")])
                         )
                         )
