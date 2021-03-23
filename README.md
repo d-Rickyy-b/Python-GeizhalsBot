@@ -7,11 +7,11 @@ A bot to get notified about changes of the price of a [geizhals.de](https://geiz
 To get the price of the site it uses pyquery as html parser, since there is no official API for grabbing prices.
 
 ## Requirements
-The GeizhalsBot requires **Python > 3.4** to run. Python 3.4 has reached end-of-life. Make sure to use Python 3.5 or later, otherwise you will run into issues.
+This project requires **Python >= 3.6** to run.
 
 ## Setup with Docker
-The easiest way to get the bot up and running is via docker. 
-Setup a directory with a `config.py` file (you can find an example of it [here](https://github.com/d-Rickyy-b/Python-GeizhalsBot/blob/master/config.sample.py)). If you want to make your logs accessible from the outside, add another volume as follows.
+The easiest way to get the bot up and running is via Docker. 
+Set up a directory with a `config.py` file (you can find an example of it [here](https://github.com/d-Rickyy-b/Python-GeizhalsBot/blob/master/config.sample.py)). If you want to make your logs accessible from the outside, add another volume as follows.
 
 Just run the following command to run the bot:
 
