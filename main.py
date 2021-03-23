@@ -2,7 +2,6 @@
 
 import datetime
 import logging.handlers
-import os
 import re
 import io
 
@@ -21,6 +20,7 @@ from geizhals import GeizhalsStateHandler
 from geizhals.entities import EntityType, Wishlist, Product
 from util.exceptions import AlreadySubscribedException, InvalidURLException
 from util.formatter import bold, link, price
+import pathlib
 
 __author__ = 'Rico'
 
@@ -29,12 +29,12 @@ STATE_SEND_WL_LINK = 1
 STATE_SEND_P_LINK = 2
 STATE_IDLE = 3
 
-project_path = os.path.dirname(os.path.abspath(__file__))
-logdir_path = os.path.join(project_path, "logs")
-logfile_path = os.path.join(logdir_path, "bot.log")
+project_path = pathlib.Path(__file__).parent.absolute()
+logdir_path = project_path / "logs"
+logfile_path = logdir_path / "bot.log"
 
-if not os.path.exists(logdir_path):
-    os.makedirs(logdir_path)
+if not logdir_path.exists():
+    logdir_path.mkdir()
 
 logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -563,7 +563,7 @@ else:
     updater.start_polling()
 
 if config.USE_PROXIES:
-    proxy_path = os.path.join(project_path, config.PROXY_LIST)
+    proxy_path = project_path / config.PROXY_LIST
     with open(proxy_path, "r", encoding="utf-8") as f:
         proxies = f.read().split("\n")
         # Removing comments from the proxy list starting with a hash symbol and empty lines
