@@ -150,15 +150,16 @@ def show_menu(update, _):
 
 def handle_text(update, context):
     """Handles plain text sent to the bot"""
-    if context.user_data:
-        if context.user_data["state"] == STATE_SEND_P_LINK:
-            # add_product(update, context)
-            add_entity(update, context)
-        elif context.user_data["state"] == STATE_SEND_WL_LINK:
-            # add_wishlist(update, context)
-            add_entity(update, context)
-    else:
+    if not context.user_data:
         logger.info("User has no state but sent text!")
+        return
+
+    if context.user_data["state"] == STATE_SEND_P_LINK:
+        # add_product(update, context)
+        add_entity(update, context)
+    elif context.user_data["state"] == STATE_SEND_WL_LINK:
+        # add_wishlist(update, context)
+        add_entity(update, context)
 
 
 def add_entity(update, context):
