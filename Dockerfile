@@ -13,4 +13,4 @@ COPY . /geizhalsbot
 RUN pip3 install --no-cache -r /geizhalsbot/requirements.txt
 
 # Start the main file when the container is started
-ENTRYPOINT ["python3", "main.py"]
+ENTRYPOINT ["python3", "/geizhalsbot/main.py"]
