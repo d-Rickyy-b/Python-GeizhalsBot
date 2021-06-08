@@ -10,6 +10,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.parsemode import ParseMode
 
 import bot.core as core
 import config
@@ -134,7 +135,7 @@ def get_usage_info(update, context):
                               "Number of stored prices in db: {}\n\n"
                               "Total users: {}"
                               "".format(context.bot.username, subs, products, wishlists, all_subbed, all_entites, price_count, total_users),
-                              parse_mode="HTML")
+                              parse_mode=ParseMode.HTML)
 
 
 # Inline menus
@@ -245,7 +246,7 @@ def check_for_price_update(context):
 
                 for user_id in core.get_entity_subscribers(entity):
                     user = core.get_user_by_id(user_id)
-                    bot.send_message(user_id, entity_hidden, parse_mode="HTML")
+                    bot.send_message(user_id, entity_hidden, parse_mode=ParseMode.HTML)
                     core.unsubscribe_entity(user, entity)
 
                 core.rm_entity(entity)
@@ -295,7 +296,7 @@ def notify_user(bot, user_id, entity, old_price):
                                                emoji=emoji,
                                                diff=bold(price(diff)),
                                                change=change)
-    bot.sendMessage(user_id, message, parse_mode="HTML", disable_web_page_preview=True)
+    bot.sendMessage(user_id, message, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
 
 def entity_price_history(update, _):
@@ -309,7 +310,7 @@ def entity_price_history(update, _):
     else:
         logger.error("Error before unpacking. There is no '_' in the callback query data!")
         text = "An error occurred! This error was logged."
-        cbq.message.reply_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+        cbq.message.reply_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer(text=text)
         return
 
@@ -335,7 +336,7 @@ def entity_price_history(update, _):
     cbq.message.reply_photo(photo=file)
 
     cbq.message.edit_text("Hier ist der Preisverlauf für {}".format(link(entity.url, entity.name)), reply_markup=InlineKeyboardMarkup([]),
-                          parse_mode="HTML", disable_web_page_preview=True)
+                          parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     cbq.answer()
 
 
@@ -443,7 +444,7 @@ def pa_detail_handler(update, context):
             link_name=link(entity.url, entity.name),
             price=bold(price(entity.price, signed=False))),
             reply_markup=get_entity_keyboard(entity.TYPE, entity.entity_id),
-            parse_mode="HTML", disable_web_page_preview=True)
+            parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer()
     elif action == "delete":
         core.unsubscribe_entity(user, entity)
@@ -456,7 +457,7 @@ def pa_detail_handler(update, context):
 
         cbq.edit_message_text(text=text,
                               reply_markup=reply_markup,
-                              parse_mode="HTML", disable_web_page_preview=True)
+                              parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer(text="Preisagent für wurde gelöscht!")
     elif action == "subscribe":
         entity_info = EntityType.get_type_article_name(entity.TYPE)
@@ -466,11 +467,11 @@ def pa_detail_handler(update, context):
             text = "Du hast {article} {entity_name} {link_name} erneut abboniert!".format(
                 article=entity_info.get("article"), entity_name=entity_info.get("name"),
                 link_name=link(entity.url, entity.name))
-            cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+            cbq.edit_message_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
             cbq.answer(text="{} erneut abboniert".format(entity_info.get("name")))
         except AlreadySubscribedException:
             text = "{} bereits abboniert!".format(entity_info.get("name"))
-            cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+            cbq.edit_message_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
             cbq.answer(text=text)
     elif action == "history":
         entity_price_history(update, context)
