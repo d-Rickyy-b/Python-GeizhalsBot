@@ -19,6 +19,7 @@ from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyb
 from bot.user import User
 from geizhals import GeizhalsStateHandler
 from geizhals.entities import EntityType, Wishlist, Product
+from state import State
 from util.exceptions import AlreadySubscribedException, InvalidURLException
 from util.formatter import bold, link, price
 import pathlib
@@ -78,7 +79,7 @@ def start_cmd(update, context):
     u = User(user_id=user.id, first_name=user.first_name, last_name=user.last_name, username=user.username, lang_code=user.language_code)
     core.add_user_if_new(u)
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
-    context.user_data["state"] = STATE_IDLE
+    context.user_data["state"] = State.IDLE
 
 
 def help_cmd(update, context):
@@ -155,11 +156,8 @@ def handle_text(update, context):
         logger.info("User has no state but sent text!")
         return
 
-    if context.user_data["state"] == STATE_SEND_P_LINK:
-        # add_product(update, context)
-        add_entity(update, context)
-    elif context.user_data["state"] == STATE_SEND_WL_LINK:
-        # add_wishlist(update, context)
+    state = context.user_data.get("state")
+    if state == State.SEND_LINK:
         add_entity(update, context)
 
 
@@ -208,12 +206,12 @@ def add_entity(update, context):
             core.subscribe_entity(user, entity)
             entity_data = EntityType.get_type_article_name(entity_type)
             msg.reply_html("Preisagent für {article} {type} {link_name} erstellt! Aktueller Preis: {price}".format(
-                                article=entity_data.get("article"),
-                                type=entity_data.get("name"),
-                                link_name=link(entity.url, entity.name),
-                                price=bold(price(entity.price, signed=False))),
-                           disable_web_page_preview=True)
-            context.user_data["state"] = STATE_IDLE
+                article=entity_data.get("article"),
+                type=entity_data.get("name"),
+                link_name=link(entity.url, entity.name),
+                price=bold(price(entity.price, signed=False))),
+                disable_web_page_preview=True)
+            context.user_data["state"] = State.IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             msg.reply_text("Du hast bereits einen Preisagenten für diese URL! Bitte sende mir eine andere URL.",
@@ -406,7 +404,7 @@ def add_pa_menu_handler(update, context):
                                        "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
                                   reply_markup=keyboard)
             return
-        context.user_data["state"] = STATE_SEND_WL_LINK
+        context.user_data["state"] = State.SEND_LINK
 
         cbq.edit_message_text(text="Bitte sende mir eine URL einer Wunschliste!",
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
@@ -419,7 +417,7 @@ def add_pa_menu_handler(update, context):
                                                                      prefix_text="❌ ", cancel=True))
 
             return
-        context.user_data["state"] = STATE_SEND_P_LINK
+        context.user_data["state"] = State.SEND_LINK
 
         cbq.edit_message_text(text="Bitte sende mir eine URL eines Produkts!",
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
