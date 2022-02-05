@@ -3,7 +3,10 @@ services:
   geizhalsbot:
     container_name: ghbot
     restart: always
+    image: 0rickyy0/geizhalsbot
     volumes:
-      - "/path/to/logs/:/usr/src/bot/logs"
-      - "/path/to/config.py:/usr/src/bot/config.py"
-    build: .
+      - /path/to/logs/:/geizhalsbot/logs
+      - /path/to/config.py:/geizhalsbot/config.py
+    ports:
+      # Ports for the webhook server
+      - 127.0.0.1:8080:80

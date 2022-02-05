@@ -2,7 +2,6 @@
 
 import datetime
 import logging.handlers
-import os
 import re
 import io
 
@@ -11,6 +10,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.parsemode import ParseMode
 
 import bot.core as core
 import config
@@ -19,8 +19,10 @@ from bot.menus.util import cancel_button, get_entities_keyboard, get_entity_keyb
 from bot.user import User
 from geizhals import GeizhalsStateHandler
 from geizhals.entities import EntityType, Wishlist, Product
+from state import State
 from util.exceptions import AlreadySubscribedException, InvalidURLException
 from util.formatter import bold, link, price
+import pathlib
 
 __author__ = 'Rico'
 
@@ -29,17 +31,18 @@ STATE_SEND_WL_LINK = 1
 STATE_SEND_P_LINK = 2
 STATE_IDLE = 3
 
-project_path = os.path.dirname(os.path.abspath(__file__))
-logdir_path = os.path.join(project_path, "logs")
-logfile_path = os.path.join(logdir_path, "bot.log")
+project_path = pathlib.Path(__file__).parent.absolute()
+logdir_path = project_path / "logs"
+logfile_path = logdir_path / "bot.log"
 
-if not os.path.exists(logdir_path):
-    os.makedirs(logdir_path)
+if not logdir_path.exists():
+    logdir_path.mkdir()
 
 logfile_handler = logging.handlers.WatchedFileHandler(logfile_path, 'a', 'utf-8')
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO, handlers=[logfile_handler])
 logging.getLogger("telegram").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.ERROR)
 
 logger = logging.getLogger("geizhals.main")
 
@@ -76,7 +79,7 @@ def start_cmd(update, context):
     u = User(user_id=user.id, first_name=user.first_name, last_name=user.last_name, username=user.username, lang_code=user.language_code)
     core.add_user_if_new(u)
     context.bot.sendMessage(user.id, MainMenu.text, reply_markup=MainMenu.keyboard)
-    context.user_data["state"] = STATE_IDLE
+    context.user_data["state"] = State.IDLE
 
 
 def help_cmd(update, context):
@@ -133,7 +136,7 @@ def get_usage_info(update, context):
                               "Number of stored prices in db: {}\n\n"
                               "Total users: {}"
                               "".format(context.bot.username, subs, products, wishlists, all_subbed, all_entites, price_count, total_users),
-                              parse_mode="HTML")
+                              parse_mode=ParseMode.HTML)
 
 
 # Inline menus
@@ -149,15 +152,13 @@ def show_menu(update, _):
 
 def handle_text(update, context):
     """Handles plain text sent to the bot"""
-    if context.user_data:
-        if context.user_data["state"] == STATE_SEND_P_LINK:
-            # add_product(update, context)
-            add_entity(update, context)
-        elif context.user_data["state"] == STATE_SEND_WL_LINK:
-            # add_wishlist(update, context)
-            add_entity(update, context)
-    else:
+    if not context.user_data:
         logger.info("User has no state but sent text!")
+        return
+
+    state = context.user_data.get("state")
+    if state == State.SEND_LINK:
+        add_entity(update, context)
 
 
 def add_entity(update, context):
@@ -205,12 +206,12 @@ def add_entity(update, context):
             core.subscribe_entity(user, entity)
             entity_data = EntityType.get_type_article_name(entity_type)
             msg.reply_html("Preisagent für {article} {type} {link_name} erstellt! Aktueller Preis: {price}".format(
-                                article=entity_data.get("article"),
-                                type=entity_data.get("name"),
-                                link_name=link(entity.url, entity.name),
-                                price=bold(price(entity.price, signed=False))),
-                           disable_web_page_preview=True)
-            context.user_data["state"] = STATE_IDLE
+                article=entity_data.get("article"),
+                type=entity_data.get("name"),
+                link_name=link(entity.url, entity.name),
+                price=bold(price(entity.price, signed=False))),
+                disable_web_page_preview=True)
+            context.user_data["state"] = State.IDLE
         except AlreadySubscribedException:
             logger.debug("User already subscribed!")
             msg.reply_text("Du hast bereits einen Preisagenten für diese URL! Bitte sende mir eine andere URL.",
@@ -243,7 +244,7 @@ def check_for_price_update(context):
 
                 for user_id in core.get_entity_subscribers(entity):
                     user = core.get_user_by_id(user_id)
-                    bot.send_message(user_id, entity_hidden, parse_mode="HTML")
+                    bot.send_message(user_id, entity_hidden, parse_mode=ParseMode.HTML)
                     core.unsubscribe_entity(user, entity)
 
                 core.rm_entity(entity)
@@ -293,7 +294,7 @@ def notify_user(bot, user_id, entity, old_price):
                                                emoji=emoji,
                                                diff=bold(price(diff)),
                                                change=change)
-    bot.sendMessage(user_id, message, parse_mode="HTML", disable_web_page_preview=True)
+    bot.sendMessage(user_id, message, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
 
 def entity_price_history(update, _):
@@ -307,7 +308,7 @@ def entity_price_history(update, _):
     else:
         logger.error("Error before unpacking. There is no '_' in the callback query data!")
         text = "An error occurred! This error was logged."
-        cbq.message.reply_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+        cbq.message.reply_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer(text=text)
         return
 
@@ -333,7 +334,7 @@ def entity_price_history(update, _):
     cbq.message.reply_photo(photo=file)
 
     cbq.message.edit_text("Hier ist der Preisverlauf für {}".format(link(entity.url, entity.name)), reply_markup=InlineKeyboardMarkup([]),
-                          parse_mode="HTML", disable_web_page_preview=True)
+                          parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     cbq.answer()
 
 
@@ -403,7 +404,7 @@ def add_pa_menu_handler(update, context):
                                        "Entferne doch eine Wunschliste, die du nicht mehr benötigst.",
                                   reply_markup=keyboard)
             return
-        context.user_data["state"] = STATE_SEND_WL_LINK
+        context.user_data["state"] = State.SEND_LINK
 
         cbq.edit_message_text(text="Bitte sende mir eine URL einer Wunschliste!",
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
@@ -416,7 +417,7 @@ def add_pa_menu_handler(update, context):
                                                                      prefix_text="❌ ", cancel=True))
 
             return
-        context.user_data["state"] = STATE_SEND_P_LINK
+        context.user_data["state"] = State.SEND_LINK
 
         cbq.edit_message_text(text="Bitte sende mir eine URL eines Produkts!",
                               reply_markup=InlineKeyboardMarkup([[cancel_button]]))
@@ -441,7 +442,7 @@ def pa_detail_handler(update, context):
             link_name=link(entity.url, entity.name),
             price=bold(price(entity.price, signed=False))),
             reply_markup=get_entity_keyboard(entity.TYPE, entity.entity_id),
-            parse_mode="HTML", disable_web_page_preview=True)
+            parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer()
     elif action == "delete":
         core.unsubscribe_entity(user, entity)
@@ -454,7 +455,7 @@ def pa_detail_handler(update, context):
 
         cbq.edit_message_text(text=text,
                               reply_markup=reply_markup,
-                              parse_mode="HTML", disable_web_page_preview=True)
+                              parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         cbq.answer(text="Preisagent für wurde gelöscht!")
     elif action == "subscribe":
         entity_info = EntityType.get_type_article_name(entity.TYPE)
@@ -464,11 +465,11 @@ def pa_detail_handler(update, context):
             text = "Du hast {article} {entity_name} {link_name} erneut abboniert!".format(
                 article=entity_info.get("article"), entity_name=entity_info.get("name"),
                 link_name=link(entity.url, entity.name))
-            cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+            cbq.edit_message_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
             cbq.answer(text="{} erneut abboniert".format(entity_info.get("name")))
         except AlreadySubscribedException:
             text = "{} bereits abboniert!".format(entity_info.get("name"))
-            cbq.edit_message_text(text=text, parse_mode="HTML", disable_web_page_preview=True)
+            cbq.edit_message_text(text=text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
             cbq.answer(text=text)
     elif action == "history":
         entity_price_history(update, context)
@@ -555,13 +556,13 @@ updater.job_queue.run_repeating(callback=check_for_price_update, interval=repeat
 updater.job_queue.start()
 
 if config.USE_WEBHOOK:
-    updater.start_webhook(listen="127.0.0.1", port=config.WEBHOOK_PORT, url_path=config.BOT_TOKEN, cert=config.CERTPATH, webhook_url=config.WEBHOOK_URL)
+    updater.start_webhook(listen=config.WEBHOOK_IP, port=config.WEBHOOK_PORT, url_path=config.BOT_TOKEN, cert=config.CERTPATH, webhook_url=config.WEBHOOK_URL)
     updater.bot.set_webhook(config.WEBHOOK_URL)
 else:
     updater.start_polling()
 
 if config.USE_PROXIES:
-    proxy_path = os.path.join(project_path, config.PROXY_LIST)
+    proxy_path = project_path / config.PROXY_LIST
     with open(proxy_path, "r", encoding="utf-8") as f:
         proxies = f.read().split("\n")
         # Removing comments from the proxy list starting with a hash symbol and empty lines
