@@ -2,9 +2,10 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - 'master'
     tags: 
-      - '*'
+      - 'v*'
 
 jobs:
   # define job to build and publish docker image
@@ -25,7 +26,7 @@ jobs:
         with:
           images: 0rickyy0/geizhalsbot
           tags: |
-            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
+            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
             type=ref,event=tag
           flavor: |
             latest=false
