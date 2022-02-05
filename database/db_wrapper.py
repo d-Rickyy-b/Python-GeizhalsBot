@@ -238,11 +238,11 @@ class DBwrapper(object):
             self.connection.commit()
 
         def subscribe_wishlist(self, wishlist_id, user_id):
-            self.cursor.execute("INSERT INTO wishlist_subscribers VALUES (?, ?);", [str(wishlist_id), str(user_id)])
+            self.cursor.execute("INSERT INTO wishlist_subscribers (wishlist_id, user_id) VALUES (?, ?);", [str(wishlist_id), str(user_id)])
             self.connection.commit()
 
         def subscribe_product(self, product_id, user_id):
-            self.cursor.execute("INSERT INTO product_subscribers VALUES (?, ?);", [str(product_id), str(user_id)])
+            self.cursor.execute("INSERT INTO product_subscribers (product_id, user_id) VALUES (?, ?);", [str(product_id), str(user_id)])
             self.connection.commit()
 
         def unsubscribe_wishlist(self, user_id, wishlist_id):
@@ -340,7 +340,7 @@ class DBwrapper(object):
             self.cursor.execute("UPDATE wishlists SET price=? WHERE wishlist_id=?;", [str(price), str(wishlist_id)])
             try:
                 utc_timestamp_now = int(datetime.utcnow().timestamp())
-                self.cursor.execute("INSERT INTO wishlist_prices VALUES (?, ?, ?)", [str(wishlist_id), str(price), str(utc_timestamp_now)])
+                self.cursor.execute("INSERT INTO wishlist_prices (wishlist_id, price, timestamp) VALUES (?, ?, ?)", [str(wishlist_id), str(price), str(utc_timestamp_now)])
             except sqlite3.IntegrityError:
                 self.logger.error("Insert into wishlist_prices not possible: {}, {}".format(wishlist_id, price))
             self.connection.commit()
@@ -350,7 +350,7 @@ class DBwrapper(object):
             self.cursor.execute("UPDATE products SET price=? WHERE product_id=?;", [str(price), str(product_id)])
             try:
                 utc_timestamp_now = int(datetime.utcnow().timestamp())
-                self.cursor.execute("INSERT INTO product_prices VALUES (?, ?, ?)", [str(product_id), str(price), str(utc_timestamp_now)])
+                self.cursor.execute("INSERT INTO product_prices (product_id, price, timestamp) VALUES (?, ?, ?)", [str(product_id), str(price), str(utc_timestamp_now)])
             except sqlite3.IntegrityError:
                 self.logger.error("Insert into product_prices not possible: {}, {}".format(product_id, price))
             self.connection.commit()
