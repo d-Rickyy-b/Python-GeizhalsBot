@@ -429,8 +429,8 @@ class DBwrapper(object):
             lang_code = lang_code or "de-DE"
             first_use = int(datetime.utcnow().timestamp())
             try:
-                self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?);", (str(user_id), str(first_name), last_name,
-                                                                                     username, first_use, str(lang_code)))
+                self.cursor.execute("INSERT INTO users (user_id, first_name, last_name, username, first_use, lang_code) VALUES (?, ?, ?, ?, ?, ?);",
+                                    (str(user_id), str(first_name), last_name, username, first_use, str(lang_code)))
                 self.connection.commit()
             except sqlite3.IntegrityError:
                 # print("User already exists")
