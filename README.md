@@ -6,6 +6,9 @@
 A bot to get notified about changes of the price of a [geizhals.de](https://geizhals.de) wishlist on Telegram. It uses the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) Framework for talking to Telegram servers.
 To get the price of the site it uses pyquery as html parser, since there is no official API for grabbing prices.
 
+## ⚠ Project Status
+This project is no longer maintained! I created a new version of this project written in Go. You can find it at [d-Rickyy-b/GoGeizhalsBot](https://github.com/d-Rickyy-b/GoGeizhalsBot).
+
 ## Requirements
 This project requires **Python >= 3.6** to run.
 
